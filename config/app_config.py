@@ -71,6 +71,11 @@ def load_custom_css():
     </style>
     """, unsafe_allow_html=True)
 
+# apply_custom_css 함수 추가 (load_custom_css의 별칭)
+def apply_custom_css():
+    """커스텀 CSS 적용"""
+    load_custom_css()
+
 # 색상 팔레트 정의
 COLOR_PALETTE = {
     "primary": "#4f46e5",    # 인디고

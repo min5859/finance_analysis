@@ -2,12 +2,42 @@ import streamlit as st
 from components.slides.base_slide import BaseSlide
 from components.charts.chart_js_component import ChartJSComponent
 from config.app_config import COLOR_PALETTE
+import os
+import json
 
 class ConclusionSlide(BaseSlide):
     """종합 결론 슬라이드"""
     
     def __init__(self, data_loader):
         super().__init__(data_loader, "재무비율 분석 종합 결론")
+        self._load_company_info()
+    
+    def _load_company_info(self):
+        """회사 정보 로드"""
+        data_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        company_dir = os.path.join(data_dir, "data/companies")
+        
+        if self.data_loader.company_code:
+            json_file = os.path.join(company_dir, f"{self.data_loader.company_code}.json")
+        else:
+            json_file = os.path.join(company_dir, "default.json")
+        
+        if os.path.exists(json_file):
+            try:
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    self.company_info = json.load(f)
+            except Exception:
+                self.company_info = {
+                    "company_name": "회사명 정보 없음",
+                    "company_code": "000000",
+                    "sector": "업종 정보 없음"
+                }
+        else:
+            self.company_info = {
+                "company_name": "회사명 정보 없음",
+                "company_code": "000000",
+                "sector": "업종 정보 없음"
+            }
     
     def render(self):
         """슬라이드 렌더링"""
@@ -69,12 +99,20 @@ class ConclusionSlide(BaseSlide):
         """레이더 차트 렌더링"""
         radar_data = self.data_loader.get_radar_data()
         
+        # 회사명 가져오기
+        company_name = self.company_info.get('company_name', '회사')
+        
         # Chart.js 데이터셋 준비
         labels = radar_data['metric'].tolist()
+        
+        # 데이터셋의 첫 번째 회사명(컬럼명) 가져오기
+        company_columns = [col for col in radar_data.columns if col != 'metric']
+        company_column = company_columns[0] if company_columns else '회사'
+        
         datasets = [
             {
-                "label": "풍전비철",
-                "data": radar_data['풍전비철'].tolist(),
+                "label": company_name,
+                "data": radar_data[company_column].tolist(),
                 "backgroundColor": f"{COLOR_PALETTE['primary']}40",
                 "borderColor": COLOR_PALETTE["primary"],
                 "borderWidth": 2,
@@ -99,13 +137,13 @@ class ConclusionSlide(BaseSlide):
                 },
                 "title": {
                     "display": True,
-                    "text": "재무지표 종합 비교 (2024년)"
+                    "text": f"재무지표 종합 비교 (2024년)"
                 }
             },
             "scales": {
                 "r": {
                     "beginAtZero": True,
-                    "max": max(radar_data['풍전비철'].max(), radar_data['업계평균'].max()) * 1.2
+                    "max": max(radar_data[company_column].max(), radar_data['업계평균'].max()) * 1.2
                 }
             }
         }

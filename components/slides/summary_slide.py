@@ -1,102 +1,147 @@
 import streamlit as st
-import pandas as pd
+import os
+import json
 from components.slides.base_slide import BaseSlide
 from config.app_config import COLOR_PALETTE
 
 class SummarySlide(BaseSlide):
-    """핵심 요약 슬라이드"""
+    """요약 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "핵심 요약")
+        super().__init__(data_loader, "기업 개요 및 핵심 지표")
+        self._load_company_info()
+    
+    def _load_company_info(self):
+        """회사 정보 로드"""
+        data_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        company_dir = os.path.join(data_dir, "data/companies")
+        
+        if self.data_loader.company_code:
+            json_file = os.path.join(company_dir, f"{self.data_loader.company_code}.json")
+        else:
+            json_file = os.path.join(company_dir, "default.json")
+        
+        if os.path.exists(json_file):
+            try:
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    self.company_info = json.load(f)
+            except Exception:
+                self.company_info = {
+                    "company_name": "회사명 정보 없음",
+                    "company_code": "000000",
+                    "sector": "업종 정보 없음"
+                }
+        else:
+            self.company_info = {
+                "company_name": "회사명 정보 없음",
+                "company_code": "000000",
+                "sector": "업종 정보 없음"
+            }
     
     def render(self):
         """슬라이드 렌더링"""
         self.render_header()
-        self._render_summary_cards()
-        self._render_key_insights()
+        self._render_company_info()
+        self._render_key_metrics()
+        self._render_highlights()
     
-    def _render_summary_cards(self):
-        """핵심 지표 요약 카드 렌더링"""
-        col1, col2, col3, col4 = st.columns(4)
+    def _render_company_info(self):
+        """회사 정보 렌더링"""
+        st.markdown(f"""
+        ### 기업 정보
         
-        # ROE 카드
+        **회사명**: {self.company_info.get('company_name', '정보 없음')}  
+        **종목코드**: {self.company_info.get('company_code', '정보 없음')}  
+        **업종**: {self.company_info.get('sector', '정보 없음')}  
+        **분석 기간**: 2022년 ~ 2024년
+        """)
+    
+    def _render_key_metrics(self):
+        """핵심 지표 렌더링"""
+        st.markdown("### 핵심 재무 지표 (2024년)")
+        
+        # 데이터 가져오기
+        performance_data = self.data_loader.get_performance_data()
+        stability_data = self.data_loader.get_stability_data()
+        profitability_data = self.data_loader.get_profitability_data()
+        
+        # 1행: 수익성 지표
+        col1, col2, col3 = st.columns(3)
+        
         with col1:
-            roe_data = self.data_loader.get_profitability_data()[['year', 'ROE']].copy()
-            roe_data.columns = ['year', 'value']
-            self.render_info_card(
-                "ROE (자기자본이익률)",
-                COLOR_PALETTE["primary"],
-                roe_data,
-                "업계평균 8.5% 대비 1.7배↑"
+            st.metric(
+                label="매출액", 
+                value=f"{performance_data['매출액'].iloc[-1]}억원",
+                delta=f"{((performance_data['매출액'].iloc[-1] / performance_data['매출액'].iloc[-2]) - 1) * 100:.1f}% (전년비)",
+                delta_color="normal"
             )
         
-        # 순이익률 카드
         with col2:
-            profit_margin_data = self.data_loader.get_profitability_data()[['year', '순이익률']].copy()
-            profit_margin_data.columns = ['year', 'value']
-            self.render_info_card(
-                "순이익률",
-                COLOR_PALETTE["success"],
-                profit_margin_data,
-                "지속적 수익성 개선↑"
+            st.metric(
+                label="영업이익", 
+                value=f"{performance_data['영업이익'].iloc[-1]}억원",
+                delta=f"{((performance_data['영업이익'].iloc[-1] / performance_data['영업이익'].iloc[-2]) - 1) * 100:.1f}% (전년비)",
+                delta_color="normal"
             )
         
-        # 부채비율 카드
         with col3:
-            debt_ratio_data = self.data_loader.get_stability_data()[['year', '부채비율']].copy()
-            debt_ratio_data.columns = ['year', 'value']
-            self.render_info_card(
-                "부채비율",
-                COLOR_PALETTE["warning"],
-                debt_ratio_data,
-                "재무구조 개선 중↓"
+            st.metric(
+                label="ROE", 
+                value=f"{profitability_data['ROE'].iloc[-1]}%",
+                delta=f"{(profitability_data['ROE'].iloc[-1] - profitability_data['ROE'].iloc[-2]):.1f}%p (전년비)",
+                delta_color="normal"
             )
         
-        # FCF 카드
-        with col4:
-            fcf_data = self.data_loader.get_cash_flow_data()[['year', 'FCF']].copy()
-            fcf_data.columns = ['year', 'value']
-            self.render_info_card(
-                "현금창출력 (FCF)",
-                COLOR_PALETTE["secondary"],
-                fcf_data,
-                "운전자본 급증 주의↓"
-            )
-    
-    def _render_key_insights(self):
-        """핵심 인사이트 렌더링"""
-        st.markdown('<h3 class="sub-header">핵심 인사이트</h3>', unsafe_allow_html=True)
-        
-        col1, col2 = st.columns(2)
+        # 2행: 안정성 지표
+        col1, col2, col3 = st.columns(3)
         
         with col1:
-            self._render_strengths()
+            st.metric(
+                label="부채비율", 
+                value=f"{stability_data['부채비율'].iloc[-1]}%",
+                delta=f"{-(stability_data['부채비율'].iloc[-2] - stability_data['부채비율'].iloc[-1]):.1f}%p (전년비)",
+                delta_color="inverse"
+            )
         
         with col2:
-            self._render_weaknesses()
+            st.metric(
+                label="유동비율", 
+                value=f"{stability_data['유동비율'].iloc[-1]}%",
+                delta=f"{(stability_data['유동비율'].iloc[-1] - stability_data['유동비율'].iloc[-2]):.1f}%p (전년비)",
+                delta_color="normal"
+            )
+        
+        cash_flow_data = self.data_loader.get_cash_flow_data()
+        with col3:
+            st.metric(
+                label="영업현금흐름", 
+                value=f"{cash_flow_data['영업활동'].iloc[-1]}억원",
+                delta=f"{cash_flow_data['영업활동'].iloc[-1] - cash_flow_data['영업활동'].iloc[-2]}억원 (전년비)",
+                delta_color="normal"
+            )
     
-    def _render_strengths(self):
-        """강점 섹션 렌더링"""
-        st.markdown('<div class="insight-card">', unsafe_allow_html=True)
-        st.markdown(f'<h4 style="color: {COLOR_PALETTE["primary"]};">강점</h4>', unsafe_allow_html=True)
-        st.markdown("""
-        - 업계 상위 수준의 수익성 (ROE 14.4%, 순이익률 6.4%)
-        - 뛰어난 재무안정성 (부채비율 29%로 크게 개선)
-        - 우수한 단기 지급능력 (유동비율 209%)
-        - 효율적인 운전자본 관리 (CCC 66.9일로 단축)
-        - 안정적인 그룹 계열사 시너지 (지분법이익 207억원)
-        """)
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    def _render_weaknesses(self):
-        """개선 필요사항 섹션 렌더링"""
-        st.markdown('<div class="insight-card">', unsafe_allow_html=True)
-        st.markdown(f'<h4 style="color: {COLOR_PALETTE["danger"]};">개선 필요사항</h4>', unsafe_allow_html=True)
-        st.markdown("""
-        - 2024년 운전자본 급증으로 현금흐름 일시 악화
-        - 자산회전율 감소 추세 (2.56회 → 1.78회)
-        - 매출채권 및 재고자산 관리 강화 필요
-        - 원자재 가격 변동성 대응 체계 구축
-        - 지분법이익 의존도 축소를 통한 수익구조 개선
-        """)
-        st.markdown('</div>', unsafe_allow_html=True)
+    def _render_highlights(self):
+        """주요 하이라이트 렌더링"""
+        performance_data = self.data_loader.get_performance_data()
+        profitability_data = self.data_loader.get_profitability_data()
+        stability_data = self.data_loader.get_stability_data()
+        growth_rates = self.data_loader.get_growth_rates()
+        
+        # 주요 특징 계산
+        revenue_growth = growth_rates['매출액성장률'].iloc[-1]
+        profit_growth = growth_rates['순이익성장률'].iloc[-1]
+        profit_margin = performance_data['순이익률'].iloc[-1]
+        roe = profitability_data['ROE'].iloc[-1]
+        debt_ratio = stability_data['부채비율'].iloc[-1]
+        
+        insight_content = f"""
+        **재무 하이라이트:**
+        
+        1. **매출 성장**: {revenue_growth:.1f}% 성장률, {'양호한' if revenue_growth > 0 else '하락하는'} 매출 추세
+        2. **수익성**: 순이익률 {profit_margin:.1f}%, ROE {roe:.1f}%로 {'우수한' if profit_margin > 5 else '보통의'} 수익성 지표
+        3. **순이익 성장**: 전년 대비 {profit_growth:.1f}% {'증가' if profit_growth > 0 else '감소'}
+        4. **재무 안정성**: 부채비율 {debt_ratio:.1f}%로 {'매우 안정적인' if debt_ratio < 50 else '적정한' if debt_ratio < 100 else '다소 높은'} 재무구조
+        5. **사업 전망**: {self.company_info.get('sector', '해당 업종')}의 경쟁력 및 시장 지위 분석 필요
+        """
+        
+        self.render_insight_card("재무 하이라이트", insight_content)
