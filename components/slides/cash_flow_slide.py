@@ -1,6 +1,6 @@
 import streamlit as st
-import plotly.graph_objects as go
 from components.slides.base_slide import BaseSlide
+from components.charts.chart_js_component import ChartJSComponent
 from config.app_config import COLOR_PALETTE
 
 class CashFlowSlide(BaseSlide):
@@ -19,54 +19,63 @@ class CashFlowSlide(BaseSlide):
         """현금흐름 차트 렌더링"""
         cash_flow_data = self.data_loader.get_cash_flow_data()
         
-        # 플롯리 차트 생성
-        fig = go.Figure()
+        # Chart.js 데이터셋 준비
+        labels = cash_flow_data['year'].tolist()
+        datasets = [
+            {
+                "label": "영업활동현금흐름",
+                "data": cash_flow_data['영업활동'].tolist(),
+                "backgroundColor": COLOR_PALETTE["success"],
+                "borderColor": COLOR_PALETTE["success"],
+                "borderWidth": 1
+            },
+            {
+                "label": "투자활동현금흐름",
+                "data": cash_flow_data['투자활동'].tolist(),
+                "backgroundColor": COLOR_PALETTE["danger"],
+                "borderColor": COLOR_PALETTE["danger"],
+                "borderWidth": 1
+            },
+            {
+                "label": "잉여현금흐름 (FCF)",
+                "data": cash_flow_data['FCF'].tolist(),
+                "backgroundColor": COLOR_PALETTE["primary"],
+                "borderColor": COLOR_PALETTE["primary"],
+                "borderWidth": 1
+            }
+        ]
         
-        # 영업활동 막대그래프
-        fig.add_trace(go.Bar(
-            x=cash_flow_data['year'],
-            y=cash_flow_data['영업활동'],
-            name='영업활동현금흐름',
-            marker_color=COLOR_PALETTE["success"],
-            text=[f"{value}억" for value in cash_flow_data['영업활동']],
-            textposition='outside'
-        ))
+        # Chart.js 옵션 설정
+        options = {
+            "responsive": True,
+            "plugins": {
+                "legend": {
+                    "position": "top"
+                },
+                "title": {
+                    "display": True,
+                    "text": "현금흐름 추이 분석 (단위: 억원)"
+                }
+            },
+            "scales": {
+                "y": {
+                    "beginAtZero": True,
+                    "title": {
+                        "display": True,
+                        "text": "금액 (억원)"
+                    }
+                },
+                "x": {
+                    "title": {
+                        "display": True,
+                        "text": "연도"
+                    }
+                }
+            }
+        }
         
-        # 투자활동 막대그래프
-        fig.add_trace(go.Bar(
-            x=cash_flow_data['year'],
-            y=cash_flow_data['투자활동'],
-            name='투자활동현금흐름',
-            marker_color=COLOR_PALETTE["danger"],
-            text=[f"{value}억" for value in cash_flow_data['투자활동']],
-            textposition='outside'
-        ))
-        
-        # FCF 막대그래프
-        fig.add_trace(go.Bar(
-            x=cash_flow_data['year'],
-            y=cash_flow_data['FCF'],
-            name='잉여현금흐름 (FCF)',
-            marker_color=COLOR_PALETTE["primary"],
-            text=[f"{value}억" for value in cash_flow_data['FCF']],
-            textposition='outside'
-        ))
-        
-        fig.update_layout(
-            title='현금흐름 추이 분석 (단위: 억원)',
-            xaxis_title='연도',
-            yaxis_title='금액 (억원)',
-            height=500,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
+        # Chart.js로 차트 렌더링
+        ChartJSComponent.create_bar_chart(labels, datasets, options)
     
     def _render_insight(self):
         """인사이트 렌더링"""

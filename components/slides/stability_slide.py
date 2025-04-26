@@ -1,6 +1,6 @@
 import streamlit as st
-import plotly.graph_objects as go
 from components.slides.base_slide import BaseSlide
+from components.charts.chart_js_component import ChartJSComponent
 from config.app_config import COLOR_PALETTE
 
 class StabilitySlide(BaseSlide):
@@ -51,62 +51,81 @@ class StabilitySlide(BaseSlide):
         """안정성 지표 차트 렌더링"""
         stability_data = self.data_loader.get_stability_data()
         
-        # 플롯리 차트 생성
-        fig = go.Figure()
+        # Chart.js 데이터셋 준비
+        labels = stability_data['year'].tolist()
+        datasets = [
+            {
+                "label": "부채비율 (%)",
+                "data": stability_data['부채비율'].tolist(),
+                "borderColor": COLOR_PALETTE["danger"],
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "borderWidth": 3,
+                "pointRadius": 5,
+                "pointBackgroundColor": COLOR_PALETTE["danger"]
+            },
+            {
+                "label": "유동비율 (%)",
+                "data": stability_data['유동비율'].tolist(),
+                "borderColor": COLOR_PALETTE["success"],
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "borderWidth": 3,
+                "pointRadius": 5,
+                "pointBackgroundColor": COLOR_PALETTE["success"]
+            },
+            {
+                "label": "이자보상배율 (배)",
+                "data": stability_data['이자보상배율'].tolist(),
+                "borderColor": COLOR_PALETTE["primary"],
+                "backgroundColor": "rgba(0, 0, 0, 0)",
+                "borderWidth": 3,
+                "pointRadius": 5,
+                "pointBackgroundColor": COLOR_PALETTE["primary"],
+                "yAxisID": "y1"
+            }
+        ]
         
-        # 부채비율 선 그래프
-        fig.add_trace(go.Scatter(
-            x=stability_data['year'],
-            y=stability_data['부채비율'],
-            name='부채비율 (%)',
-            mode='lines+markers',
-            line=dict(color=COLOR_PALETTE["danger"], width=3),
-            marker=dict(size=10)
-        ))
+        # Chart.js 옵션 설정
+        options = {
+            "responsive": True,
+            "plugins": {
+                "legend": {
+                    "position": "top"
+                },
+                "title": {
+                    "display": True,
+                    "text": "재무안정성 지표 추이"
+                }
+            },
+            "scales": {
+                "y": {
+                    "beginAtZero": True,
+                    "title": {
+                        "display": True,
+                        "text": "비율 (%)"
+                    }
+                },
+                "y1": {
+                    "position": "right",
+                    "beginAtZero": True,
+                    "title": {
+                        "display": True,
+                        "text": "배수"
+                    },
+                    "grid": {
+                        "drawOnChartArea": False
+                    }
+                },
+                "x": {
+                    "title": {
+                        "display": True,
+                        "text": "연도"
+                    }
+                }
+            }
+        }
         
-        # 유동비율 선 그래프
-        fig.add_trace(go.Scatter(
-            x=stability_data['year'],
-            y=stability_data['유동비율'],
-            name='유동비율 (%)',
-            mode='lines+markers',
-            line=dict(color=COLOR_PALETTE["success"], width=3),
-            marker=dict(size=10)
-        ))
-        
-        # 이자보상배율 선 그래프 (보조 y축)
-        fig.add_trace(go.Scatter(
-            x=stability_data['year'],
-            y=stability_data['이자보상배율'],
-            name='이자보상배율 (배)',
-            mode='lines+markers',
-            line=dict(color=COLOR_PALETTE["primary"], width=3),
-            marker=dict(size=10),
-            yaxis='y2'
-        ))
-        
-        fig.update_layout(
-            title='재무안정성 지표 추이',
-            xaxis_title='연도',
-            yaxis_title='비율 (%)',
-            yaxis2=dict(
-                title='배수',
-                title_font=dict(color=COLOR_PALETTE["primary"]),
-                tickfont=dict(color=COLOR_PALETTE["primary"]),
-                overlaying='y',
-                side='right'
-            ),
-            height=500,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
+        # Chart.js로 차트 렌더링
+        ChartJSComponent.create_line_chart(labels, datasets, options)
     
     def _render_insight(self):
         """인사이트 렌더링"""

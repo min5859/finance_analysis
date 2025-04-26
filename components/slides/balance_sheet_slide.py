@@ -1,6 +1,6 @@
 import streamlit as st
-import plotly.graph_objects as go
 from components.slides.base_slide import BaseSlide
+from components.charts.chart_js_component import ChartJSComponent
 from config.app_config import COLOR_PALETTE
 
 class BalanceSheetSlide(BaseSlide):
@@ -50,69 +50,73 @@ class BalanceSheetSlide(BaseSlide):
         """재무상태표 차트 렌더링"""
         balance_sheet_data = self.data_loader.get_balance_sheet_data()
         
-        # 차트 데이터 준비 - 선형 그래프용 데이터 추가
-        chart_data = balance_sheet_data.copy()
-        chart_data['총자산선형'] = chart_data['총자산'] * 0.8  # 선형 그래프를 20% 아래로 조정
+        # Chart.js 데이터셋 준비
+        labels = balance_sheet_data['year'].tolist()
+        datasets = [
+            {
+                "label": "총자산",
+                "data": balance_sheet_data['총자산'].tolist(),
+                "backgroundColor": COLOR_PALETTE["primary"],
+                "borderColor": COLOR_PALETTE["primary"],
+                "borderWidth": 1
+            },
+            {
+                "label": "총부채",
+                "data": balance_sheet_data['총부채'].tolist(),
+                "backgroundColor": COLOR_PALETTE["danger"],
+                "borderColor": COLOR_PALETTE["danger"],
+                "borderWidth": 1
+            },
+            {
+                "label": "자본총계",
+                "data": balance_sheet_data['자본총계'].tolist(),
+                "backgroundColor": COLOR_PALETTE["success"],
+                "borderColor": COLOR_PALETTE["success"],
+                "borderWidth": 1
+            },
+            {
+                "label": "총자산 추세",
+                "data": balance_sheet_data['총자산'].tolist(),
+                "type": "line",
+                "borderColor": COLOR_PALETTE["primary"],
+                "borderWidth": 3,
+                "pointRadius": 5,
+                "pointBackgroundColor": COLOR_PALETTE["primary"],
+                "fill": False
+            }
+        ]
         
-        # 플롯리 차트 생성
-        fig = go.Figure()
+        # Chart.js 옵션 설정
+        options = {
+            "responsive": True,
+            "plugins": {
+                "legend": {
+                    "position": "top"
+                },
+                "title": {
+                    "display": True,
+                    "text": "재무상태표 주요 항목 추이 (단위: 억원)"
+                }
+            },
+            "scales": {
+                "y": {
+                    "beginAtZero": True,
+                    "title": {
+                        "display": True,
+                        "text": "금액 (억원)"
+                    }
+                },
+                "x": {
+                    "title": {
+                        "display": True,
+                        "text": "연도"
+                    }
+                }
+            }
+        }
         
-        # 총자산 막대그래프
-        fig.add_trace(go.Bar(
-            x=chart_data['year'],
-            y=chart_data['총자산'],
-            name='총자산',
-            marker_color=COLOR_PALETTE["primary"],
-            text=chart_data['총자산'],
-            textposition='outside'
-        ))
-        
-        # 총부채 막대그래프
-        fig.add_trace(go.Bar(
-            x=chart_data['year'],
-            y=chart_data['총부채'],
-            name='총부채',
-            marker_color=COLOR_PALETTE["danger"],
-            text=chart_data['총부채'],
-            textposition='outside'
-        ))
-        
-        # 자본총계 막대그래프
-        fig.add_trace(go.Bar(
-            x=chart_data['year'],
-            y=chart_data['자본총계'],
-            name='자본총계',
-            marker_color=COLOR_PALETTE["success"],
-            text=chart_data['자본총계'],
-            textposition='outside'
-        ))
-        
-        # 총자산 선형 그래프
-        fig.add_trace(go.Scatter(
-            x=chart_data['year'],
-            y=chart_data['총자산'],
-            name='총자산 추세',
-            mode='lines+markers',
-            line=dict(color=COLOR_PALETTE["primary"], width=3),
-            marker=dict(size=10)
-        ))
-        
-        fig.update_layout(
-            title='재무상태표 주요 항목 추이 (단위: 억원)',
-            xaxis_title='연도',
-            yaxis_title='금액 (억원)',
-            barmode='group',
-            height=500,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
+        # Chart.js로 차트 렌더링
+        ChartJSComponent.create_bar_chart(labels, datasets, options)
     
     def _render_insight(self):
         """인사이트 렌더링"""

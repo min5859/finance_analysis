@@ -1,6 +1,6 @@
 import streamlit as st
-import plotly.graph_objects as go
 from components.slides.base_slide import BaseSlide
+from components.charts.chart_js_component import ChartJSComponent
 from config.app_config import COLOR_PALETTE
 
 class IncomeStatementSlide(BaseSlide):
@@ -52,72 +52,85 @@ class IncomeStatementSlide(BaseSlide):
         """손익계산서 차트 렌더링"""
         performance_data = self.data_loader.get_performance_data()
         
-        # 플롯리 차트 생성
-        fig = go.Figure()
+        # Chart.js 데이터셋 준비
+        labels = performance_data['year'].tolist()
+        datasets = [
+            {
+                "label": "매출액",
+                "data": performance_data['매출액'].tolist(),
+                "backgroundColor": COLOR_PALETTE["secondary"],
+                "borderColor": COLOR_PALETTE["secondary"],
+                "borderWidth": 1
+            },
+            {
+                "label": "영업이익",
+                "data": performance_data['영업이익'].tolist(),
+                "backgroundColor": COLOR_PALETTE["info"],
+                "borderColor": COLOR_PALETTE["info"],
+                "borderWidth": 1
+            },
+            {
+                "label": "순이익",
+                "data": performance_data['순이익'].tolist(),
+                "backgroundColor": COLOR_PALETTE["warning"],
+                "borderColor": COLOR_PALETTE["warning"],
+                "borderWidth": 1
+            },
+            {
+                "label": "순이익률 (%)",
+                "data": performance_data['순이익률'].tolist(),
+                "type": "line",
+                "borderColor": COLOR_PALETTE["danger"],
+                "borderWidth": 3,
+                "pointRadius": 5,
+                "pointBackgroundColor": COLOR_PALETTE["danger"],
+                "fill": False,
+                "yAxisID": "y1"
+            }
+        ]
         
-        # 매출액 막대그래프
-        fig.add_trace(go.Bar(
-            x=performance_data['year'],
-            y=performance_data['매출액'],
-            name='매출액',
-            marker_color=COLOR_PALETTE["secondary"],
-            text=performance_data['매출액'],
-            textposition='outside'
-        ))
+        # Chart.js 옵션 설정
+        options = {
+            "responsive": True,
+            "plugins": {
+                "legend": {
+                    "position": "top"
+                },
+                "title": {
+                    "display": True,
+                    "text": "손익계산서 주요 항목 추이 (단위: 억원, %)"
+                }
+            },
+            "scales": {
+                "y": {
+                    "beginAtZero": True,
+                    "title": {
+                        "display": True,
+                        "text": "금액 (억원)"
+                    }
+                },
+                "y1": {
+                    "position": "right",
+                    "beginAtZero": True,
+                    "title": {
+                        "display": True,
+                        "text": "비율 (%)"
+                    },
+                    "grid": {
+                        "drawOnChartArea": False
+                    }
+                },
+                "x": {
+                    "title": {
+                        "display": True,
+                        "text": "연도"
+                    }
+                }
+            }
+        }
         
-        # 영업이익 막대그래프
-        fig.add_trace(go.Bar(
-            x=performance_data['year'],
-            y=performance_data['영업이익'],
-            name='영업이익',
-            marker_color=COLOR_PALETTE["info"],
-            text=performance_data['영업이익'],
-            textposition='outside'
-        ))
-        
-        # 순이익 막대그래프
-        fig.add_trace(go.Bar(
-            x=performance_data['year'],
-            y=performance_data['순이익'],
-            name='순이익',
-            marker_color=COLOR_PALETTE["warning"],
-            text=performance_data['순이익'],
-            textposition='outside'
-        ))
-        
-        # 순이익률 선형 그래프 (보조 y축)
-        fig.add_trace(go.Scatter(
-            x=performance_data['year'],
-            y=performance_data['순이익률'],
-            name='순이익률 (%)',
-            mode='lines+markers',
-            line=dict(color=COLOR_PALETTE["danger"], width=3),
-            marker=dict(size=10),
-            yaxis='y2'
-        ))
-        
-        fig.update_layout(
-            title='손익계산서 주요 항목 추이 (단위: 억원, %)',
-            xaxis_title='연도',
-            yaxis_title='금액 (억원)',
-            yaxis2=dict(
-                title='비율 (%)',
-                title_font=dict(color=COLOR_PALETTE["danger"]),
-                tickfont=dict(color=COLOR_PALETTE["danger"]),
-                overlaying='y',
-                side='right'
-            ),
-            height=500,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
+        # Chart.js로 차트 렌더링
+        ChartJSComponent.create_bar_chart(labels, datasets, options)
     
     def _render_insight(self):
         """인사이트 렌더링"""
