@@ -1,6 +1,6 @@
 import streamlit as st
-import plotly.graph_objects as go
 from components.slides.base_slide import BaseSlide
+from components.charts.chart_js_component import ChartJSComponent
 from config.app_config import COLOR_PALETTE
 
 class ProfitabilitySlide(BaseSlide):
@@ -52,64 +52,73 @@ class ProfitabilitySlide(BaseSlide):
         """듀폰 분석 차트 렌더링"""
         dupont_data = self.data_loader.get_dupont_data()
         
-        # 플롯리 차트 생성
-        fig = go.Figure()
+        # Chart.js 데이터셋 준비
+        labels = dupont_data['year'].tolist()
+        datasets = [
+            {
+                "label": "순이익률 (%)",
+                "data": dupont_data['순이익률'].tolist(),
+                "backgroundColor": COLOR_PALETTE["primary"],
+                "borderColor": COLOR_PALETTE["primary"],
+                "borderWidth": 1
+            },
+            {
+                "label": "자산회전율 (회)",
+                "data": dupont_data['자산회전율'].tolist(),
+                "backgroundColor": COLOR_PALETTE["success"],
+                "borderColor": COLOR_PALETTE["success"],
+                "borderWidth": 1
+            },
+            {
+                "label": "재무레버리지 (배)",
+                "data": dupont_data['재무레버리지'].tolist(),
+                "backgroundColor": COLOR_PALETTE["warning"],
+                "borderColor": COLOR_PALETTE["warning"],
+                "borderWidth": 1
+            },
+            {
+                "label": "ROE (%)",
+                "data": dupont_data['ROE'].tolist(),
+                "type": "line",
+                "borderColor": COLOR_PALETTE["danger"],
+                "borderWidth": 3,
+                "pointRadius": 5,
+                "pointBackgroundColor": COLOR_PALETTE["danger"],
+                "fill": False
+            }
+        ]
         
-        # 순이익률 막대그래프
-        fig.add_trace(go.Bar(
-            x=dupont_data['year'],
-            y=dupont_data['순이익률'],
-            name='순이익률 (%)',
-            marker_color=COLOR_PALETTE["primary"],
-            text=[f"{value}%" for value in dupont_data['순이익률']],
-            textposition='outside'
-        ))
+        # Chart.js 옵션 설정
+        options = {
+            "responsive": True,
+            "plugins": {
+                "legend": {
+                    "position": "top"
+                },
+                "title": {
+                    "display": True,
+                    "text": "ROE 분해 분석 (듀폰 분석)"
+                }
+            },
+            "scales": {
+                "y": {
+                    "beginAtZero": True,
+                    "title": {
+                        "display": True,
+                        "text": "값"
+                    }
+                },
+                "x": {
+                    "title": {
+                        "display": True,
+                        "text": "연도"
+                    }
+                }
+            }
+        }
         
-        # 자산회전율 막대그래프
-        fig.add_trace(go.Bar(
-            x=dupont_data['year'],
-            y=dupont_data['자산회전율'],
-            name='자산회전율 (회)',
-            marker_color=COLOR_PALETTE["success"],
-            text=[f"{value}" for value in dupont_data['자산회전율']],
-            textposition='outside'
-        ))
-        
-        # 재무레버리지 막대그래프
-        fig.add_trace(go.Bar(
-            x=dupont_data['year'],
-            y=dupont_data['재무레버리지'],
-            name='재무레버리지 (배)',
-            marker_color=COLOR_PALETTE["warning"],
-            text=[f"{value}" for value in dupont_data['재무레버리지']],
-            textposition='outside'
-        ))
-        
-        # ROE 선 그래프
-        fig.add_trace(go.Scatter(
-            x=dupont_data['year'],
-            y=dupont_data['ROE'],
-            name='ROE (%)',
-            mode='lines+markers',
-            line=dict(color=COLOR_PALETTE["danger"], width=3),
-            marker=dict(size=10)
-        ))
-        
-        fig.update_layout(
-            title='ROE 분해 분석 (듀폰 분석)',
-            xaxis_title='연도',
-            yaxis_title='값',
-            height=500,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
+        # Chart.js로 차트 렌더링
+        ChartJSComponent.create_bar_chart(labels, datasets, options)
     
     def _render_insight(self):
         """인사이트 렌더링"""
