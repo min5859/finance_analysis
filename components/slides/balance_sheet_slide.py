@@ -13,9 +13,14 @@ class BalanceSheetSlide(BaseSlide):
         """슬라이드 렌더링"""
         self.render_header()
         
+        # CSS 스타일 추가
+        self._add_custom_styles()
+        
+        # 인사이트는 별도로 표시
+        self._render_insight()
+    
         # 메인 콘텐츠를 두 열로 나눕니다: 왼쪽은 차트, 오른쪽은 Scale and Structure
         col1, col2 = st.columns([7, 5])
-        
         with col1:
             self._render_key_metrics()
             self._render_balance_sheet_chart()
@@ -23,8 +28,92 @@ class BalanceSheetSlide(BaseSlide):
         with col2:
             self._render_scale_and_structure()
         
-        # 인사이트는 별도로 표시
-        self._render_insight()
+    def _add_custom_styles(self):
+        """커스텀 CSS 스타일 추가"""
+        st.markdown("""
+        <style>
+        .fancy-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+        
+        .info-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 12px 0;
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: 1rem;
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        .positive {
+            color: #10b981;
+        }
+        
+        .neutral {
+            color: #3b82f6;
+        }
+        
+        .negative {
+            color: #ef4444;
+        }
+        
+        .insight-card {
+            background: #f0f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            border-left: 5px solid #3b82f6;
+        }
+        
+        .insight-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        
+        .insight-content {
+            font-size: 0.95rem;
+            color: #334155;
+            line-height: 1.6;
+        }
+        </style>
+        """, unsafe_allow_html=True)
     
     def _render_key_metrics(self):
         """핵심 지표 렌더링"""
@@ -129,33 +218,10 @@ class BalanceSheetSlide(BaseSlide):
         ChartJSComponent.create_bar_chart(labels, datasets, options)
     
     def _render_scale_and_structure(self):
-        """규모 및 구조 렌더링"""
+        """규모 및 구조 렌더링 - 펜시한 카드 형태로, 직접 컨테이너 사용"""
         balance_sheet_data = self.data_loader.get_balance_sheet_data()
         
-        # 카드 스타일 적용
-        st.markdown("""
-        <style>
-        .scale-card {
-            padding: 20px;
-            border-radius: 10px;
-            background-color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        # 카드: 모니터링 필요 항목
-        st.markdown('<div class="scale-card">', unsafe_allow_html=True)
-        st.markdown("### 성장투자·배당 확대 여건 양호, 투자효율 모니터링 필요", unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-        st.markdown('<div class="scale-card">', unsafe_allow_html=True)
-        
-        # 타이틀
-        st.markdown("### Scale and Structure", unsafe_allow_html=True)
-        
-        # 첫 번째 연도와 마지막 연도의 값 가져오기
+        # 계산 부분
         first_year = balance_sheet_data['year'].iloc[0]
         last_year = balance_sheet_data['year'].iloc[-1]
         
@@ -163,52 +229,86 @@ class BalanceSheetSlide(BaseSlide):
         start_asset = balance_sheet_data['총자산'].iloc[0]
         end_asset = balance_sheet_data['총자산'].iloc[-1]
         asset_growth = ((end_asset / start_asset) - 1) * 100
-        st.markdown(f"""
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-            <span>총자산: {start_asset} → {end_asset}억</span>
-            <span style="text-align: right; font-weight: bold;">완만 +{asset_growth:.1f} %</span>
-        </div>
-        """, unsafe_allow_html=True)
         
         # 자본총계 변화
         start_equity = balance_sheet_data['자본총계'].iloc[0]
         end_equity = balance_sheet_data['자본총계'].iloc[-1]
         equity_growth = ((end_equity / start_equity) - 1) * 100
-        st.markdown(f"""
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-            <span>자본총계: {start_equity} → {end_equity}억</span>
-            <span style="text-align: right; font-weight: bold;">가파른 +{equity_growth:.1f} %</span>
-        </div>
-        """, unsafe_allow_html=True)
         
         # 총부채 변화
         debt_year_before = balance_sheet_data['총부채'].iloc[-2]
         end_debt = balance_sheet_data['총부채'].iloc[-1]
         debt_growth = ((end_debt / debt_year_before) - 1) * 100
-        st.markdown(f"""
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-            <span>총부채</span>
-            <span style="text-align: right; font-weight: bold;">점프 +{debt_growth:.1f} %</span>
-        </div>
-        """, unsafe_allow_html=True)
         
         # 부채비율 변화
         start_debt_ratio = (balance_sheet_data['총부채'].iloc[0] / balance_sheet_data['총자산'].iloc[0]) * 100
         end_debt_ratio = (balance_sheet_data['총부채'].iloc[-1] / balance_sheet_data['총자산'].iloc[-1]) * 100
-        st.markdown(f"""
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-            <span>부채비율 {start_debt_ratio:.0f} % → {end_debt_ratio:.0f} %</span>
-            <span style="text-align: right; font-weight: bold;">저레버리지</span>
+        
+        # 첫 번째 카드: 성장투자 관련 메시지
+        st.markdown("""
+        <div style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); margin-bottom: 20px;">
+            <div style="font-weight: 600; color: #1e40af; font-size: 1.1rem;">
+                성장투자·배당 확대 여건 양호, 투자효율 모니터링 필요
+            </div>
         </div>
         """, unsafe_allow_html=True)
         
-        st.markdown('</div>', unsafe_allow_html=True)
+        # Scale and Structure 카드 
+        st.markdown("""
+        <div style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); margin-bottom: 20px;">
+            <div style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 20px;">Scale and Structure</div>
+        """, unsafe_allow_html=True)
         
+        # 1. 총자산 행
+        st.markdown(f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
+                <div style="font-size: 1rem; color: #333; font-weight: 500;">총자산: {start_asset} → {end_asset}억</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #10b981;">완만 +{asset_growth:.1f} %</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # 2. 자본총계 행
+        st.markdown(f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
+                <div style="font-size: 1rem; color: #333; font-weight: 500;">자본총계: {start_equity} → {end_equity}억</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #10b981;">가파른 +{equity_growth:.1f} %</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # 3. 총부채 행
+        st.markdown(f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
+                <div style="font-size: 1rem; color: #333; font-weight: 500;">총부채</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #3b82f6;">점프 +{debt_growth:.1f} %</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # 4. 부채비율 행
+        st.markdown(f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+                <div style="font-size: 1rem; color: #333; font-weight: 500;">부채비율 {start_debt_ratio:.0f} % → {end_debt_ratio:.0f} %</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #10b981;">저레버리지</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
     def _render_insight(self):
-        """인사이트 렌더링"""
+        """인사이트 렌더링 - 펜시한 카드 형태로"""
         insights = self.data_loader.get_insights()
+        
         if "balance_sheet" in insights:
             insight_data = insights["balance_sheet"]
-            self.render_insight_card(insight_data["title"], insight_data["content"])
+            
+            st.markdown(f"""
+            <div style="background: #f0f9ff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 20px; border-left: 5px solid #3b82f6;">
+                <div style="font-size: 1.1rem; font-weight: 600; color: #1e40af; margin-bottom: 10px;">{insight_data["title"]}</div>
+                <div style="font-size: 0.95rem; color: #334155; line-height: 1.6;">{insight_data["content"]}</div>
+            </div>
+            """, unsafe_allow_html=True)
         else:
-            st.info("재무상태표에 대한 인사이트 정보가 없습니다. JSON 파일에 insights.balance_sheet 항목을 추가해주세요.")
+            st.markdown("""
+            <div style="background: #f0f9ff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 20px; border-left: 5px solid #f59e0b;">
+                <div style="font-size: 1.1rem; font-weight: 600; color: #1e40af; margin-bottom: 10px;">재무상태표 인사이트</div>
+                <div style="font-size: 0.95rem; color: #334155; line-height: 1.6;">재무상태표에 대한 인사이트 정보가 없습니다. JSON 파일에 insights.balance_sheet 항목을 추가해주세요.</div>
+            </div>
+            """, unsafe_allow_html=True)
