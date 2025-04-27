@@ -120,5 +120,9 @@ class BalanceSheetSlide(BaseSlide):
     
     def _render_insight(self):
         """인사이트 렌더링"""
-        insight_data = self.data_loader.get_insights()["balance_sheet"]
-        self.render_insight_card(insight_data["title"], insight_data["content"])
+        insights = self.data_loader.get_insights()
+        if "balance_sheet" in insights:
+            insight_data = insights["balance_sheet"]
+            self.render_insight_card(insight_data["title"], insight_data["content"])
+        else:
+            st.info("재무상태표에 대한 인사이트 정보가 없습니다. JSON 파일에 insights.balance_sheet 항목을 추가해주세요.")
