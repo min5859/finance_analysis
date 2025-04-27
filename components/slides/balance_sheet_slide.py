@@ -120,13 +120,5 @@ class BalanceSheetSlide(BaseSlide):
     
     def _render_insight(self):
         """인사이트 렌더링"""
-        insight_content = """
-        **재무상태표 분석:**
-        - 총자산: 3년간 4.8% 완만한 증가 (3,683억원 → 3,859억원)
-        - 자본총계: 3년간 38.5% 가파른 증가 (2,158억원 → 2,988억원)
-        - 총부채: 2024년 27.5% 증가했으나 여전히 낮은 수준
-        - 부채비율: 18% → 23%로 변화, 여전히 낮은 레버리지 유지
-        - 전반적으로 건전한 재무 체력 구축으로 성장투자나 배당 확대가 가능한 상태
-        """
-        
-        self.render_insight_card("재무상태표 분석", insight_content)
+        insight_data = self.data_loader.get_insights()["balance_sheet"]
+        self.render_insight_card(insight_data["title"], insight_data["content"])

@@ -47,6 +47,7 @@ class DataLoader:
             self.working_capital_data = pd.DataFrame(financial_data.get('working_capital_data', {}))
             self.profitability_data = pd.DataFrame(financial_data.get('profitability_data', {}))
             self.radar_data = pd.DataFrame(financial_data.get('radar_data', {}))
+            self.insights = financial_data.get('insights', {})
         except Exception as e:
             print(f"JSON 파일 로드 중 오류 발생: {str(e)}")
             self._load_default_data()
@@ -105,6 +106,14 @@ class DataLoader:
             '영업이익률': [4.5, 3.8, 5.4],
             '순이익률': [3.8, 4.2, 6.4]
         })
+
+        # 인사이트 데이터
+        self.insights = {
+            "balance_sheet": {
+                "title": "재무상태표 분석",
+                "content": "**재무상태표 분석:**\n- 총자산: 3년간 4.8% 완만한 증가 (3,683억원 → 3,859억원)\n- 자본총계: 3년간 38.5% 가파른 증가 (2,158억원 → 2,988억원)\n- 총부채: 2024년 27.5% 증가했으나 여전히 낮은 수준\n- 부채비율: 18% → 23%로 변화, 여전히 낮은 레버리지 유지\n- 전반적으로 건전한 재무 체력 구축으로 성장투자나 배당 확대가 가능한 상태"
+            }
+        }
     
     def _calculate_growth_rates(self):
         """성장률 계산"""
@@ -163,7 +172,8 @@ class DataLoader:
             'profitability_data': self.profitability_data.to_dict('list'),
             'growth_rates': self.growth_rates.to_dict('list'),
             'dupont_data': self.dupont_data.to_dict('list'),
-            'radar_data': self.radar_data.to_dict('list')
+            'radar_data': self.radar_data.to_dict('list'),
+            'insights': self.insights
         }
         
         # 출력 파일 경로 설정
@@ -209,3 +219,7 @@ class DataLoader:
     
     def get_radar_data(self):
         return self.radar_data
+    
+    def get_insights(self):
+        """인사이트 데이터 반환"""
+        return self.insights
