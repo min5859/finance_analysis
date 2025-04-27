@@ -48,8 +48,10 @@ def main():
     
     # 회사 선택 드롭다운
     companies = get_available_companies()
-    company_names = [f"{c['name']} ({c['sector']})" for c in companies]
-    company_codes = [c['code'] for c in companies]
+    
+    # 빈 선택 옵션 추가
+    company_names = ["기업을 선택하세요"] + [f"{c['name']} ({c['sector']})" for c in companies]
+    company_codes = [""] + [c['code'] for c in companies]
     
     selected_index = st.selectbox(
         "분석할 기업 선택",
@@ -58,9 +60,6 @@ def main():
     )
     
     selected_company_code = company_codes[selected_index]
-    
-    # 데이터 로더 초기화
-    data_loader = DataLoader(selected_company_code)
     
     # 슬라이드 메뉴
     st.sidebar.title("목차")
@@ -77,33 +76,33 @@ def main():
     ]
     selected_slide = st.sidebar.radio("분석 슬라이드 선택", slide_names)
     
-    # 선택된 슬라이드 표시
-    if selected_slide == "요약":
-        SummarySlide(data_loader).render()
-    elif selected_slide == "손익계산서":
-        IncomeStatementSlide(data_loader).render()
-    elif selected_slide == "재무상태표":
-        BalanceSheetSlide(data_loader).render()
-    elif selected_slide == "현금흐름표":
-        CashFlowSlide(data_loader).render()
-    elif selected_slide == "수익성 분석":
-        ProfitabilitySlide(data_loader).render()
-    elif selected_slide == "성장성 분석":
-        GrowthRateSlide(data_loader).render()
-    elif selected_slide == "안정성 분석":
-        StabilitySlide(data_loader).render()
-    elif selected_slide == "운전자본 분석":
-        WorkingCapitalSlide(data_loader).render()
-    elif selected_slide == "종합 결론":
-        ConclusionSlide(data_loader).render()
-    
-    # 하단 정보
-    st.sidebar.markdown("---")
-    st.sidebar.info(
-        "**기업 재무 분석 대시보드**\n"
-        "본 대시보드는 기업의 재무제표 데이터를 기반으로 수익성, 성장성, 안정성 등을 종합적으로 분석합니다.\n\n"
-        "새로운 기업 데이터를 추가하려면 data/companies 디렉토리에 JSON 파일을 추가하세요."
-    )
-
+    # 기업이 선택되었을 때만 슬라이드 표시
+    if selected_company_code:
+        # 데이터 로더 초기화
+        data_loader = DataLoader(selected_company_code)
+        
+        # 선택된 슬라이드 표시
+        if selected_slide == "요약":
+            SummarySlide(data_loader).render()
+        elif selected_slide == "손익계산서":
+            IncomeStatementSlide(data_loader).render()
+        elif selected_slide == "재무상태표":
+            BalanceSheetSlide(data_loader).render()
+        elif selected_slide == "현금흐름표":
+            CashFlowSlide(data_loader).render()
+        elif selected_slide == "수익성 분석":
+            ProfitabilitySlide(data_loader).render()
+        elif selected_slide == "성장성 분석":
+            GrowthRateSlide(data_loader).render()
+        elif selected_slide == "안정성 분석":
+            StabilitySlide(data_loader).render()
+        elif selected_slide == "운전자본 분석":
+            WorkingCapitalSlide(data_loader).render()
+        elif selected_slide == "종합 결론":
+            ConclusionSlide(data_loader).render()
+    else:
+        # 기업이 선택되지 않았을 때 안내 메시지 표시
+        st.info("왼쪽 드롭다운에서 분석할 기업을 선택해주세요.")
+        
 if __name__ == "__main__":
     main()
