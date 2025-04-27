@@ -5,14 +5,14 @@ import json
 class DataLoader:
     """재무 데이터 로드 및 관리 클래스"""
     
-    def __init__(self, company_code=None):
+    def __init__(self, json_filename=None):
         """
         데이터 로더 초기화
         
         Args:
-            company_code (str, optional): 분석할 회사 코드. 기본값은 None (기본 회사 사용)
+            json_filename (str, optional): 분석할 JSON 파일명. 기본값은 None (default.json 사용)
         """
-        self.company_code = company_code
+        self.json_filename = json_filename
         self._load_data()
     
     def _load_data(self):
@@ -20,8 +20,8 @@ class DataLoader:
         # 파일 경로 설정
         data_dir = os.path.dirname(os.path.abspath(__file__))
         
-        if self.company_code and self.company_code != "default":
-            json_file = os.path.join(data_dir, f"companies/{self.company_code}.json")
+        if self.json_filename:
+            json_file = os.path.join(data_dir, f"companies/{self.json_filename}")
         else:
             # 기본 회사 데이터 사용
             json_file = os.path.join(data_dir, "companies/default.json")
@@ -53,7 +53,7 @@ class DataLoader:
         현재 데이터를 JSON 파일로 내보내기
         
         Args:
-            output_file (str, optional): 출력 파일 경로. 없으면 회사 코드 기반으로 생성
+            output_file (str, optional): 출력 파일 경로. 없으면 현재 json_filename 기반으로 생성
         """
         # 데이터 수집
         data_dict = {
@@ -78,7 +78,11 @@ class DataLoader:
             if not os.path.exists(company_dir):
                 os.makedirs(company_dir)
             
-            output_file = os.path.join(company_dir, f"{self.company_code or 'default'}.json")
+            filename = self.json_filename or 'default.json'
+            if not filename.endswith('.json'):
+                filename += '.json'
+            
+            output_file = os.path.join(company_dir, filename)
         
         # JSON 파일로 저장
         with open(output_file, 'w', encoding='utf-8') as f:

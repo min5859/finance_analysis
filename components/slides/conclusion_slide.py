@@ -17,8 +17,8 @@ class ConclusionSlide(BaseSlide):
         data_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         company_dir = os.path.join(data_dir, "data/companies")
         
-        if self.data_loader.company_code:
-            json_file = os.path.join(company_dir, f"{self.data_loader.company_code}.json")
+        if self.data_loader.json_filename:
+            json_file = os.path.join(company_dir, f"{self.data_loader.json_filename}")
         else:
             json_file = os.path.join(company_dir, "default.json")
         
@@ -29,13 +29,11 @@ class ConclusionSlide(BaseSlide):
             except Exception:
                 self.company_info = {
                     "company_name": "회사명 정보 없음",
-                    "company_code": "000000",
                     "sector": "업종 정보 없음"
                 }
         else:
             self.company_info = {
                 "company_name": "회사명 정보 없음",
-                "company_code": "000000",
                 "sector": "업종 정보 없음"
             }
     

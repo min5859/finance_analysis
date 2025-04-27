@@ -1,6 +1,5 @@
 {
     "company_name": "샘플회사",
-    "company_code": "123456",
     "sector": "전자/반도체",
     "performance_data": {
         "year": ["2022", "2023", "2024"],

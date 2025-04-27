@@ -20,28 +20,13 @@ def get_available_companies():
     company_dir = os.path.join(data_dir, "data/companies")
     
     if os.path.exists(company_dir):
-        # 먼저 default.json 파일 처리
-        default_file = os.path.join(company_dir, "default.json")
-        if os.path.exists(default_file):
-            try:
-                with open(default_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    companies.append({
-                        'code': "default",  # 실제 파일 이름 사용
-                        'name': f"(예시) {data.get('company_name', 'default')}",
-                        'sector': data.get('sector', '기타')
-                    })
-            except Exception:
-                pass
-        
-        # 나머지 json 파일 처리
         for file in os.listdir(company_dir):
-            if file.endswith('.json') and file != 'default.json':
+            if file.endswith('.json'):
                 try:
                     with open(os.path.join(company_dir, file), 'r', encoding='utf-8') as f:
                         data = json.load(f)
                         companies.append({
-                            'code': data.get('company_code', file.replace('.json', '')),
+                            'filename': file,
                             'name': data.get('company_name', file.replace('.json', '')),
                             'sector': data.get('sector', '기타')
                         })
@@ -66,7 +51,7 @@ def main():
     
     # 빈 선택 옵션 추가
     company_names = ["기업을 선택하세요"] + [f"{c['name']} ({c['sector']})" for c in companies]
-    company_codes = [None] + [c['code'] for c in companies]
+    company_files = [None] + [c['filename'] for c in companies]
     
     selected_index = st.selectbox(
         "분석할 기업 선택",
@@ -74,7 +59,7 @@ def main():
         format_func=lambda i: company_names[i]
     )
     
-    selected_company_code = company_codes[selected_index]
+    selected_file = company_files[selected_index]
     
     # 슬라이드 메뉴
     st.sidebar.title("목차")
@@ -92,9 +77,9 @@ def main():
     selected_slide = st.sidebar.radio("분석 슬라이드 선택", slide_names)
     
     # 기업이 선택되었을 때만 슬라이드 표시
-    if selected_company_code is not None:
+    if selected_file is not None:
         # 데이터 로더 초기화
-        data_loader = DataLoader(selected_company_code)
+        data_loader = DataLoader(selected_file)
         
         # 선택된 슬라이드 표시
         if selected_slide == "요약":
