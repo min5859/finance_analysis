@@ -20,8 +20,23 @@ def get_available_companies():
     company_dir = os.path.join(data_dir, "data/companies")
     
     if os.path.exists(company_dir):
+        # 먼저 default.json 파일 처리
+        default_file = os.path.join(company_dir, "default.json")
+        if os.path.exists(default_file):
+            try:
+                with open(default_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    companies.append({
+                        'code': "default",  # 실제 파일 이름 사용
+                        'name': f"(예시) {data.get('company_name', 'default')}",
+                        'sector': data.get('sector', '기타')
+                    })
+            except Exception:
+                pass
+        
+        # 나머지 json 파일 처리
         for file in os.listdir(company_dir):
-            if file.endswith('.json'):
+            if file.endswith('.json') and file != 'default.json':
                 try:
                     with open(os.path.join(company_dir, file), 'r', encoding='utf-8') as f:
                         data = json.load(f)
@@ -51,7 +66,7 @@ def main():
     
     # 빈 선택 옵션 추가
     company_names = ["기업을 선택하세요"] + [f"{c['name']} ({c['sector']})" for c in companies]
-    company_codes = [""] + [c['code'] for c in companies]
+    company_codes = [None] + [c['code'] for c in companies]
     
     selected_index = st.selectbox(
         "분석할 기업 선택",
@@ -77,7 +92,7 @@ def main():
     selected_slide = st.sidebar.radio("분석 슬라이드 선택", slide_names)
     
     # 기업이 선택되었을 때만 슬라이드 표시
-    if selected_company_code:
+    if selected_company_code is not None:
         # 데이터 로더 초기화
         data_loader = DataLoader(selected_company_code)
         
