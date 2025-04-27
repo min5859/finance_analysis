@@ -41,20 +41,8 @@ class SummarySlide(BaseSlide):
     def render(self):
         """슬라이드 렌더링"""
         self.render_header()
-        self._render_company_info()
         self._render_key_metrics()
         self._render_highlights()
-    
-    def _render_company_info(self):
-        """회사 정보 렌더링"""
-        st.markdown(f"""
-        ### 기업 정보
-        
-        **회사명**: {self.company_info.get('company_name', '정보 없음')}  
-        **종목코드**: {self.company_info.get('company_code', '정보 없음')}  
-        **업종**: {self.company_info.get('sector', '정보 없음')}  
-        **분석 기간**: 2022년 ~ 2024년
-        """)
     
     def _render_key_metrics(self):
         """핵심 지표 렌더링"""
