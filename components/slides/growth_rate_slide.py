@@ -11,16 +11,19 @@ class GrowthRateSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
-        self.render_header()
-        
         # CSS 스타일 추가
         self._add_custom_styles()
         
-        # 인사이트는 별도로 표시
-        self._render_insight()
-    
-        # 메인 콘텐츠를 두 열로 나눕니다: 왼쪽은 차트, 오른쪽은 핵심 지표
+        # 헤더 텍스트 추가
+        st.markdown("""
+        <div class="header-card">
+            자산 성장 둔화, 매출 하락했지만, 2024년 순이익이 17.8% 증가하며 비용 효율화와 고마진 제품 확대를 통해 수익성 방어
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 메인 콘텐츠를 두 열로 나눕니다
         col1, col2 = st.columns([7, 5])
+        
         with col1:
             self._render_growth_rate_chart()
         
@@ -31,12 +34,15 @@ class GrowthRateSlide(BaseSlide):
         """커스텀 CSS 스타일 추가"""
         st.markdown("""
         <style>
-        .fancy-card {
+        .header-card {
             background-color: white;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: #1a1a1a;
+            line-height: 1.5;
         }
         
         .info-card {
@@ -213,21 +219,3 @@ class GrowthRateSlide(BaseSlide):
         
         # Chart.js로 차트 렌더링
         ChartJSComponent.create_bar_chart(labels, datasets, options)
-    
-    def _render_insight(self):
-        """인사이트 렌더링"""
-        insight_content = """
-        **성장률 분석:**
-        - 총자산 성장: 3.9% → 0.8%로 둔화되며 자산 확대 속도 감소
-        - 매출액 성장: -7.5% → -22.6%로 큰 폭 하락
-        - 순이익 성장: 0.6% → 17.8%로 급증하며 수익성 개선 뚜렷
-        - 매출 감소에도 불구하고 순이익 성장률이 크게 상승한 것은 고부가가치 제품으로의 포트폴리오 전환과 비용 효율화에 기인
-        - 자산 성장 둔화와 매출 하락 추세에 대응하기 위한 신성장 동력 발굴 필요성 제기
-        """
-        
-        st.markdown(f"""
-        <div class="insight-card">
-            <div class="insight-title">성장률 분석</div>
-            <div class="insight-content">{insight_content}</div>
-        </div>
-        """, unsafe_allow_html=True)
