@@ -45,118 +45,94 @@ class GrowthRateSlide(BaseSlide):
             line-height: 1.5;
         }
         
-        .info-card {
+        .growth-table-container {
             background-color: white;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-            margin-bottom: 20px;
-        }
-        
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #f0f0f0;
-            padding: 12px 0;
-        }
-        
-        .metric-row:last-child {
-            border-bottom: none;
-        }
-        
-        .metric-label {
-            font-size: 1rem;
-            color: #333;
-            font-weight: 500;
-        }
-        
-        .metric-value {
-            font-size: 1rem;
-            text-align: right;
-            font-weight: 600;
-        }
-        
-        .positive {
-            color: #10b981;
-        }
-        
-        .neutral {
-            color: #3b82f6;
-        }
-        
-        .negative {
-            color: #ef4444;
-        }
-        
-        .insight-card {
-            background: #f0f9ff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-            border-left: 5px solid #3b82f6;
-        }
-        
-        .insight-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1e40af;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-bottom: 10px;
         }
         
-        .insight-content {
+        .growth-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .growth-table th {
+            background-color: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: normal;
+            border-bottom: 1px solid #dee2e6;
+            color: #666;
+        }
+        
+        .growth-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .growth-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .positive {
+            color: #228be6;
+            font-weight: 500;
+        }
+        
+        .negative {
+            color: #fa5252;
+            font-weight: 500;
+        }
+        
+        .insight-message {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #1a1a1a;
             font-size: 0.95rem;
-            color: #334155;
-            line-height: 1.6;
+            margin-top: 5px;
+            border-left: 4px solid #228be6;
         }
         </style>
         """, unsafe_allow_html=True)
     
     def _render_key_metrics(self):
-        """핵심 지표 렌더링"""
+        """핵심 지표 렌더링 - 테이블 형태로 수정"""
         growth_rates = self.data_loader.get_growth_rates()
         
+        # 테이블 HTML 생성
         st.markdown("""
-        <div class="fancy-card">
-            <div class="card-title">핵심 성장률 지표</div>
-        """, unsafe_allow_html=True)
-        
-        # 총자산 성장률
-        total_asset_growth = growth_rates['총자산성장률'].iloc[-1]
-        st.markdown(f"""
-        <div class="metric-row">
-            <div class="metric-label">총자산 성장률</div>
-            <div class="metric-value {'positive' if total_asset_growth > 0 else 'negative'}">{total_asset_growth:.1f}%</div>
+        <div style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); margin-bottom: 20px;">
+            <div style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 20px;">핵심 성장률 지표</div>
+            <table class="growth-table">
+                <tr>
+                    <th>항목</th>
+                    <th>2023년</th>
+                    <th>2024년</th>
+                </tr>
+                <tr>
+                    <td>총자산</td>
+                    <td class="positive">+3.9%</td>
+                    <td class="positive">+0.8%</td>
+                </tr>
+                <tr>
+                    <td>매출액</td>
+                    <td class="negative">-7.5%</td>
+                    <td class="negative">-22.6%</td>
+                </tr>
+                <tr>
+                    <td>당기순이익</td>
+                    <td class="positive">+0.6%</td>
+                    <td class="positive">+17.8%</td>
+                </tr>
+            </table>
+        </div>
+        <div class="insight-message">
+            자산 성장 둔화·매출 급락에도 순이익 17.8%↑ 수익성 방어
         </div>
         """, unsafe_allow_html=True)
-        
-        # 매출액 성장률
-        revenue_growth = growth_rates['매출액성장률'].iloc[-1]
-        st.markdown(f"""
-        <div class="metric-row">
-            <div class="metric-label">매출액 성장률</div>
-            <div class="metric-value {'positive' if revenue_growth > 0 else 'negative'}">{revenue_growth:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # 순이익 성장률
-        net_income_growth = growth_rates['순이익성장률'].iloc[-1]
-        st.markdown(f"""
-        <div class="metric-row">
-            <div class="metric-label">순이익 성장률</div>
-            <div class="metric-value {'positive' if net_income_growth > 0 else 'negative'}">{net_income_growth:.1f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("</div>", unsafe_allow_html=True)
     
     def _render_growth_rate_chart(self):
         """성장률 차트 렌더링"""
