@@ -12,8 +12,145 @@ class GrowthRateSlide(BaseSlide):
     def render(self):
         """슬라이드 렌더링"""
         self.render_header()
-        self._render_growth_rate_chart()
+        
+        # CSS 스타일 추가
+        self._add_custom_styles()
+        
+        # 인사이트는 별도로 표시
         self._render_insight()
+    
+        # 메인 콘텐츠를 두 열로 나눕니다: 왼쪽은 차트, 오른쪽은 핵심 지표
+        col1, col2 = st.columns([7, 5])
+        with col1:
+            self._render_growth_rate_chart()
+        
+        with col2:
+            self._render_key_metrics()
+    
+    def _add_custom_styles(self):
+        """커스텀 CSS 스타일 추가"""
+        st.markdown("""
+        <style>
+        .fancy-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+        
+        .info-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 12px 0;
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: 1rem;
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        .positive {
+            color: #10b981;
+        }
+        
+        .neutral {
+            color: #3b82f6;
+        }
+        
+        .negative {
+            color: #ef4444;
+        }
+        
+        .insight-card {
+            background: #f0f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            border-left: 5px solid #3b82f6;
+        }
+        
+        .insight-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        
+        .insight-content {
+            font-size: 0.95rem;
+            color: #334155;
+            line-height: 1.6;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    
+    def _render_key_metrics(self):
+        """핵심 지표 렌더링"""
+        growth_rates = self.data_loader.get_growth_rates()
+        
+        st.markdown("""
+        <div class="fancy-card">
+            <div class="card-title">핵심 성장률 지표</div>
+        """, unsafe_allow_html=True)
+        
+        # 총자산 성장률
+        total_asset_growth = growth_rates['총자산성장률'].iloc[-1]
+        st.markdown(f"""
+        <div class="metric-row">
+            <div class="metric-label">총자산 성장률</div>
+            <div class="metric-value {'positive' if total_asset_growth > 0 else 'negative'}">{total_asset_growth:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 매출액 성장률
+        revenue_growth = growth_rates['매출액성장률'].iloc[-1]
+        st.markdown(f"""
+        <div class="metric-row">
+            <div class="metric-label">매출액 성장률</div>
+            <div class="metric-value {'positive' if revenue_growth > 0 else 'negative'}">{revenue_growth:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 순이익 성장률
+        net_income_growth = growth_rates['순이익성장률'].iloc[-1]
+        st.markdown(f"""
+        <div class="metric-row">
+            <div class="metric-label">순이익 성장률</div>
+            <div class="metric-value {'positive' if net_income_growth > 0 else 'negative'}">{net_income_growth:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("</div>", unsafe_allow_html=True)
     
     def _render_growth_rate_chart(self):
         """성장률 차트 렌더링"""
@@ -88,4 +225,9 @@ class GrowthRateSlide(BaseSlide):
         - 자산 성장 둔화와 매출 하락 추세에 대응하기 위한 신성장 동력 발굴 필요성 제기
         """
         
-        self.render_insight_card("성장률 분석", insight_content)
+        st.markdown(f"""
+        <div class="insight-card">
+            <div class="insight-title">성장률 분석</div>
+            <div class="insight-content">{insight_content}</div>
+        </div>
+        """, unsafe_allow_html=True)
