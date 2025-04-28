@@ -144,23 +144,26 @@ class GrowthRateSlide(BaseSlide):
             {
                 "label": "총자산성장률",
                 "data": growth_rates['총자산성장률'].tolist(),
-                "backgroundColor": COLOR_PALETTE["primary"],
-                "borderColor": COLOR_PALETTE["primary"],
-                "borderWidth": 1
+                "backgroundColor": "#4C6EF5",  # 파란색
+                "borderColor": "#4C6EF5",
+                "borderWidth": 1,
+                "type": "bar"
             },
             {
                 "label": "매출액성장률",
                 "data": growth_rates['매출액성장률'].tolist(),
-                "backgroundColor": COLOR_PALETTE["secondary"],
-                "borderColor": COLOR_PALETTE["secondary"],
-                "borderWidth": 1
+                "backgroundColor": "#4C6EF5",  # 파란색
+                "borderColor": "#4C6EF5",
+                "borderWidth": 1,
+                "type": "bar"
             },
             {
                 "label": "순이익성장률",
                 "data": growth_rates['순이익성장률'].tolist(),
-                "backgroundColor": COLOR_PALETTE["warning"],
-                "borderColor": COLOR_PALETTE["warning"],
-                "borderWidth": 1
+                "backgroundColor": "#FAB005",  # 노란색
+                "borderColor": "#FAB005",
+                "borderWidth": 1,
+                "type": "bar"
             }
         ]
         
@@ -169,25 +172,35 @@ class GrowthRateSlide(BaseSlide):
             "responsive": True,
             "plugins": {
                 "legend": {
-                    "position": "top"
+                    "position": "bottom",
+                    "labels": {
+                        "usePointStyle": True,
+                        "padding": 20
+                    }
                 },
                 "title": {
                     "display": True,
-                    "text": "주요 항목 성장률 추이 (단위: %)"
+                    "text": "주요 항목 성장률 추이 (단위: %)",
+                    "font": {
+                        "size": 16
+                    }
                 }
             },
             "scales": {
                 "y": {
                     "beginAtZero": True,
-                    "title": {
-                        "display": True,
-                        "text": "성장률 (%)"
+                    "suggestedMin": -30,
+                    "suggestedMax": 30,
+                    "ticks": {
+                        "stepSize": 15
+                    },
+                    "grid": {
+                        "drawBorder": False
                     }
                 },
                 "x": {
-                    "title": {
-                        "display": True,
-                        "text": "연도"
+                    "grid": {
+                        "display": False
                     }
                 }
             }
