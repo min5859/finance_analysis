@@ -140,29 +140,47 @@ class IncomeStatementSlide(BaseSlide):
     
     def _render_insight(self):
         """인사이트 렌더링"""
+        performance_data = self.data_loader.get_performance_data()
         
-        # 인사이트 카드의 스타일을 조정하여 차트 오른쪽에 잘 맞도록 함
-        st.markdown("""
-        <style>
-        .insight-card {
-            padding: 10px; 
-            height: 100%;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            border-left: 4px solid #4e73df;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+        # 데이터 계산
+        start_revenue = performance_data['매출액'].iloc[0]
+        end_revenue = performance_data['매출액'].iloc[-1]
+        revenue_change = ((end_revenue / start_revenue) - 1) * 100
         
+        start_op_profit = performance_data['영업이익'].iloc[0]
+        end_op_profit = performance_data['영업이익'].iloc[-1]
+        op_profit_change = ((end_op_profit / start_op_profit) - 1) * 100
+        
+        start_net_profit = performance_data['순이익'].iloc[0]
+        end_net_profit = performance_data['순이익'].iloc[-1]
+        net_profit_change = ((end_net_profit / start_net_profit) - 1) * 100
+        
+        start_net_margin = performance_data['순이익률'].iloc[0]
+        end_net_margin = performance_data['순이익률'].iloc[-1]
+        
+        # 새로운 스타일로 인사이트 렌더링
         st.markdown(f"""
-        <div class="insight-card">
-            <h4>손익계산서 분석</h4>
-            <ul style="margin-left: 15px; padding-left: 0px;">
-                <li>매출액: 3년간 28.4% 감소 (9,445억원 → 6,760억원)</li>
-                <li>영업이익: 초기 하락 후 2024년 회복세 (428억원 → 362억원, -15.4%)</li>
-                <li>순이익: 2024년 크게 증가 (363억원 → 430억원, +18.5%)</li>
-                <li>순이익률: 3.8% → 6.4%로 크게 개선되며 수익성 체질 향상</li>
-                <li>매출 감소에도 비용 효율화와 고마진 제품 확대로 수익성 방어 성공</li>
-            </ul>
+        <div style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); margin-bottom: 20px; height: 100%;">
+            <div style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 20px;">Key Insight</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
+                <div style="font-size: 1rem; color: #333; font-weight: 500;">매출액: {start_revenue} → {end_revenue}억원</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #ef4444;">3년간 {revenue_change:.1f}% 감소</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
+                <div style="font-size: 1rem; color: #333; font-weight: 500;">영업이익: {start_op_profit} → {end_op_profit}억원</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #ef4444;">감소 후 회복 {op_profit_change:.1f}%</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
+                <div style="font-size: 1rem; color: #333; font-weight: 500;">순이익: {start_net_profit} → {end_net_profit}억원</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #10b981;">+{net_profit_change:.1f}% 성장</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
+                <div style="font-size: 1rem; color: #333; font-weight: 500;">순이익률: {start_net_margin}% → {end_net_margin}%</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #10b981;">수익성 체질 개선</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+                <div style="font-size: 1rem; color: #333; font-weight: 500; line-height: 1.4;">매출 감소에도 비용 효율화와<br>고마진 제품 확대로 수익성 방어 성공</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #8b5cf6;">⭐</div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
