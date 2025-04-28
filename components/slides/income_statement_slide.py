@@ -12,9 +12,15 @@ class IncomeStatementSlide(BaseSlide):
     def render(self):
         """슬라이드 렌더링"""
         self.render_header()
-        self._render_key_metrics()
-        self._render_income_statement_chart()
-        self._render_insight()
+        
+        # 차트와 인사이트를 나란히 배치하기 위해 columns 사용
+        col1, col2 = st.columns([7, 5])  # 7:5 비율로 열 분할
+        with col1:
+            self._render_key_metrics()
+            self._render_income_statement_chart()
+        
+        with col2:
+            self._render_insight()
     
     def _render_key_metrics(self):
         """핵심 지표 렌더링"""
@@ -134,13 +140,29 @@ class IncomeStatementSlide(BaseSlide):
     
     def _render_insight(self):
         """인사이트 렌더링"""
-        insight_content = """
-        **손익계산서 분석:**
-        - 매출액: 3년간 28.4% 감소 (9,445억원 → 6,760억원)
-        - 영업이익: 초기 하락 후 2024년 회복세 (428억원 → 362억원, -15.4%)
-        - 순이익: 2024년 크게 증가 (363억원 → 430억원, +18.5%)
-        - 순이익률: 3.8% → 6.4%로 크게 개선되며 수익성 체질 향상
-        - 매출 감소에도 비용 효율화와 고마진 제품 확대로 수익성 방어 성공
-        """
         
-        self.render_insight_card("손익계산서 분석", insight_content)
+        # 인사이트 카드의 스타일을 조정하여 차트 오른쪽에 잘 맞도록 함
+        st.markdown("""
+        <style>
+        .insight-card {
+            padding: 10px; 
+            height: 100%;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #4e73df;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+        <div class="insight-card">
+            <h4>손익계산서 분석</h4>
+            <ul style="margin-left: 15px; padding-left: 0px;">
+                <li>매출액: 3년간 28.4% 감소 (9,445억원 → 6,760억원)</li>
+                <li>영업이익: 초기 하락 후 2024년 회복세 (428억원 → 362억원, -15.4%)</li>
+                <li>순이익: 2024년 크게 증가 (363억원 → 430억원, +18.5%)</li>
+                <li>순이익률: 3.8% → 6.4%로 크게 개선되며 수익성 체질 향상</li>
+                <li>매출 감소에도 비용 효율화와 고마진 제품 확대로 수익성 방어 성공</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
