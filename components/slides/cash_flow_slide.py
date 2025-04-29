@@ -2,6 +2,7 @@ import streamlit as st
 from components.slides.base_slide import BaseSlide
 from components.charts.chart_js_component import ChartJSComponent
 from config.app_config import COLOR_PALETTE
+import streamlit.components.v1 as components
 
 class CashFlowSlide(BaseSlide):
     """현금흐름 분석 슬라이드"""
@@ -319,12 +320,14 @@ class CashFlowSlide(BaseSlide):
             </div>
             """
         
-        st.markdown(f"""
+        html_content = f"""
         <div style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); margin-bottom: 20px;">
             <div style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 20px;">2024년 현금흐름 변동 요인</div>
             {causes_html}
         </div>
-        """, unsafe_allow_html=True)
+        """
+        
+        components.html(html_content, height=250, scrolling=False)
     
     def _render_cash_flow_diagnosis(self):
         """현금흐름 진단 및 예측 카드"""
@@ -357,7 +360,7 @@ class CashFlowSlide(BaseSlide):
                 재고 및 매출채권 회전율 개선을 통해 현금 회수 기간을 단축하는 것이 중요합니다.
                 """
         
-        st.markdown(f"""
+        html_content = f"""
         <div style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);">
             <div style="display: flex; align-items: center; margin-bottom: 20px;">
                 <div style="font-size: 1.8rem; margin-right: 10px;">{diagnosis_icon}</div>
@@ -367,7 +370,9 @@ class CashFlowSlide(BaseSlide):
                 {diagnosis}
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        """
+        
+        components.html(html_content, height=250, scrolling=False)
     
     def _render_insight(self):
         """인사이트 렌더링 - 펜시한 카드 형태로"""
