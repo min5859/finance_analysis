@@ -300,7 +300,9 @@ class ConclusionSlide(BaseSlide):
     
     def _render_strategic_recommendations(self):
         """전략적 제안 렌더링"""
-        st.markdown("""
+        import streamlit.components.v1 as components
+
+        html_content = """
         <div style="
             background: linear-gradient(145deg, #f0f9ff, #e0f2fe);
             border-radius: 12px;
@@ -333,7 +335,7 @@ class ConclusionSlide(BaseSlide):
                 ">🚀</span>
                 전략적 제안
             </h3>
-            
+
             <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
                 <div style="
                     flex: 1;
@@ -374,7 +376,7 @@ class ConclusionSlide(BaseSlide):
                         <li>자산회전율 제고를 위한 운영 효율성 개선</li>
                     </ul>
                 </div>
-                
+
                 <div style="
                     flex: 1;
                     min-width: 250px;
@@ -414,7 +416,7 @@ class ConclusionSlide(BaseSlide):
                         <li>M&A 기회 모니터링</li>
                     </ul>
                 </div>
-                
+
                 <div style="
                     flex: 1;
                     min-width: 250px;
@@ -456,4 +458,8 @@ class ConclusionSlide(BaseSlide):
                 </div>
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        """
+
+        # components.html을 사용하여 HTML 콘텐츠 렌더링
+        # 높이 값은 콘텐츠 크기에 맞게 조정하세요
+        components.html(html_content, height=500, scrolling=False)
