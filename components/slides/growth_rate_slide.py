@@ -1,6 +1,6 @@
 import streamlit as st
 from components.slides.base_slide import BaseSlide
-from components.charts.chart_js_component import ChartJSComponent
+from components.charts.iframe_chart_component import IframeChartComponent
 from config.app_config import COLOR_PALETTE
 
 class GrowthRateSlide(BaseSlide):
@@ -25,7 +25,71 @@ class GrowthRateSlide(BaseSlide):
         col1, col2 = st.columns([7, 5])
         
         with col1:
-            self._render_growth_rate_chart()
+            # 차트 데이터 준비
+            growth_rates = self.data_loader.get_growth_rates()
+            labels = growth_rates['year'].tolist()
+            datasets = [
+                {
+                    "label": "총자산성장률",
+                    "data": growth_rates['총자산성장률'].tolist(),
+                    "backgroundColor": COLOR_PALETTE["primary"],
+                    "borderColor": COLOR_PALETTE["primary"],
+                    "borderWidth": 1
+                },
+                {
+                    "label": "매출액성장률",
+                    "data": growth_rates['매출액성장률'].tolist(),
+                    "backgroundColor": COLOR_PALETTE["secondary"],
+                    "borderColor": COLOR_PALETTE["secondary"],
+                    "borderWidth": 1
+                },
+                {
+                    "label": "순이익성장률",
+                    "data": growth_rates['순이익성장률'].tolist(),
+                    "backgroundColor": COLOR_PALETTE["warning"],
+                    "borderColor": COLOR_PALETTE["warning"],
+                    "borderWidth": 1
+                }
+            ]
+            
+            # Chart.js 옵션 설정
+            options = {
+                "responsive": True,
+                "maintainAspectRatio": False,
+                "plugins": {
+                    "legend": {
+                        "position": "top"
+                    },
+                    "title": {
+                        "display": False,
+                        "text": "주요 항목 성장률 추이 (단위: %)"
+                    }
+                },
+                "scales": {
+                    "y": {
+                        "beginAtZero": True,
+                        "title": {
+                            "display": True,
+                            "text": "성장률 (%)"
+                        }
+                    },
+                    "x": {
+                        "title": {
+                            "display": True,
+                            "text": "연도"
+                        }
+                    }
+                }
+            }
+            
+            # iframe 방식으로 카드 내부에 차트 렌더링
+            IframeChartComponent.create_bar_chart_in_card(
+                labels=labels,
+                datasets=datasets,
+                options=options,
+                height=380,
+                title="주요 항목 성장률 추이 (단위: %)"
+            )
         
         with col2:
             self._render_key_metrics()
@@ -89,68 +153,6 @@ class GrowthRateSlide(BaseSlide):
         }
         </style>
         """, unsafe_allow_html=True)
-    
-    def _render_growth_rate_chart(self):
-        """성장률 차트 렌더링"""
-        growth_rates = self.data_loader.get_growth_rates()
-        
-        # Chart.js 데이터셋 준비
-        labels = growth_rates['year'].tolist()
-        datasets = [
-            {
-                "label": "총자산성장률",
-                "data": growth_rates['총자산성장률'].tolist(),
-                "backgroundColor": COLOR_PALETTE["primary"],
-                "borderColor": COLOR_PALETTE["primary"],
-                "borderWidth": 1
-            },
-            {
-                "label": "매출액성장률",
-                "data": growth_rates['매출액성장률'].tolist(),
-                "backgroundColor": COLOR_PALETTE["secondary"],
-                "borderColor": COLOR_PALETTE["secondary"],
-                "borderWidth": 1
-            },
-            {
-                "label": "순이익성장률",
-                "data": growth_rates['순이익성장률'].tolist(),
-                "backgroundColor": COLOR_PALETTE["warning"],
-                "borderColor": COLOR_PALETTE["warning"],
-                "borderWidth": 1
-            }
-        ]
-        
-        # Chart.js 옵션 설정
-        options = {
-            "responsive": True,
-            "plugins": {
-                "legend": {
-                    "position": "top"
-                },
-                "title": {
-                    "display": True,
-                    "text": "주요 항목 성장률 추이 (단위: %)"
-                }
-            },
-            "scales": {
-                "y": {
-                    "beginAtZero": True,
-                    "title": {
-                        "display": True,
-                        "text": "성장률 (%)"
-                    }
-                },
-                "x": {
-                    "title": {
-                        "display": True,
-                        "text": "연도"
-                    }
-                }
-            }
-        }
-        
-        # Chart.js로 차트 렌더링
-        ChartJSComponent.create_bar_chart(labels, datasets, options)
     
     def _render_key_metrics(self):
         """핵심 지표 렌더링 - 테이블 형태로 수정"""
