@@ -19,21 +19,43 @@ class ChartJSComponent:
         
         # Chart.js 스크립트와 HTML
         chart_js = f"""
-        <div style="height: {height}px;">
+        <div style="height: {height}px; width: 100%;">
             <canvas id="{chart_id}"></canvas>
         </div>
         
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-            const ctx = document.getElementById('{chart_id}').getContext('2d');
-            const data = {json.dumps(data)};
-            const options = {json.dumps(options) if options else '{}'};
-            
-            new Chart(ctx, {{
-                type: '{chart_type}',
-                data: data,
-                options: options
+            // DOMContentLoaded 이벤트를 사용하여 문서가 로드된 후 차트 생성
+            document.addEventListener('DOMContentLoaded', function() {{
+                const ctx = document.getElementById('{chart_id}');
+                if (ctx) {{
+                    const data = {json.dumps(data)};
+                    const options = {json.dumps(options) if options else '{}'};
+                    
+                    new Chart(ctx, {{
+                        type: '{chart_type}',
+                        data: data,
+                        options: options
+                    }});
+                }}
             }});
+            
+            // Streamlit의 리렌더링 이벤트를 감지하여 차트 다시 생성
+            const observer = new MutationObserver(function(mutations) {{
+                const canvas = document.getElementById('{chart_id}');
+                if (canvas && !canvas.chart) {{
+                    const data = {json.dumps(data)};
+                    const options = {json.dumps(options) if options else '{}'};
+                    
+                    canvas.chart = new Chart(canvas, {{
+                        type: '{chart_type}',
+                        data: data,
+                        options: options
+                    }});
+                }}
+            }});
+            
+            observer.observe(document.body, {{ childList: true, subtree: true }});
         </script>
         """
         
@@ -57,6 +79,7 @@ class ChartJSComponent:
         
         default_options = {
             "responsive": True,
+            "maintainAspectRatio": False,
             "plugins": {
                 "legend": {
                     "position": "top"
@@ -96,6 +119,7 @@ class ChartJSComponent:
         
         default_options = {
             "responsive": True,
+            "maintainAspectRatio": False,
             "plugins": {
                 "legend": {
                     "position": "top"
@@ -135,6 +159,7 @@ class ChartJSComponent:
         
         default_options = {
             "responsive": True,
+            "maintainAspectRatio": False,
             "plugins": {
                 "legend": {
                     "position": "top"
@@ -154,4 +179,4 @@ class ChartJSComponent:
         if options:
             default_options.update(options)
         
-        ChartJSComponent.render_chart("radar", data, default_options, height) 
+        ChartJSComponent.render_chart("radar", data, default_options, height)
