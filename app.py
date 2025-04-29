@@ -64,14 +64,14 @@ def main():
     # 슬라이드 메뉴
     st.sidebar.title("목차")
     slide_names = [
-        "요약", 
-        "손익계산서", 
-        "재무상태표", 
-        "현금흐름표", 
-        "수익성 분석", 
-        "성장성 분석", 
-        "안정성 분석", 
-        "운전자본 분석", 
+        "요약",
+        "손익계산서",
+        "재무상태표",
+        "성장성 분석",
+        "수익성 분석",
+        "안정성 분석",
+        "현금흐름표",
+        "운전자본 분석",
         "종합 결론"
     ]
     selected_slide = st.sidebar.radio("분석 슬라이드 선택", slide_names)
@@ -88,14 +88,14 @@ def main():
             IncomeStatementSlide(data_loader).render()
         elif selected_slide == "재무상태표":
             BalanceSheetSlide(data_loader).render()
-        elif selected_slide == "현금흐름표":
-            CashFlowSlide(data_loader).render()
-        elif selected_slide == "수익성 분석":
-            ProfitabilitySlide(data_loader).render()
         elif selected_slide == "성장성 분석":
             GrowthRateSlide(data_loader).render()
+        elif selected_slide == "수익성 분석":
+            ProfitabilitySlide(data_loader).render()
         elif selected_slide == "안정성 분석":
             StabilitySlide(data_loader).render()
+        elif selected_slide == "현금흐름표":
+            CashFlowSlide(data_loader).render()
         elif selected_slide == "운전자본 분석":
             WorkingCapitalSlide(data_loader).render()
         elif selected_slide == "종합 결론":
