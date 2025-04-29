@@ -46,21 +46,25 @@ def main():
     apply_custom_css()
     
     st.title("기업 재무 분석 대시보드")
+
+    # 사이드바 구성
+    st.sidebar.title("메뉴")
     
-    # 회사 선택 드롭다운
+    # 회사 선택 드롭다운을 사이드바로 이동
     companies = get_available_companies()
-    
-    # 빈 선택 옵션 추가
     company_names = ["기업을 선택하세요"] + [f"{c['name']} ({c['sector']})" for c in companies]
     company_files = [None] + [c['filename'] for c in companies]
     
-    selected_index = st.selectbox(
+    selected_index = st.sidebar.selectbox(
         "분석할 기업 선택",
         range(len(company_names)),
         format_func=lambda i: company_names[i]
     )
     
     selected_file = company_files[selected_index]
+
+    # 구분선 추가
+    st.sidebar.markdown("---")
     
     # 슬라이드 메뉴
     st.sidebar.title("목차")
