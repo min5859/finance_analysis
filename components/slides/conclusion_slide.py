@@ -1,7 +1,5 @@
 import streamlit as st
 from components.slides.base_slide import BaseSlide
-from components.charts.chart_js_component import ChartJSComponent
-from config.app_config import COLOR_PALETTE
 import os
 import json
 
@@ -39,112 +37,423 @@ class ConclusionSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
-        self.render_header()
+        self._render_fancy_header()
         self._render_strengths_weaknesses()
         self._render_strategic_recommendations()
-        self._render_radar_chart()
+    
+    def _render_fancy_header(self):
+        """향상된 헤더 렌더링"""
+        company_name = self.company_info.get('company_name', '회사')
+        
+        # 화려한 그라데이션 헤더
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(90deg, #4338ca, #3b82f6, #0ea5e9); 
+            padding: 1.5rem; 
+            border-radius: 0.8rem; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            text-align: center;
+        ">
+            <h1 style="
+                color: white; 
+                font-weight: 800; 
+                margin: 0; 
+                font-size: 2.2rem;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            ">{company_name} 재무비율 분석 종합 결론</h1>
+            <p style="
+                color: rgba(255, 255, 255, 0.9); 
+                font-size: 1.1rem; 
+                margin-top: 0.5rem;
+                margin-bottom: 0;
+                font-weight: 500;
+            ">2022-2024년 재무성과 및 전략 방향성</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     def _render_strengths_weaknesses(self):
         """강점과 개선 필요사항 렌더링"""
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown('<div class="info-card" style="background: linear-gradient(to right, #eef2ff, #e0e7ff);">', unsafe_allow_html=True)
-            st.markdown(f'<h3 style="color: {COLOR_PALETTE["primary"]}; font-weight: bold;">강점</h3>', unsafe_allow_html=True)
             st.markdown("""
-            - 업계 상위 수준의 수익성 (ROE 14.4%, 순이익률 6.4%)
-            - 뛰어난 재무안정성 (부채비율 29%로 크게 개선)
-            - 우수한 단기 지급능력 (유동비율 209%)
-            - 효율적인 운전자본 관리 (CCC 66.9일로 단축)
-            - 안정적인 그룹 계열사 시너지 (지분법이익 207억원)
-            """)
-            st.markdown('</div>', unsafe_allow_html=True)
+            <div style="
+                background: linear-gradient(145deg, #eef2ff, #e0e7ff);
+                border-radius: 12px;
+                box-shadow: 0 4px 6px -1px rgba(66, 71, 184, 0.1), 0 2px 4px -1px rgba(66, 71, 184, 0.06);
+                padding: 1.5rem;
+                border-left: 6px solid #4f46e5;
+                height: 100%;
+            ">
+                <h3 style="
+                    color: #4338ca;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                    font-size: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                ">
+                    <span style="
+                        background-color: #4f46e5;
+                        color: white;
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin-right: 0.75rem;
+                        font-size: 1rem;
+                    ">✓</span>
+                    강점
+                </h3>
+                <ul style="
+                    list-style-type: none;
+                    padding-left: 0;
+                    margin-bottom: 0;
+                ">
+                    <li style="
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            color: #4f46e5;
+                            font-weight: bold;
+                            margin-right: 0.5rem;
+                        ">⬤</span>
+                        <span style="line-height: 1.5;">
+                            <strong style="color: #4338ca;">업계 상위 수준의 수익성</strong> (ROE 14.4%, 순이익률 6.4%)
+                        </span>
+                    </li>
+                    <li style="
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            color: #4f46e5;
+                            font-weight: bold;
+                            margin-right: 0.5rem;
+                        ">⬤</span>
+                        <span style="line-height: 1.5;">
+                            <strong style="color: #4338ca;">뛰어난 재무안정성</strong> (부채비율 29%로 크게 개선)
+                        </span>
+                    </li>
+                    <li style="
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            color: #4f46e5;
+                            font-weight: bold;
+                            margin-right: 0.5rem;
+                        ">⬤</span>
+                        <span style="line-height: 1.5;">
+                            <strong style="color: #4338ca;">우수한 단기 지급능력</strong> (유동비율 209%)
+                        </span>
+                    </li>
+                    <li style="
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            color: #4f46e5;
+                            font-weight: bold;
+                            margin-right: 0.5rem;
+                        ">⬤</span>
+                        <span style="line-height: 1.5;">
+                            <strong style="color: #4338ca;">효율적인 운전자본 관리</strong> (CCC 66.9일로 단축)
+                        </span>
+                    </li>
+                    <li style="
+                        margin-bottom: 0;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            color: #4f46e5;
+                            font-weight: bold;
+                            margin-right: 0.5rem;
+                        ">⬤</span>
+                        <span style="line-height: 1.5;">
+                            <strong style="color: #4338ca;">안정적인 그룹 계열사 시너지</strong> (지분법이익 207억원)
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
         
         with col2:
-            st.markdown('<div class="info-card" style="background: linear-gradient(to right, #fff1f2, #ffe4e6);">', unsafe_allow_html=True)
-            st.markdown(f'<h3 style="color: {COLOR_PALETTE["danger"]}; font-weight: bold;">개선 필요사항</h3>', unsafe_allow_html=True)
             st.markdown("""
-            - 매출액 감소 추세 (-22.6% 성장률)
-            - 자산회전율 하락 (1.78회로 감소)
-            - 2024년 현금흐름 악화 (-146억원)
-            - 투자활동 감소로 성장동력 약화 우려
-            - 신규 사업 발굴 필요성
-            """)
-            st.markdown('</div>', unsafe_allow_html=True)
+            <div style="
+                background: linear-gradient(145deg, #fff1f2, #ffe4e6);
+                border-radius: 12px;
+                box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1), 0 2px 4px -1px rgba(239, 68, 68, 0.06);
+                padding: 1.5rem;
+                border-left: 6px solid #ef4444;
+                height: 100%;
+            ">
+                <h3 style="
+                    color: #b91c1c;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                    font-size: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                ">
+                    <span style="
+                        background-color: #ef4444;
+                        color: white;
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin-right: 0.75rem;
+                        font-size: 1rem;
+                    ">!</span>
+                    개선 필요사항
+                </h3>
+                <ul style="
+                    list-style-type: none;
+                    padding-left: 0;
+                    margin-bottom: 0;
+                ">
+                    <li style="
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            color: #ef4444;
+                            font-weight: bold;
+                            margin-right: 0.5rem;
+                        ">⬤</span>
+                        <span style="line-height: 1.5;">
+                            <strong style="color: #b91c1c;">매출액 감소 추세</strong> (-22.6% 성장률)
+                        </span>
+                    </li>
+                    <li style="
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            color: #ef4444;
+                            font-weight: bold;
+                            margin-right: 0.5rem;
+                        ">⬤</span>
+                        <span style="line-height: 1.5;">
+                            <strong style="color: #b91c1c;">자산회전율 하락</strong> (1.78회로 감소)
+                        </span>
+                    </li>
+                    <li style="
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            color: #ef4444;
+                            font-weight: bold;
+                            margin-right: 0.5rem;
+                        ">⬤</span>
+                        <span style="line-height: 1.5;">
+                            <strong style="color: #b91c1c;">2024년 현금흐름 악화</strong> (-146억원)
+                        </span>
+                    </li>
+                    <li style="
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            color: #ef4444;
+                            font-weight: bold;
+                            margin-right: 0.5rem;
+                        ">⬤</span>
+                        <span style="line-height: 1.5;">
+                            <strong style="color: #b91c1c;">투자활동 감소로 성장동력 약화 우려</strong>
+                        </span>
+                    </li>
+                    <li style="
+                        margin-bottom: 0;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            color: #ef4444;
+                            font-weight: bold;
+                            margin-right: 0.5rem;
+                        ">⬤</span>
+                        <span style="line-height: 1.5;">
+                            <strong style="color: #b91c1c;">신규 사업 발굴 필요성</strong>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
     
     def _render_strategic_recommendations(self):
         """전략적 제안 렌더링"""
         st.markdown("""
-        ### 전략적 제안
-        
-        1. **수익성 강화**
-           - 고마진 제품 포트폴리오 확대
-           - 비용 효율화 프로그램 지속
-           - 자산회전율 제고를 위한 운영 효율성 개선
-        
-        2. **성장동력 확보**
-           - 신규 사업 발굴 및 투자 확대
-           - R&D 투자 강화
-           - M&A 기회 모니터링
-        
-        3. **재무건전성 유지**
-           - 현금흐름 관리 강화
-           - 적정 레버리지 수준 유지
-           - 배당정책 검토
-        """)
-    
-    def _render_radar_chart(self):
-        """레이더 차트 렌더링"""
-        radar_data = self.data_loader.get_radar_data()
-        
-        # 회사명 가져오기
-        company_name = self.company_info.get('company_name', '회사')
-        
-        # Chart.js 데이터셋 준비
-        labels = radar_data['metric'].tolist()
-        
-        # 데이터셋의 첫 번째 회사명(컬럼명) 가져오기
-        company_columns = [col for col in radar_data.columns if col != 'metric']
-        company_column = company_columns[0] if company_columns else '회사'
-        
-        datasets = [
-            {
-                "label": company_name,
-                "data": radar_data[company_column].tolist(),
-                "backgroundColor": f"{COLOR_PALETTE['primary']}40",
-                "borderColor": COLOR_PALETTE["primary"],
-                "borderWidth": 2,
-                "pointBackgroundColor": COLOR_PALETTE["primary"]
-            },
-            {
-                "label": "업계평균",
-                "data": radar_data['업계평균'].tolist(),
-                "backgroundColor": f"{COLOR_PALETTE['success']}40",
-                "borderColor": COLOR_PALETTE["success"],
-                "borderWidth": 2,
-                "pointBackgroundColor": COLOR_PALETTE["success"]
-            }
-        ]
-        
-        # Chart.js 옵션 설정
-        options = {
-            "responsive": True,
-            "plugins": {
-                "legend": {
-                    "position": "top"
-                },
-                "title": {
-                    "display": True,
-                    "text": f"재무지표 종합 비교 (2024년)"
-                }
-            },
-            "scales": {
-                "r": {
-                    "beginAtZero": True,
-                    "max": max(radar_data[company_column].max(), radar_data['업계평균'].max()) * 1.2
-                }
-            }
-        }
-        
-        # Chart.js로 차트 렌더링
-        ChartJSComponent.create_radar_chart(labels, datasets, options)
+        <div style="
+            background: linear-gradient(145deg, #f0f9ff, #e0f2fe);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.1), 0 2px 4px -1px rgba(14, 165, 233, 0.06);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        ">
+            <h3 style="
+                color: #0369a1;
+                font-weight: 700;
+                font-size: 1.5rem;
+                border-bottom: 2px solid rgba(14, 165, 233, 0.2);
+                padding-bottom: 0.75rem;
+                margin-top: 0;
+                margin-bottom: 1.25rem;
+                display: flex;
+                align-items: center;
+            ">
+                <span style="
+                    background-color: #0ea5e9;
+                    color: white;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 0.75rem;
+                ">🚀</span>
+                전략적 제안
+            </h3>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                <div style="
+                    flex: 1;
+                    min-width: 250px;
+                    background: rgba(14, 165, 233, 0.05);
+                    border-radius: 8px;
+                    padding: 1rem;
+                    border-left: 4px solid #0ea5e9;
+                ">
+                    <h4 style="
+                        color: #0369a1;
+                        font-weight: 700;
+                        margin-top: 0;
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            background-color: #0ea5e9;
+                            color: white;
+                            width: 24px;
+                            height: 24px;
+                            border-radius: 50%;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 0.5rem;
+                            font-size: 0.85rem;
+                        ">1</span>
+                        수익성 강화
+                    </h4>
+                    <ul style="
+                        padding-left: 1.5rem;
+                        margin-bottom: 0;
+                    ">
+                        <li style="margin-bottom: 0.5rem;">고마진 제품 포트폴리오 확대</li>
+                        <li style="margin-bottom: 0.5rem;">비용 효율화 프로그램 지속</li>
+                        <li>자산회전율 제고를 위한 운영 효율성 개선</li>
+                    </ul>
+                </div>
+                
+                <div style="
+                    flex: 1;
+                    min-width: 250px;
+                    background: rgba(14, 165, 233, 0.05);
+                    border-radius: 8px;
+                    padding: 1rem;
+                    border-left: 4px solid #0ea5e9;
+                ">
+                    <h4 style="
+                        color: #0369a1;
+                        font-weight: 700;
+                        margin-top: 0;
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            background-color: #0ea5e9;
+                            color: white;
+                            width: 24px;
+                            height: 24px;
+                            border-radius: 50%;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 0.5rem;
+                            font-size: 0.85rem;
+                        ">2</span>
+                        성장동력 확보
+                    </h4>
+                    <ul style="
+                        padding-left: 1.5rem;
+                        margin-bottom: 0;
+                    ">
+                        <li style="margin-bottom: 0.5rem;">신규 사업 발굴 및 투자 확대</li>
+                        <li style="margin-bottom: 0.5rem;">R&D 투자 강화</li>
+                        <li>M&A 기회 모니터링</li>
+                    </ul>
+                </div>
+                
+                <div style="
+                    flex: 1;
+                    min-width: 250px;
+                    background: rgba(14, 165, 233, 0.05);
+                    border-radius: 8px;
+                    padding: 1rem;
+                    border-left: 4px solid #0ea5e9;
+                ">
+                    <h4 style="
+                        color: #0369a1;
+                        font-weight: 700;
+                        margin-top: 0;
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                    ">
+                        <span style="
+                            background-color: #0ea5e9;
+                            color: white;
+                            width: 24px;
+                            height: 24px;
+                            border-radius: 50%;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 0.5rem;
+                            font-size: 0.85rem;
+                        ">3</span>
+                        재무건전성 유지
+                    </h4>
+                    <ul style="
+                        padding-left: 1.5rem;
+                        margin-bottom: 0;
+                    ">
+                        <li style="margin-bottom: 0.5rem;">현금흐름 관리 강화</li>
+                        <li style="margin-bottom: 0.5rem;">적정 레버리지 수준 유지</li>
+                        <li>배당정책 검토</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
