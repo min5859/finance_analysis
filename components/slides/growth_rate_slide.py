@@ -45,14 +45,6 @@ class GrowthRateSlide(BaseSlide):
             line-height: 1.5;
         }
         
-        .growth-table-container {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 10px;
-        }
-        
         .growth-table {
             width: 100%;
             border-collapse: collapse;
@@ -96,42 +88,6 @@ class GrowthRateSlide(BaseSlide):
             border-left: 4px solid #228be6;
         }
         </style>
-        """, unsafe_allow_html=True)
-    
-    def _render_key_metrics(self):
-        """핵심 지표 렌더링 - 테이블 형태로 수정"""
-        growth_rates = self.data_loader.get_growth_rates()
-        
-        # 테이블 HTML 생성
-        st.markdown("""
-        <div style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); margin-bottom: 20px;">
-            <div style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 20px;">핵심 성장률 지표</div>
-            <table class="growth-table">
-                <tr>
-                    <th>항목</th>
-                    <th>2023년</th>
-                    <th>2024년</th>
-                </tr>
-                <tr>
-                    <td>총자산</td>
-                    <td class="positive">+3.9%</td>
-                    <td class="positive">+0.8%</td>
-                </tr>
-                <tr>
-                    <td>매출액</td>
-                    <td class="negative">-7.5%</td>
-                    <td class="negative">-22.6%</td>
-                </tr>
-                <tr>
-                    <td>당기순이익</td>
-                    <td class="positive">+0.6%</td>
-                    <td class="positive">+17.8%</td>
-                </tr>
-            </table>
-        </div>
-        <div class="insight-message">
-            자산 성장 둔화·매출 급락에도 순이익 17.8%↑ 수익성 방어
-        </div>
         """, unsafe_allow_html=True)
     
     def _render_growth_rate_chart(self):
@@ -195,3 +151,39 @@ class GrowthRateSlide(BaseSlide):
         
         # Chart.js로 차트 렌더링
         ChartJSComponent.create_bar_chart(labels, datasets, options)
+    
+    def _render_key_metrics(self):
+        """핵심 지표 렌더링 - 테이블 형태로 수정"""
+        growth_rates = self.data_loader.get_growth_rates()
+        
+        # 테이블 HTML 생성
+        st.markdown("""
+        <div style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); margin-bottom: 20px;">
+            <div style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 20px;">핵심 성장률 지표</div>
+            <table class="growth-table">
+                <tr>
+                    <th>항목</th>
+                    <th>2023년</th>
+                    <th>2024년</th>
+                </tr>
+                <tr>
+                    <td>총자산</td>
+                    <td class="positive">+3.9%</td>
+                    <td class="positive">+0.8%</td>
+                </tr>
+                <tr>
+                    <td>매출액</td>
+                    <td class="negative">-7.5%</td>
+                    <td class="negative">-22.6%</td>
+                </tr>
+                <tr>
+                    <td>당기순이익</td>
+                    <td class="positive">+0.6%</td>
+                    <td class="positive">+17.8%</td>
+                </tr>
+            </table>
+        </div>
+        <div class="insight-message">
+            자산 성장 둔화·매출 급락에도 순이익 17.8%↑ 수익성 방어
+        </div>
+        """, unsafe_allow_html=True)
