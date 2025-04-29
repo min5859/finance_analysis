@@ -45,8 +45,6 @@ def main():
     
     apply_custom_css()
     
-    st.title("기업 재무 분석 대시보드")
-
     # 사이드바 구성
     st.sidebar.title("메뉴")
     
@@ -62,6 +60,46 @@ def main():
     )
     
     selected_file = company_files[selected_index]
+
+    # 선택된 기업 정보 가져오기
+    company_name = "기업 재무"
+    if selected_file is not None:
+        data_dir = os.path.dirname(os.path.abspath(__file__))
+        company_dir = os.path.join(data_dir, "data/companies")
+        json_file = os.path.join(company_dir, selected_file)
+        try:
+            with open(json_file, 'r', encoding='utf-8') as f:
+                company_data = json.load(f)
+                company_name = f"{company_data.get('company_name', '기업')} 재무"
+        except Exception:
+            pass
+
+    # Fancy Header 스타일의 타이틀
+    st.markdown(f"""
+    <div style="
+        background: linear-gradient(90deg, #4338ca, #3b82f6, #0ea5e9); 
+        padding: 1.5rem; 
+        border-radius: 0.8rem; 
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        text-align: center;
+    ">
+        <h1 style="
+            color: white; 
+            font-weight: 800; 
+            margin: 0; 
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        ">{company_name} 분석</h1>
+        <p style="
+            color: rgba(255, 255, 255, 0.9); 
+            font-size: 1.1rem; 
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+            font-weight: 500;
+        ">재무 건전성과 성과를 한눈에 파악하세요</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     # 구분선 추가
     st.sidebar.markdown("---")

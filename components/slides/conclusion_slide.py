@@ -38,41 +38,9 @@ class ConclusionSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
-        self._render_fancy_header()
         self._render_strengths_weaknesses()
         self._render_strategic_recommendations()
-    
-    def _render_fancy_header(self):
-        """향상된 헤더 렌더링"""
-        company_name = self.company_info.get('company_name', '회사')
-        
-        # 화려한 그라데이션 헤더
-        st.markdown(f"""
-        <div style="
-            background: linear-gradient(90deg, #4338ca, #3b82f6, #0ea5e9); 
-            padding: 1.5rem; 
-            border-radius: 0.8rem; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-            text-align: center;
-        ">
-            <h1 style="
-                color: white; 
-                font-weight: 800; 
-                margin: 0; 
-                font-size: 2.2rem;
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            ">{company_name} 재무비율 분석 종합 결론</h1>
-            <p style="
-                color: rgba(255, 255, 255, 0.9); 
-                font-size: 1.1rem; 
-                margin-top: 0.5rem;
-                margin-bottom: 0;
-                font-weight: 500;
-            ">2022-2024년 재무성과 및 전략 방향성</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
+   
     def _render_strengths_weaknesses(self):
         """강점과 개선 필요사항 렌더링"""
         html_content = """
