@@ -14,10 +14,16 @@ class GrowthRateSlide(BaseSlide):
         # CSS 스타일 추가
         self._add_custom_styles()
         
+        # 인사이트 데이터 가져오기
+        insights = self.data_loader.get_insights()
+        growth_insight = insights.get('growth_rates', {})
+        header_text = growth_insight.get('content1', 'JSON의 insights.growth_rates 항목을 추가해 주세요.')
+        insight_message = growth_insight.get('content2', 'JSON의 insights.growth_rates 항목을 추가해 주세요.')
+        
         # 헤더 텍스트 추가
-        st.markdown("""
+        st.markdown(f"""
         <div class="header-card">
-            자산 성장 둔화, 매출 하락했지만, 2024년 순이익이 17.8% 증가하며 비용 효율화와 고마진 제품 확대를 통해 수익성 방어
+            {header_text}
         </div>
         """, unsafe_allow_html=True)
         
@@ -25,7 +31,6 @@ class GrowthRateSlide(BaseSlide):
         col1, col2 = st.columns([7, 5])
         
         with col1:
-            # 차트 데이터 준비
             growth_rates = self.data_loader.get_growth_rates()
             labels = growth_rates['year'].tolist()
             datasets = [
@@ -92,7 +97,7 @@ class GrowthRateSlide(BaseSlide):
             )
         
         with col2:
-            self._render_key_metrics()
+            self._render_key_metrics(insight_message)
     
     def _add_custom_styles(self):
         """커스텀 CSS 스타일 추가"""
@@ -154,11 +159,10 @@ class GrowthRateSlide(BaseSlide):
         </style>
         """, unsafe_allow_html=True)
     
-    def _render_key_metrics(self):
-        """핵심 지표 렌더링 - 테이블 형태로 수정"""
+    def _render_key_metrics(self, insight_message):
+        """핵심 지표 렌더링 - 테이블 형태로 수정, 인사이트 메시지 인자로 받음"""
         growth_rates = self.data_loader.get_growth_rates()
         
-        # 테이블 HTML 생성
         st.markdown("""
         <div style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); margin-bottom: 20px;">
             <div style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 20px;">핵심 성장률 지표</div>
@@ -185,7 +189,10 @@ class GrowthRateSlide(BaseSlide):
                 </tr>
             </table>
         </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
         <div class="insight-message">
-            자산 성장 둔화·매출 급락에도 순이익 17.8%↑ 수익성 방어
+            {insight_message}
         </div>
         """, unsafe_allow_html=True)
