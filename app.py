@@ -13,6 +13,16 @@ from components.slides.working_capital_slide import WorkingCapitalSlide
 from components.slides.conclusion_slide import ConclusionSlide
 from components.slides.industry_comparison_slide import IndustryComparisonSlide
 from config.app_config import apply_custom_css
+import streamlit.components.v1 as components
+import base64
+
+def get_image_as_base64(file_path):
+    with open(file_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+# 이미지를 Base64로 변환
+img_path = "static/images/04.M&AIKorea_CI_hor_transparent-04(white).png"
+img_base64 = get_image_as_base64(img_path)
 
 def get_available_companies():
     """사용 가능한 회사 목록 가져오기"""
@@ -46,7 +56,7 @@ def main():
     apply_custom_css()
     
     # 사이드바 구성
-    st.sidebar.title("메뉴")
+    st.sidebar.image("static/images/01.M&AIKorea_CI_transparent-(gradient).png", use_container_width=True)
     
     # 회사 선택 드롭다운을 사이드바로 이동
     companies = get_available_companies()
@@ -75,9 +85,9 @@ def main():
             pass
 
     # Fancy Header 스타일의 타이틀
-    st.markdown(f"""
+    components.html(f"""
     <div style="
-        background: linear-gradient(90deg, #4338ca, #3b82f6, #0ea5e9); 
+        background: linear-gradient(90deg, #0a1172, #1a237e, #283593);
         padding: 1.5rem; 
         border-radius: 0.8rem; 
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -91,15 +101,9 @@ def main():
             font-size: 2.2rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         ">{company_name} 분석</h1>
-        <p style="
-            color: rgba(255, 255, 255, 0.9); 
-            font-size: 1.1rem; 
-            margin-top: 0.5rem;
-            margin-bottom: 0;
-            font-weight: 500;
-        ">재무 건전성과 성과를 한눈에 파악하세요</p>
+        <img src="data:image/png;base64,{img_base64}" style="max-width: 120px; margin-top: 1rem; display: block; margin-left: auto; margin-right: auto;">
     </div>
-    """, unsafe_allow_html=True)
+    """, height=150)
 
     # 구분선 추가
     st.sidebar.markdown("---")
