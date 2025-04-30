@@ -1,6 +1,6 @@
 import streamlit as st
 from components.slides.base_slide import BaseSlide
-from components.charts.chart_js_component import ChartJSComponent
+from components.charts.iframe_chart_component import IframeChartComponent
 from config.app_config import COLOR_PALETTE
 
 class StabilitySlide(BaseSlide):
@@ -191,7 +191,7 @@ class StabilitySlide(BaseSlide):
                     "position": "top"
                 },
                 "title": {
-                    "display": True,
+                    "display": False,
                     "text": "재무안정성 지표 추이"
                 }
             },
@@ -223,8 +223,21 @@ class StabilitySlide(BaseSlide):
             }
         }
         
-        # Chart.js로 차트 렌더링
-        ChartJSComponent.create_line_chart(labels, datasets, options)
+        # IframeChartComponent로 차트 렌더링
+        IframeChartComponent.create_line_chart_in_card(
+            labels=labels,
+            datasets=datasets,
+            options=options,
+            height=400,
+            title="재무안정성 지표 추이",
+            card_style={
+                "background-color": "white",
+                "border-radius": "10px",
+                "padding": "10px",
+                "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
+                "margin-bottom": "0px"
+            }
+        )
     
     def _render_stability_structure(self):
         """재무안정성 구조 렌더링 - 펜시한 카드 형태로"""

@@ -1,6 +1,6 @@
 import streamlit as st
 from components.slides.base_slide import BaseSlide
-from components.charts.chart_js_component import ChartJSComponent
+from components.charts.iframe_chart_component import IframeChartComponent
 from config.app_config import COLOR_PALETTE
 
 class WorkingCapitalSlide(BaseSlide):
@@ -202,7 +202,7 @@ class WorkingCapitalSlide(BaseSlide):
                     "position": "top"
                 },
                 "title": {
-                    "display": True,
+                    "display": False,
                     "text": "운전자본 효율성 분석 (단위: 일)"
                 },
                 "tooltip": {
@@ -230,8 +230,21 @@ class WorkingCapitalSlide(BaseSlide):
             }
         }
         
-        # Chart.js로 차트 렌더링
-        ChartJSComponent.create_bar_chart(labels, datasets, options)
+        # IframeChartComponent로 차트 렌더링
+        IframeChartComponent.create_bar_chart_in_card(
+            labels=labels,
+            datasets=datasets,
+            options=options,
+            height=400,
+            title="운전자본 효율성 분석 (단위: 일)",
+            card_style={
+                "background-color": "white",
+                "border-radius": "10px",
+                "padding": "20px",
+                "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
+                "margin-bottom": "20px"
+            }
+        )
     
     def _render_working_capital_analysis(self):
         """운전자본 효율성 분석 렌더링 - 펜시한 카드 형태로"""

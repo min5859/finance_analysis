@@ -1,6 +1,6 @@
 import streamlit as st
 from components.slides.base_slide import BaseSlide
-from components.charts.chart_js_component import ChartJSComponent
+from components.charts.iframe_chart_component import IframeChartComponent
 from config.app_config import COLOR_PALETTE
 
 class ProfitabilitySlide(BaseSlide):
@@ -195,7 +195,7 @@ class ProfitabilitySlide(BaseSlide):
                     "position": "top"
                 },
                 "title": {
-                    "display": True,
+                    "display": False,
                     "text": "ROE 분해 분석 (듀폰 분석)"
                 }
             },
@@ -216,8 +216,21 @@ class ProfitabilitySlide(BaseSlide):
             }
         }
         
-        # Chart.js로 차트 렌더링
-        ChartJSComponent.create_bar_chart(labels, datasets, options)
+        # IframeChartComponent로 차트 렌더링
+        IframeChartComponent.create_bar_chart_in_card(
+            labels=labels,
+            datasets=datasets,
+            options=options,
+            height=400,
+            title="ROE 분해 분석 (듀폰 분석)",
+            card_style={
+                "background-color": "white",
+                "border-radius": "10px",
+                "padding": "10px",
+                "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
+                "margin-bottom": "0px"
+            }
+        )
     
     def _render_profitability_structure(self):
         """수익성 구조 렌더링 - 펜시한 카드 형태로, 직접 컨테이너 사용"""
