@@ -1,6 +1,6 @@
 import streamlit as st
 from components.slides.base_slide import BaseSlide
-from components.charts.chart_js_component import ChartJSComponent
+from components.charts.iframe_chart_component import IframeChartComponent
 from config.app_config import COLOR_PALETTE
 import os
 import json
@@ -187,26 +187,21 @@ class IndustryComparisonSlide(BaseSlide):
             }
         }
         
-        # 차트 컨테이너에 스타일 적용
-        st.markdown("""
-        <div style="
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            padding: 1rem;
-            margin-top: 1rem;
-        ">
-        """, unsafe_allow_html=True)
-        
-        # 차트 높이 증가
-        with st.container():
-            st.write("")  # 약간의 여백 추가
-            # Chart.js로 차트 렌더링
-            ChartJSComponent.create_radar_chart(labels, datasets, options, height=450)
-        
-        st.markdown("""
-        </div>
-        """, unsafe_allow_html=True)
+        # IframeChartComponent를 사용하여 레이더 차트 렌더링
+        IframeChartComponent.create_radar_chart_in_card(
+            labels=labels,
+            datasets=datasets,
+            options=options,
+            height=450,
+            title="재무지표 종합 비교 (2024년)",
+            card_style={
+                "background-color": "white",
+                "border-radius": "10px",
+                "padding": "20px",
+                "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
+                "margin-bottom": "20px"
+            }
+        )
         
         # 차트 하단에 분석 요약 추가
         st.markdown("""
