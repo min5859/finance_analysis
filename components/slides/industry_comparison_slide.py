@@ -44,27 +44,6 @@ class IndustryComparisonSlide(BaseSlide):
     
     def _render_radar_chart(self):
         """레이더 차트 렌더링"""
-        # 차트 상단에 매력적인 헤더 추가
-        st.markdown("""
-        <div style="
-            text-align: center;
-            margin-bottom: 1rem;
-        ">
-            <h3 style="
-                color: #1e40af;
-                font-weight: 700;
-                display: inline-block;
-                padding: 0.5rem 1.5rem;
-                background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.1));
-                border-radius: 9999px;
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-                margin: 0;
-            ">
-                업계 비교 현황
-            </h3>
-        </div>
-        """, unsafe_allow_html=True)
-        
         radar_data = self.data_loader.get_radar_data()
         
         # 회사명 가져오기
@@ -122,7 +101,7 @@ class IndustryComparisonSlide(BaseSlide):
                     }
                 },
                 "title": {
-                    "display": True,
+                    "display": False,
                     "text": f"재무지표 종합 비교 (2024년)",
                     "font": {
                         "size": 18,
@@ -197,9 +176,9 @@ class IndustryComparisonSlide(BaseSlide):
             card_style={
                 "background-color": "white",
                 "border-radius": "10px",
-                "padding": "20px",
+                "padding": "0px",
                 "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
-                "margin-bottom": "20px"
+                "margin-bottom": "0px"
             }
         )
         
