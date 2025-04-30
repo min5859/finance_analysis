@@ -7,7 +7,7 @@ class BalanceSheetSlide(BaseSlide):
     """재무상태표 추이 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "재무상태표 주요 항목 추이")
+        super().__init__(data_loader, "Scale and Structure Analysis")
     
     def render(self):
         """슬라이드 렌더링"""

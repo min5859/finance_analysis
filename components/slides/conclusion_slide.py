@@ -8,7 +8,7 @@ class ConclusionSlide(BaseSlide):
     """종합 결론 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "재무비율 분석 종합 결론")
+        super().__init__(data_loader, "Comprehensive Assessment & Strategic Recommendations")
         self._load_company_info()
     
     def _load_company_info(self):
@@ -38,6 +38,7 @@ class ConclusionSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.render_header()
         self._render_strengths_weaknesses()
         self._render_strategic_recommendations()
    

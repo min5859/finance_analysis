@@ -7,7 +7,7 @@ class ProfitabilitySlide(BaseSlide):
     """수익성 분석 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "ROE 분해 분석 (듀폰 분석)")
+        super().__init__(data_loader, "Comprehensive Analysis of ROE Drivers")
     
     def render(self):
         """슬라이드 렌더링"""
