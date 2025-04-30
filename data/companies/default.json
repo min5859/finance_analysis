@@ -1,6 +1,7 @@
 {
     "company_name": "풍전비철",
     "sector": "금속/비철금속",
+    "report_year": "2024",
     "performance_data": {
         "year": ["2022", "2023", "2024"],
         "매출액": [9470, 8730, 6760],

@@ -4,6 +4,7 @@ from components.charts.iframe_chart_component import IframeChartComponent
 from config.app_config import COLOR_PALETTE
 import os
 import json
+import datetime
 
 class IndustryComparisonSlide(BaseSlide):
     """업계비교 현황 슬라이드"""
@@ -14,6 +15,9 @@ class IndustryComparisonSlide(BaseSlide):
     
     def _load_company_info(self):
         """회사 정보 로드"""
+        # 현재 연도를 가져옴
+        current_year = str(datetime.datetime.now().year)
+        
         data_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         company_dir = os.path.join(data_dir, "data/companies")
         
@@ -26,15 +30,20 @@ class IndustryComparisonSlide(BaseSlide):
             try:
                 with open(json_file, 'r', encoding='utf-8') as f:
                     self.company_info = json.load(f)
+                    # report_year가 없으면 현재 연도를 기본값으로 추가
+                    if 'report_year' not in self.company_info:
+                        self.company_info['report_year'] = current_year
             except Exception:
                 self.company_info = {
                     "company_name": "회사명 정보 없음",
-                    "sector": "업종 정보 없음"
+                    "sector": "업종 정보 없음",
+                    "report_year": current_year  # 현재 연도를 기본값으로 설정
                 }
         else:
             self.company_info = {
                 "company_name": "회사명 정보 없음",
-                "sector": "업종 정보 없음"
+                "sector": "업종 정보 없음",
+                "report_year": current_year  # 현재 연도를 기본값으로 설정
             }
     
     def render(self):
@@ -48,6 +57,10 @@ class IndustryComparisonSlide(BaseSlide):
         
         # 회사명 가져오기
         company_name = self.company_info.get('company_name', '회사')
+        
+        # 보고서 연도 가져오기 (JSON에서 가져오거나 현재 연도 사용)
+        current_year = str(datetime.datetime.now().year)
+        report_year = self.company_info.get('report_year', current_year)
         
         # Chart.js 데이터셋 준비
         labels = radar_data['metric'].tolist()
@@ -102,7 +115,7 @@ class IndustryComparisonSlide(BaseSlide):
                 },
                 "title": {
                     "display": False,
-                    "text": f"재무지표 종합 비교 (2024년)",
+                    "text": f"재무지표 종합 비교 ({report_year}년)",  # JSON에서 가져온 연도 사용
                     "font": {
                         "size": 18,
                         "weight": "bold"
@@ -172,7 +185,7 @@ class IndustryComparisonSlide(BaseSlide):
             datasets=datasets,
             options=options,
             height=450,
-            title="재무지표 종합 비교 (2024년)",
+            title=f"재무지표 종합 비교 ({report_year}년)",  # JSON에서 가져온 연도 사용
             card_style={
                 "background-color": "white",
                 "border-radius": "10px",
@@ -183,7 +196,7 @@ class IndustryComparisonSlide(BaseSlide):
         )
         
         # 차트 하단에 분석 요약 추가
-        st.markdown("""
+        st.markdown(f"""
         <div style="
             background: linear-gradient(145deg, #f5f3ff, #ede9fe);
             border-radius: 8px;
@@ -203,4 +216,4 @@ class IndustryComparisonSlide(BaseSlide):
                 탁월한 경쟁력을 갖추고 있습니다.
             </p>
         </div>
-        """, unsafe_allow_html=True) 
+        """, unsafe_allow_html=True)
