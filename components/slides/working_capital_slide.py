@@ -206,11 +206,8 @@ class WorkingCapitalSlide(BaseSlide):
                     "text": "운전자본 효율성 분석 (단위: 일)"
                 },
                 "tooltip": {
-                    "callbacks": {
-                        "label": """function(context) {
-                            return context.dataset.label + ': ' + context.raw + '일';
-                        }"""
-                    }
+                    "mode": "index",
+                    "intersect": False,
                 }
             },
             "scales": {

@@ -197,11 +197,8 @@ class CashFlowSlide(BaseSlide):
                     "text": "현금흐름 추이 분석 (단위: 억원)"
                 },
                 "tooltip": {
-                    "callbacks": {
-                        "label": """function(context) {
-                            return context.dataset.label + ': ' + context.raw + '억원';
-                        }"""
-                    }
+                    "mode": "index",
+                    "intersect": False
                 }
             },
             "scales": {

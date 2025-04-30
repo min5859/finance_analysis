@@ -193,6 +193,10 @@ class StabilitySlide(BaseSlide):
                 "title": {
                     "display": False,
                     "text": "재무안정성 지표 추이"
+                },
+                "tooltip": {
+                    "mode": "index",
+                    "intersect": False
                 }
             },
             "scales": {

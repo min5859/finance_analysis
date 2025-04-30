@@ -70,6 +70,10 @@ class GrowthRateSlide(BaseSlide):
                     "title": {
                         "display": False,
                         "text": "주요 항목 성장률 추이 (단위: %)"
+                    },
+                    "tooltip": {
+                        "mode": "index",
+                        "intersect": False
                     }
                 },
                 "scales": {

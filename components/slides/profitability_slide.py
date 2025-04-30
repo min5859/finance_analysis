@@ -197,6 +197,10 @@ class ProfitabilitySlide(BaseSlide):
                 "title": {
                     "display": False,
                     "text": "ROE 분해 분석 (듀폰 분석)"
+                },
+                "tooltip": {
+                    "mode": "index",
+                    "intersect": False
                 }
             },
             "scales": {

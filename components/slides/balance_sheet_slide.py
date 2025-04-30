@@ -189,6 +189,10 @@ class BalanceSheetSlide(BaseSlide):
         options = {
             "responsive": True,
             "plugins": {
+                "tooltip": {
+                    "mode": "index",
+                    "intersect": False,
+                },
                 "legend": {
                     "position": "top"
                 },
