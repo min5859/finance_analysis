@@ -100,6 +100,14 @@ class IndustryComparisonSlide(BaseSlide):
         options = {
             "responsive": True,
             "maintainAspectRatio": False,
+            "layout": {
+                "padding": {
+                    "left": 10,
+                    "right": 10,
+                    "top": 0,
+                    "bottom": 30  # 하단에 더 많은 패딩 추가
+                }
+            },
             "plugins": {
                 "legend": {
                     "position": "top",
