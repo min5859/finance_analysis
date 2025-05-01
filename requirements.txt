@@ -2,3 +2,8 @@ streamlit
 pandas
 plotly
 numpy
+openai
+pillow
+pymupdf
+requests
+anthropic
