@@ -34,17 +34,38 @@ class DataLoader:
             with open(json_file, 'r', encoding='utf-8') as f:
                 financial_data = json.load(f)
             
+            # 빈 배열 처리 함수
+            def process_empty_arrays(data_dict):
+                if not isinstance(data_dict, dict):
+                    return data_dict
+                
+                processed = {}
+                for key, value in data_dict.items():
+                    if isinstance(value, dict):
+                        processed[key] = process_empty_arrays(value)
+                    elif isinstance(value, list):
+                        if not value:  # 빈 배열인 경우
+                            processed[key] = [0] * len(data_dict.get('year', []))
+                        else:
+                            processed[key] = value
+                    else:
+                        processed[key] = value
+                return processed
+            
+            # 데이터 전처리
+            processed_data = process_empty_arrays(financial_data)
+            
             # 데이터 프레임으로 변환
-            self.performance_data = pd.DataFrame(financial_data.get('performance_data', {}))
-            self.balance_sheet_data = pd.DataFrame(financial_data.get('balance_sheet_data', {}))
-            self.stability_data = pd.DataFrame(financial_data.get('stability_data', {}))
-            self.cash_flow_data = pd.DataFrame(financial_data.get('cash_flow_data', {}))
-            self.working_capital_data = pd.DataFrame(financial_data.get('working_capital_data', {}))
-            self.profitability_data = pd.DataFrame(financial_data.get('profitability_data', {}))
-            self.growth_rates = pd.DataFrame(financial_data.get('growth_rates', {}))
-            self.dupont_data = pd.DataFrame(financial_data.get('dupont_data', {}))
-            self.radar_data = pd.DataFrame(financial_data.get('radar_data', {}))
-            self.insights = financial_data.get('insights', {})
+            self.performance_data = pd.DataFrame(processed_data.get('performance_data', {}))
+            self.balance_sheet_data = pd.DataFrame(processed_data.get('balance_sheet_data', {}))
+            self.stability_data = pd.DataFrame(processed_data.get('stability_data', {}))
+            self.cash_flow_data = pd.DataFrame(processed_data.get('cash_flow_data', {}))
+            self.working_capital_data = pd.DataFrame(processed_data.get('working_capital_data', {}))
+            self.profitability_data = pd.DataFrame(processed_data.get('profitability_data', {}))
+            self.growth_rates = pd.DataFrame(processed_data.get('growth_rates', {}))
+            self.dupont_data = pd.DataFrame(processed_data.get('dupont_data', {}))
+            self.radar_data = pd.DataFrame(processed_data.get('radar_data', {}))
+            self.insights = processed_data.get('insights', {})
         except Exception as e:
             raise Exception(f"JSON 파일 로드 중 오류 발생: {str(e)}")
     
