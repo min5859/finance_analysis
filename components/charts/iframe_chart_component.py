@@ -23,10 +23,12 @@ class IframeChartComponent:
         # 기본 카드 스타일
         default_card_style = {
             "background-color": "white",
-            "border-radius": "10px",
+            "border-radius": "16px",
             "padding": "20px",
-            "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
-            "margin-bottom": "20px"
+            "box-shadow": "0 10px 25px rgba(0, 0, 0, 0.1), 0 5px 10px rgba(0, 0, 0, 0.05)",
+            "margin-bottom": "20px",
+            "border": "1px solid rgba(0, 0, 0, 0.05)",
+            "transition": "all 0.3s ease"
         }
         
         # 사용자 정의 스타일 적용
@@ -47,8 +49,14 @@ class IframeChartComponent:
         </script>
         """
         
+        # 추가 라이브러리 및 폰트 추가
+        additional_libs = """
+        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+        """
+        
         # 추가 스크립트 준비
-        scripts_to_include = ""
+        scripts_to_include = additional_libs
         if use_datalabels:
             scripts_to_include += datalabels_script
         if additional_scripts:
@@ -70,35 +78,92 @@ class IframeChartComponent:
                     width: 100%;
                     height: 100%;
                     overflow: hidden;
+                    font-family: 'Noto Sans KR', sans-serif;
                 }}
+                
                 .chart-container {{
                     position: relative;
                     width: 100%;
                     height: {height}px;
                     padding: 10px;
                     box-sizing: border-box;
+                    background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(250,250,255,0.6) 100%);
+                    border-radius: 12px;
                 }}
+                
                 .card-title {{
-                    font-size: 18px;
-                    font-weight: bold;
+                    font-size: 20px;
+                    font-weight: 600;
                     text-align: center;
-                    margin-bottom: 20px;
+                    margin-bottom: 24px;
                     color: #333;
+                    letter-spacing: -0.02em;
+                    position: relative;
+                    padding-bottom: 10px;
+                }}
+                
+                .card-title:after {{
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 40px;
+                    height: 3px;
+                    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+                    border-radius: 3px;
+                }}
+                
+                .chart-backdrop {{
+                    border-radius: 12px;
+                    box-shadow: inset 0 0 10px rgba(0,0,0,0.03);
+                    background-color: rgba(245,247,250,0.4);
+                    width: 100%;
+                    height: calc(100% - 60px);
+                    position: absolute;
+                    top: 60px;
+                    left: 0;
+                    z-index: 0;
+                }}
+                
+                canvas {{
+                    position: relative;
+                    z-index: 1;
                 }}
             </style>
         </head>
         <body>
             <div class="chart-container">
                 {f'<div class="card-title">{title}</div>' if title else ''}
+                <div class="chart-backdrop"></div>
                 <canvas id="myChart"></canvas>
             </div>
             
             <script>
                 document.addEventListener('DOMContentLoaded', function() {{
+                    // 차트 렌더링을 위한 컨텍스트 및 설정
                     const ctx = document.getElementById('myChart').getContext('2d');
                     const chartData = {json.dumps(data)};
                     const chartOptions = {json.dumps(options) if options else '{}'};
                     
+                    // 그라디언트 생성 함수
+                    function createGradient(ctx, color, start=0, end=1) {{
+                        const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+                        gradient.addColorStop(start, color + 'DD');
+                        gradient.addColorStop(end, color + '22');
+                        return gradient;
+                    }}
+                    
+                    // 데이터셋에 그라디언트 적용
+                    if (chartData.datasets && '{chart_type}' === 'bar') {{
+                        chartData.datasets.forEach(dataset => {{
+                            if (dataset.backgroundColor && typeof dataset.backgroundColor === 'string' && !dataset.backgroundColor.includes('gradient')) {{
+                                dataset.backgroundColor = createGradient(ctx, dataset.backgroundColor);
+                            }}
+                        }});
+                    }}
+                    
+                    // 차트 생성
                     new Chart(ctx, {{
                         type: '{chart_type}',
                         data: chartData,
@@ -147,42 +212,85 @@ class IframeChartComponent:
         default_options = {
             "responsive": True,
             "maintainAspectRatio": False,
+            "interaction": {
+                "mode": "index",
+                "intersect": False
+            },
             "plugins": {
                 "legend": {
                     "position": "top",
                     "labels": {
+                        "usePointStyle": True,
                         "font": {
+                            "family": "'Noto Sans KR', sans-serif",
                             "size": 12
-                        }
+                        },
+                        "padding": 20
                     }
                 },
                 "title": {
                     "display": True,
                     "text": "차트 제목",
                     "font": {
-                        "size": 16
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 18,
+                        "weight": "600"
+                    },
+                    "padding": {
+                        "top": 10,
+                        "bottom": 20
                     }
                 },
                 "tooltip": {
-                    "enabled": True
+                    "enabled": True,
+                    "backgroundColor": "rgba(20, 20, 30, 0.95)",
+                    "titleFont": {
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 14
+                    },
+                    "bodyFont": {
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 13
+                    },
+                    "padding": 12,
+                    "cornerRadius": 8,
+                    "caretSize": 6,
+                    "boxPadding": 6
                 }
             },
             "scales": {
                 "y": {
                     "beginAtZero": True,
+                    "grid": {
+                        "drawBorder": False,
+                        "color": "rgba(200, 200, 200, 0.15)"
+                    },
                     "ticks": {
                         "font": {
+                            "family": "'Noto Sans KR', sans-serif",
                             "size": 12
-                        }
+                        },
+                        "color": "#666",
+                        "padding": 10
                     }
                 },
                 "x": {
+                    "grid": {
+                        "display": False
+                    },
                     "ticks": {
                         "font": {
+                            "family": "'Noto Sans KR', sans-serif",
                             "size": 12
-                        }
+                        },
+                        "color": "#666",
+                        "padding": 10
                     }
                 }
+            },
+            "animation": {
+                "duration": 1000,
+                "easing": "easeOutQuart"
             }
         }
         
@@ -192,13 +300,17 @@ class IframeChartComponent:
                 "display": True,
                 "color": "black",
                 "font": {
+                    "family": "'Noto Sans KR', sans-serif",
                     "weight": "bold",
                     "size": 11
                 },
                 "formatter": "function(value) { return value.toLocaleString(); }",
                 "anchor": "end",
                 "align": "top",
-                "offset": 4
+                "offset": 6,
+                "backgroundColor": "rgba(255, 255, 255, 0.7)",
+                "borderRadius": 4,
+                "padding": 4
             }
         
         if options:
@@ -237,39 +349,95 @@ class IframeChartComponent:
         default_options = {
             "responsive": True,
             "maintainAspectRatio": False,
+            "interaction": {
+                "mode": "index",
+                "intersect": False
+            },
             "plugins": {
                 "legend": {
                     "position": "top",
                     "labels": {
+                        "usePointStyle": True,
                         "font": {
+                            "family": "'Noto Sans KR', sans-serif",
                             "size": 12
-                        }
+                        },
+                        "padding": 20
                     }
                 },
                 "title": {
                     "display": True,
                     "text": "차트 제목",
                     "font": {
-                        "size": 16
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 18,
+                        "weight": "600"
+                    },
+                    "padding": {
+                        "top": 10,
+                        "bottom": 20
                     }
+                },
+                "tooltip": {
+                    "enabled": True,
+                    "backgroundColor": "rgba(20, 20, 30, 0.95)",
+                    "titleFont": {
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 14
+                    },
+                    "bodyFont": {
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 13
+                    },
+                    "padding": 12,
+                    "cornerRadius": 8,
+                    "caretSize": 6,
+                    "boxPadding": 6
                 }
             },
             "scales": {
                 "y": {
                     "beginAtZero": True,
+                    "grid": {
+                        "drawBorder": False,
+                        "color": "rgba(200, 200, 200, 0.15)"
+                    },
                     "ticks": {
                         "font": {
+                            "family": "'Noto Sans KR', sans-serif",
                             "size": 12
-                        }
+                        },
+                        "color": "#666",
+                        "padding": 10
                     }
                 },
                 "x": {
+                    "grid": {
+                        "display": False
+                    },
                     "ticks": {
                         "font": {
+                            "family": "'Noto Sans KR', sans-serif",
                             "size": 12
-                        }
+                        },
+                        "color": "#666",
+                        "padding": 10
                     }
                 }
+            },
+            "elements": {
+                "line": {
+                    "tension": 0.4
+                },
+                "point": {
+                    "radius": 4,
+                    "hoverRadius": 6,
+                    "borderWidth": 2
+                }
+            },
+            "animation": {
+                "duration": 1000,
+                "easing": "easeOutQuart"
             }
         }
         
@@ -281,11 +449,14 @@ class IframeChartComponent:
                 "backgroundColor": "function(context) { return context.dataset.borderColor; }",
                 "borderRadius": 4,
                 "font": {
+                    "family": "'Noto Sans KR', sans-serif",
                     "weight": "bold",
                     "size": 11
                 },
                 "formatter": "function(value) { return value.toLocaleString(); }",
-                "padding": 6
+                "padding": 6,
+                "textShadowBlur": 3,
+                "textShadowColor": "rgba(0, 0, 0, 0.3)"
             }
         
         if options:
@@ -328,33 +499,84 @@ class IframeChartComponent:
                 "legend": {
                     "position": "top",
                     "labels": {
+                        "usePointStyle": True,
                         "font": {
+                            "family": "'Noto Sans KR', sans-serif",
                             "size": 12
-                        }
+                        },
+                        "padding": 20
                     }
                 },
                 "title": {
                     "display": True,
                     "text": "차트 제목",
                     "font": {
-                        "size": 16
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 18,
+                        "weight": "600"
+                    },
+                    "padding": {
+                        "top": 10,
+                        "bottom": 20
                     }
+                },
+                "tooltip": {
+                    "enabled": True,
+                    "backgroundColor": "rgba(20, 20, 30, 0.95)",
+                    "titleFont": {
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 14
+                    },
+                    "bodyFont": {
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 13
+                    },
+                    "padding": 12,
+                    "cornerRadius": 8,
+                    "caretSize": 6
                 }
             },
             "scales": {
                 "r": {
                     "beginAtZero": True,
                     "ticks": {
+                        "display": True,
+                        "backdropColor": "rgba(255, 255, 255, 0.75)",
                         "font": {
-                            "size": 12
-                        }
+                            "family": "'Noto Sans KR', sans-serif",
+                            "size": 10
+                        },
+                        "color": "#666"
                     },
                     "pointLabels": {
                         "font": {
-                            "size": 12
-                        }
+                            "family": "'Noto Sans KR', sans-serif",
+                            "size": 12,
+                            "weight": "500"
+                        },
+                        "color": "#333"
+                    },
+                    "grid": {
+                        "color": "rgba(200, 200, 200, 0.2)"
+                    },
+                    "angleLines": {
+                        "color": "rgba(200, 200, 200, 0.4)"
                     }
                 }
+            },
+            "elements": {
+                "line": {
+                    "borderWidth": 2
+                },
+                "point": {
+                    "radius": 4,
+                    "hoverRadius": 6,
+                    "borderWidth": 2
+                }
+            },
+            "animation": {
+                "duration": 1000,
+                "easing": "easeOutQuart"
             }
         }
         
@@ -366,11 +588,14 @@ class IframeChartComponent:
                 "backgroundColor": "function(context) { return context.dataset.borderColor; }",
                 "borderRadius": 4,
                 "font": {
+                    "family": "'Noto Sans KR', sans-serif",
                     "weight": "bold",
                     "size": 10
                 },
                 "formatter": "function(value) { return value.toLocaleString(); }",
-                "padding": 4
+                "padding": 4,
+                "textShadowBlur": 3,
+                "textShadowColor": "rgba(0, 0, 0, 0.3)"
             }
         
         if options:
