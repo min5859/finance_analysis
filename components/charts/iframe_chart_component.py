@@ -6,7 +6,7 @@ class IframeChartComponent:
     """iframe을 사용한 Chart.js 통합 컴포넌트"""
     
     @staticmethod
-    def render_chart_in_card(chart_type, data, options=None, height=500, title=None, card_style=None):
+    def render_chart_in_card(chart_type, data, options=None, height=500, title=None, card_style=None, additional_scripts=None, use_datalabels=False):
         """
         Chart.js 차트를 카드 내부에 iframe으로 렌더링
         
@@ -17,6 +17,8 @@ class IframeChartComponent:
             height (int, optional): 차트 높이
             title (str, optional): 카드 제목
             card_style (dict, optional): 카드 스타일
+            additional_scripts (str, optional): HTML <head>에 추가할 스크립트 태그
+            use_datalabels (bool, optional): datalabels 플러그인 사용 여부
         """
         # 기본 카드 스타일
         default_card_style = {
@@ -34,6 +36,24 @@ class IframeChartComponent:
         # 카드 스타일 문자열 생성
         card_style_str = "; ".join([f"{k}: {v}" for k, v in default_card_style.items()])
         
+        # datalabels 플러그인 스크립트
+        datalabels_script = """
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+        <script>
+            // 차트 생성 전에 datalabels 플러그인 등록
+            if (typeof Chart !== 'undefined') {
+                Chart.register(ChartDataLabels);
+            }
+        </script>
+        """
+        
+        # 추가 스크립트 준비
+        scripts_to_include = ""
+        if use_datalabels:
+            scripts_to_include += datalabels_script
+        if additional_scripts:
+            scripts_to_include += additional_scripts
+        
         # HTML 템플릿 생성 (전체 웹 페이지)
         html_content = f"""
         <!DOCTYPE html>
@@ -42,6 +62,7 @@ class IframeChartComponent:
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            {scripts_to_include}
             <style>
                 body, html {{
                     margin: 0;
@@ -104,7 +125,7 @@ class IframeChartComponent:
         st.markdown(iframe_html, unsafe_allow_html=True)
     
     @staticmethod
-    def create_bar_chart_in_card(labels, datasets, options=None, height=500, title=None, card_style=None):
+    def create_bar_chart_in_card(labels, datasets, options=None, height=500, title=None, card_style=None, additional_scripts=None, use_datalabels=False):
         """
         막대 차트를 카드 내부에 생성
         
@@ -115,6 +136,8 @@ class IframeChartComponent:
             height (int, optional): 차트 높이
             title (str, optional): 카드 제목
             card_style (dict, optional): 카드 스타일
+            additional_scripts (str, optional): 추가적인 HTML 스크립트
+            use_datalabels (bool, optional): datalabels 플러그인 사용 여부
         """
         data = {
             "labels": labels,
@@ -163,6 +186,21 @@ class IframeChartComponent:
             }
         }
         
+        # datalabels 플러그인 사용 시 기본 옵션 추가
+        if use_datalabels and "plugins" in default_options:
+            default_options["plugins"]["datalabels"] = {
+                "display": True,
+                "color": "black",
+                "font": {
+                    "weight": "bold",
+                    "size": 11
+                },
+                "formatter": "function(value) { return value.toLocaleString(); }",
+                "anchor": "end",
+                "align": "top",
+                "offset": 4
+            }
+        
         if options:
             # 중첩 사전 업데이트
             for k, v in options.items():
@@ -171,10 +209,13 @@ class IframeChartComponent:
                 else:
                     default_options[k] = v
         
-        IframeChartComponent.render_chart_in_card("bar", data, default_options, height, title, card_style)
+        IframeChartComponent.render_chart_in_card(
+            "bar", data, default_options, height, title, card_style, 
+            additional_scripts, use_datalabels
+        )
     
     @staticmethod
-    def create_line_chart_in_card(labels, datasets, options=None, height=500, title=None, card_style=None):
+    def create_line_chart_in_card(labels, datasets, options=None, height=500, title=None, card_style=None, additional_scripts=None, use_datalabels=False):
         """
         선형 차트를 카드 내부에 생성
         
@@ -185,6 +226,8 @@ class IframeChartComponent:
             height (int, optional): 차트 높이
             title (str, optional): 카드 제목
             card_style (dict, optional): 카드 스타일
+            additional_scripts (str, optional): 추가적인 HTML 스크립트
+            use_datalabels (bool, optional): datalabels 플러그인 사용 여부
         """
         data = {
             "labels": labels,
@@ -230,6 +273,21 @@ class IframeChartComponent:
             }
         }
         
+        # datalabels 플러그인 사용 시 기본 옵션 추가
+        if use_datalabels and "plugins" in default_options:
+            default_options["plugins"]["datalabels"] = {
+                "display": True,
+                "color": "white",
+                "backgroundColor": "function(context) { return context.dataset.borderColor; }",
+                "borderRadius": 4,
+                "font": {
+                    "weight": "bold",
+                    "size": 11
+                },
+                "formatter": "function(value) { return value.toLocaleString(); }",
+                "padding": 6
+            }
+        
         if options:
             # 중첩 사전 업데이트
             for k, v in options.items():
@@ -238,10 +296,13 @@ class IframeChartComponent:
                 else:
                     default_options[k] = v
         
-        IframeChartComponent.render_chart_in_card("line", data, default_options, height, title, card_style)
+        IframeChartComponent.render_chart_in_card(
+            "line", data, default_options, height, title, card_style, 
+            additional_scripts, use_datalabels
+        )
     
     @staticmethod
-    def create_radar_chart_in_card(labels, datasets, options=None, height=500, title=None, card_style=None):
+    def create_radar_chart_in_card(labels, datasets, options=None, height=500, title=None, card_style=None, additional_scripts=None, use_datalabels=False):
         """
         레이더 차트를 카드 내부에 생성
         
@@ -252,6 +313,8 @@ class IframeChartComponent:
             height (int, optional): 차트 높이
             title (str, optional): 카드 제목
             card_style (dict, optional): 카드 스타일
+            additional_scripts (str, optional): 추가적인 HTML 스크립트
+            use_datalabels (bool, optional): datalabels 플러그인 사용 여부
         """
         data = {
             "labels": labels,
@@ -295,6 +358,21 @@ class IframeChartComponent:
             }
         }
         
+        # datalabels 플러그인 사용 시 기본 옵션 추가
+        if use_datalabels and "plugins" in default_options:
+            default_options["plugins"]["datalabels"] = {
+                "display": True,
+                "color": "white",
+                "backgroundColor": "function(context) { return context.dataset.borderColor; }",
+                "borderRadius": 4,
+                "font": {
+                    "weight": "bold",
+                    "size": 10
+                },
+                "formatter": "function(value) { return value.toLocaleString(); }",
+                "padding": 4
+            }
+        
         if options:
             # 중첩 사전 업데이트
             for k, v in options.items():
@@ -303,4 +381,7 @@ class IframeChartComponent:
                 else:
                     default_options[k] = v
         
-        IframeChartComponent.render_chart_in_card("radar", data, default_options, height, title, card_style)
+        IframeChartComponent.render_chart_in_card(
+            "radar", data, default_options, height, title, card_style, 
+            additional_scripts, use_datalabels
+        )
