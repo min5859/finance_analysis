@@ -74,6 +74,20 @@ class GrowthRateSlide(BaseSlide):
                     "tooltip": {
                         "mode": "index",
                         "intersect": False
+                    },
+                    "datalabels": {
+                        "display": True,
+                        "color": "black",
+                        "font": {
+                            "weight": "bold",
+                            "size": 11
+                        },
+                        "formatter": "function(value) { return value.toLocaleString() + '%'; }",
+                        "align": "top",
+                        "anchor": "end",
+                        "offset": 4,
+                        "borderRadius": 4,
+                        "padding": 4
                     }
                 },
                 "scales": {
@@ -99,7 +113,8 @@ class GrowthRateSlide(BaseSlide):
                 datasets=datasets,
                 options=options,
                 height=380,
-                title="주요 항목 성장률 추이 (단위: %)"
+                title="주요 항목 성장률 추이 (단위: %)",
+                use_datalabels=True
             )
         
         with col2:

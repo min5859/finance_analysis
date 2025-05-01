@@ -95,7 +95,7 @@ class IncomeStatementSlide(BaseSlide):
             }
         ]
         
-        # Chart.js 옵션 설정
+        # Chart.js 옵션 설정 - datalabels 플러그인 추가
         options = {
             "responsive": True,
             "plugins": {
@@ -105,6 +105,33 @@ class IncomeStatementSlide(BaseSlide):
                 "title": {
                     "display": False,
                     "text": "손익계산서 주요 항목 추이 (단위: 억원, %)"
+                },
+                # datalabels 플러그인 설정 추가 - 항상 데이터 라벨 표시
+                "datalabels": {
+                    "display": True,
+                    "color": "black",
+                    "font": {
+                        "weight": "bold",
+                        "size": 11
+                    },
+                    "formatter": """function(value, context) {
+                        // 순이익률(%) 라인 차트에는 % 추가
+                        if (context.datasetIndex === 3) {
+                            return value + '%';
+                        }
+                        // 다른 데이터셋에는 숫자만 표시
+                        return value.toLocaleString();
+                    }""",
+                    "align": "top",
+                    "anchor": "end",
+                    "offset": 4,
+                    "borderRadius": 4,
+                    "padding": 4
+                },
+                # 기존 tooltip 설정도 유지
+                "tooltip": {
+                    "mode": "index",
+                    "intersect": False
                 }
             },
             "scales": {
@@ -135,7 +162,7 @@ class IncomeStatementSlide(BaseSlide):
             }
         }
         
-        # IframeChartComponent로 차트 렌더링
+        # IframeChartComponent로 차트 렌더링 (datalabels 플러그인 사용)
         IframeChartComponent.create_bar_chart_in_card(
             labels=labels,
             datasets=datasets,
@@ -148,7 +175,8 @@ class IncomeStatementSlide(BaseSlide):
                 "padding": "10px",
                 "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
                 "margin-bottom": "0px"
-            }
+            },
+            use_datalabels=True  # datalabels 플러그인 사용 설정
         )
     
     def _render_insight(self):

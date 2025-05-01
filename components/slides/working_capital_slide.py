@@ -208,6 +208,20 @@ class WorkingCapitalSlide(BaseSlide):
                 "tooltip": {
                     "mode": "index",
                     "intersect": False,
+                },
+                "datalabels": {
+                    "display": True,
+                    "color": "black",
+                    "font": {
+                        "weight": "bold",
+                        "size": 11
+                    },
+                    "formatter": "function(value) { return value.toLocaleString(); }",
+                    "align": "top",
+                    "anchor": "end",
+                    "offset": 4,
+                    "borderRadius": 4,
+                    "padding": 4
                 }
             },
             "scales": {
@@ -240,7 +254,8 @@ class WorkingCapitalSlide(BaseSlide):
                 "padding": "20px",
                 "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
                 "margin-bottom": "20px"
-            }
+            },
+            use_datalabels=True
         )
     
     def _render_working_capital_analysis(self):

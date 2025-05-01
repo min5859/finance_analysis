@@ -199,6 +199,20 @@ class BalanceSheetSlide(BaseSlide):
                 "title": {
                     "display": False,
                     "text": "재무상태표 주요 항목 추이 (단위: 억원)"
+                },
+                "datalabels": {
+                    "display": True,
+                    "color": "black",
+                    "font": {
+                        "weight": "bold",
+                        "size": 11
+                    },
+                    "formatter": "function(value) { return value.toLocaleString(); }",
+                    "align": "top",
+                    "anchor": "end",
+                    "offset": 4,
+                    "borderRadius": 4,
+                    "padding": 4
                 }
             },
             "scales": {
@@ -231,7 +245,8 @@ class BalanceSheetSlide(BaseSlide):
                 "padding": "10px",
                 "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
                 "margin-bottom": "0px"
-            }
+            },
+            use_datalabels=True
         )
     
     def _render_scale_and_structure(self):

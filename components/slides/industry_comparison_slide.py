@@ -140,6 +140,19 @@ class IndustryComparisonSlide(BaseSlide):
                     "cornerRadius": 8,
                     "padding": 12,
                     "boxShadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+                },
+                "datalabels": {
+                    "display": True,
+                    "color": "black",
+                    "font": {
+                        "weight": "bold",
+                        "size": 11
+                    },
+                    "formatter": "function(value) { return value.toLocaleString(); }",
+                    "align": "end",
+                    "offset": 10,
+                    "borderRadius": 4,
+                    "padding": 4
                 }
             },
             "scales": {
@@ -192,7 +205,8 @@ class IndustryComparisonSlide(BaseSlide):
                 "padding": "0px",
                 "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
                 "margin-bottom": "0px"
-            }
+            },
+            use_datalabels=True  # datalabels 플러그인 사용 설정
         )
         
         # 차트 하단에 분석 요약 추가
