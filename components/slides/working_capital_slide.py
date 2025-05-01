@@ -344,27 +344,36 @@ class WorkingCapitalSlide(BaseSlide):
     def _render_working_capital_score_card(self):
         """운전자본 효율성 요약 점수 카드"""
         working_capital_data = self.data_loader.get_working_capital_data()
+        insights = self.data_loader.get_insights()
         
         # 최신 CCC 값 가져오기
         latest_ccc = working_capital_data['CCC'].iloc[-1]
         
-        # 산업 평균 CCC (임의 설정, 실제로는 데이터에서 가져와야 함)
-        industry_avg_ccc = 90  # 예시 값
+        # 산업 평균 CCC를 JSON에서 가져오기
+        industry_avg_ccc = insights.get('working_capital', {}).get('industry_avg_ccc', 90)  # 기본값 90
+        
+        # CCC 점수 계산 기준도 JSON에서 가져오기
+        ccc_thresholds = insights.get('working_capital', {}).get('ccc_thresholds', {
+            'very_good': 50,
+            'good': 70,
+            'fair': 90,
+            'moderate': 110
+        })
         
         # CCC 점수 계산
-        if latest_ccc < 50:
+        if latest_ccc < ccc_thresholds.get('very_good', 50):
             ccc_score = "매우 우수"
             ccc_description = "업계 최상위 수준의 운전자본 관리 효율성"
             ccc_color = "#10b981"
-        elif latest_ccc < 70:
+        elif latest_ccc < ccc_thresholds.get('good', 70):
             ccc_score = "우수"
             ccc_description = "업계 평균보다 우수한 수준의 운전자본 관리"
             ccc_color = "#22c55e"
-        elif latest_ccc < 90:
+        elif latest_ccc < ccc_thresholds.get('fair', 90):
             ccc_score = "양호"
             ccc_description = "업계 평균 수준의 운전자본 관리"
             ccc_color = "#3b82f6"
-        elif latest_ccc < 110:
+        elif latest_ccc < ccc_thresholds.get('moderate', 110):
             ccc_score = "보통"
             ccc_description = "업계 평균과 유사한 수준의 운전자본 관리"
             ccc_color = "#f59e0b"

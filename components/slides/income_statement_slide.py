@@ -182,6 +182,7 @@ class IncomeStatementSlide(BaseSlide):
     def _render_insight(self):
         """인사이트 렌더링"""
         performance_data = self.data_loader.get_performance_data()
+        insights = self.data_loader.get_insights()
         
         # 데이터 계산
         start_revenue = performance_data['매출액'].iloc[0]
@@ -198,6 +199,9 @@ class IncomeStatementSlide(BaseSlide):
         
         start_net_margin = performance_data['순이익률'].iloc[0]
         end_net_margin = performance_data['순이익률'].iloc[-1]
+        
+        # 인사이트 메시지를 JSON에서 가져오기
+        insight_msg = insights.get('income_statement', {}).get('summary_message', 'JSON 파일에 insights.income_statement 항목을 추가해주세요')
         
         # 새로운 스타일로 인사이트 렌더링
         st.markdown(f"""
@@ -220,7 +224,7 @@ class IncomeStatementSlide(BaseSlide):
                 <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #10b981;">수익성 체질 개선</div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
-                <div style="font-size: 1rem; color: #333; font-weight: 500; line-height: 1.4;">매출 감소에도 비용 효율화와<br>고마진 제품 확대로 수익성 방어 성공</div>
+                <div style="font-size: 1rem; color: #333; font-weight: 500; line-height: 1.4;">{insight_msg}</div>
                 <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #8b5cf6;">⭐</div>
             </div>
         </div>

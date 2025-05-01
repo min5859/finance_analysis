@@ -354,56 +354,78 @@ class StabilitySlide(BaseSlide):
     
     def _evaluate_financial_safety(self, debt_ratio, current_ratio, interest_coverage):
         """재무안정성 평가 수행"""
+        insights = self.data_loader.get_insights()
+        stability_thresholds = insights.get('stability', {}).get('thresholds', {
+            'debt_ratio': {
+                'very_safe': 50,
+                'safe': 80,
+                'normal': 120,
+                'caution': 200
+            },
+            'current_ratio': {
+                'very_good': 200,
+                'good': 150,
+                'fair': 100,
+                'caution': 80
+            },
+            'interest_coverage': {
+                'very_good': 5,
+                'good': 3,
+                'fair': 1.5,
+                'caution': 1
+            }
+        })
+        
         # 부채비율 평가
-        if debt_ratio < 50:
+        if debt_ratio < stability_thresholds['debt_ratio'].get('very_safe', 50):
             debt_ratio_status = "매우 안전 (20~40% 이내)"
-            debt_ratio_color = "#10b981"  # 녹색
-        elif debt_ratio < 80:
+            debt_ratio_color = "#10b981"
+        elif debt_ratio < stability_thresholds['debt_ratio'].get('safe', 80):
             debt_ratio_status = "안전 (40~80% 이내)"
-            debt_ratio_color = "#22c55e"  # 연한 녹색
-        elif debt_ratio < 120:
+            debt_ratio_color = "#22c55e"
+        elif debt_ratio < stability_thresholds['debt_ratio'].get('normal', 120):
             debt_ratio_status = "보통 (80~120% 이내)"
-            debt_ratio_color = "#f59e0b"  # 주황색
-        elif debt_ratio < 200:
+            debt_ratio_color = "#f59e0b"
+        elif debt_ratio < stability_thresholds['debt_ratio'].get('caution', 200):
             debt_ratio_status = "주의 (120~200% 이내)"
-            debt_ratio_color = "#f97316"  # 진한 주황색
+            debt_ratio_color = "#f97316"
         else:
             debt_ratio_status = "위험 (200% 초과)"
-            debt_ratio_color = "#ef4444"  # 적색
+            debt_ratio_color = "#ef4444"
         
         # 유동비율 평가
-        if current_ratio > 200:
+        if current_ratio > stability_thresholds['current_ratio'].get('very_good', 200):
             current_ratio_status = "매우 양호 (200% 초과)"
-            current_ratio_color = "#10b981"  # 녹색
-        elif current_ratio > 150:
+            current_ratio_color = "#10b981"
+        elif current_ratio > stability_thresholds['current_ratio'].get('good', 150):
             current_ratio_status = "양호 (150~200% 이내)"
-            current_ratio_color = "#22c55e"  # 연한 녹색
-        elif current_ratio > 100:
+            current_ratio_color = "#22c55e"
+        elif current_ratio > stability_thresholds['current_ratio'].get('fair', 100):
             current_ratio_status = "적정 (100~150% 이내)"
-            current_ratio_color = "#f59e0b"  # 주황색
-        elif current_ratio > 80:
+            current_ratio_color = "#f59e0b"
+        elif current_ratio > stability_thresholds['current_ratio'].get('caution', 80):
             current_ratio_status = "주의 (80~100% 이내)"
-            current_ratio_color = "#f97316"  # 진한 주황색
+            current_ratio_color = "#f97316"
         else:
             current_ratio_status = "위험 (80% 미만)"
-            current_ratio_color = "#ef4444"  # 적색
+            current_ratio_color = "#ef4444"
         
         # 이자보상배율 평가
-        if interest_coverage > 5:
+        if interest_coverage > stability_thresholds['interest_coverage'].get('very_good', 5):
             interest_coverage_status = "매우 양호 (5배 초과)"
-            interest_coverage_color = "#10b981"  # 녹색
-        elif interest_coverage > 3:
+            interest_coverage_color = "#10b981"
+        elif interest_coverage > stability_thresholds['interest_coverage'].get('good', 3):
             interest_coverage_status = "양호 (3~5배 이내)"
-            interest_coverage_color = "#22c55e"  # 연한 녹색
-        elif interest_coverage > 1.5:
+            interest_coverage_color = "#22c55e"
+        elif interest_coverage > stability_thresholds['interest_coverage'].get('fair', 1.5):
             interest_coverage_status = "적정 (1.5~3배 이내)"
-            interest_coverage_color = "#f59e0b"  # 주황색
-        elif interest_coverage > 1:
+            interest_coverage_color = "#f59e0b"
+        elif interest_coverage > stability_thresholds['interest_coverage'].get('caution', 1):
             interest_coverage_status = "주의 (1~1.5배 이내)"
-            interest_coverage_color = "#f97316"  # 진한 주황색
+            interest_coverage_color = "#f97316"
         else:
             interest_coverage_status = "위험 (1배 미만)"
-            interest_coverage_color = "#ef4444"  # 적색
+            interest_coverage_color = "#ef4444"
         
         # 종합 등급 평가 (간단한 로직)
         # 각 지표의 색상 값에 가중치를 부여하여 종합 점수 계산

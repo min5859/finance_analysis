@@ -184,7 +184,16 @@ class GrowthRateSlide(BaseSlide):
         """핵심 지표 렌더링 - 테이블 형태로 수정, 인사이트 메시지 인자로 받음"""
         growth_rates = self.data_loader.get_growth_rates()
         
-        st.markdown("""
+        # 성장률 데이터 준비
+        asset_growth = growth_rates['총자산성장률'].tolist()
+        revenue_growth = growth_rates['매출액성장률'].tolist()
+        profit_growth = growth_rates['순이익성장률'].tolist()
+        
+        # CSS 클래스 결정 함수
+        def get_class(value):
+            return "positive" if value >= 0 else "negative"
+        
+        st.markdown(f"""
         <div style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); margin-bottom: 20px;">
             <div style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 20px;">핵심 성장률 지표</div>
             <table class="growth-table">
@@ -195,18 +204,18 @@ class GrowthRateSlide(BaseSlide):
                 </tr>
                 <tr>
                     <td>총자산</td>
-                    <td class="positive">+3.9%</td>
-                    <td class="positive">+0.8%</td>
+                    <td class="{get_class(asset_growth[0])}">{"+" if asset_growth[0] >= 0 else ""}{asset_growth[0]}%</td>
+                    <td class="{get_class(asset_growth[1])}">{"+" if asset_growth[1] >= 0 else ""}{asset_growth[1]}%</td>
                 </tr>
                 <tr>
                     <td>매출액</td>
-                    <td class="negative">-7.5%</td>
-                    <td class="negative">-22.6%</td>
+                    <td class="{get_class(revenue_growth[0])}">{"+" if revenue_growth[0] >= 0 else ""}{revenue_growth[0]}%</td>
+                    <td class="{get_class(revenue_growth[1])}">{"+" if revenue_growth[1] >= 0 else ""}{revenue_growth[1]}%</td>
                 </tr>
                 <tr>
                     <td>당기순이익</td>
-                    <td class="positive">+0.6%</td>
-                    <td class="positive">+17.8%</td>
+                    <td class="{get_class(profit_growth[0])}">{"+" if profit_growth[0] >= 0 else ""}{profit_growth[0]}%</td>
+                    <td class="{get_class(profit_growth[1])}">{"+" if profit_growth[1] >= 0 else ""}{profit_growth[1]}%</td>
                 </tr>
             </table>
         </div>
