@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import json
 import base64
+import datetime
 from data.data_loader import DataLoader
 from components.slides.summary_slide import SummarySlide
 from components.slides.income_statement_slide import IncomeStatementSlide
@@ -131,17 +132,29 @@ def main():
                     # 결과를 session_state에 저장
                     st.session_state['company_data'] = results[0]
                     
+                    # 타임스탬프 생성
+                    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                    
                     # JSON 파일로 저장
                     data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/companies")
                     os.makedirs(data_dir, exist_ok=True)
                     
                     company_name = results[0].get('company_name', 'unknown_company')
-                    json_file = os.path.join(data_dir, f"{company_name}.json")
+                    json_file = os.path.join(data_dir, f"{company_name}_{timestamp}.json")
                     
                     with open(json_file, 'w', encoding='utf-8') as f:
                         json.dump(results[0], f, ensure_ascii=False, indent=2)
                     
                     st.success(f"재무제표 분석이 완료되었습니다. {company_name}의 데이터가 저장되었습니다.")
+                    
+                    # JSON 파일 다운로드 버튼 추가 (사이드바)
+                    json_str = json.dumps(results[0], ensure_ascii=False, indent=2)
+                    st.sidebar.download_button(
+                        label="JSON 파일 다운로드",
+                        data=json_str,
+                        file_name=f"{company_name}_{timestamp}.json",
+                        mime="application/json"
+                    )
     
     # 회사 선택 드롭다운을 사이드바로 이동
     companies = get_available_companies()
