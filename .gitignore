@@ -175,3 +175,6 @@ cython_debug/
 
 # Streamlit 비밀 설정
 .streamlit/secrets.toml
+
+# data/cache
+data/cache
