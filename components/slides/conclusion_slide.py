@@ -9,32 +9,7 @@ class ConclusionSlide(BaseSlide):
     
     def __init__(self, data_loader):
         super().__init__(data_loader, "Comprehensive Assessment & Strategic Recommendations")
-        self._load_company_info()
-    
-    def _load_company_info(self):
-        """회사 정보 로드"""
-        data_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        company_dir = os.path.join(data_dir, "data/companies")
-        
-        if self.data_loader.json_filename:
-            json_file = os.path.join(company_dir, f"{self.data_loader.json_filename}")
-        else:
-            json_file = os.path.join(company_dir, "default.json")
-        
-        if os.path.exists(json_file):
-            try:
-                with open(json_file, 'r', encoding='utf-8') as f:
-                    self.company_info = json.load(f)
-            except Exception:
-                self.company_info = {
-                    "company_name": "회사명 정보 없음",
-                    "sector": "업종 정보 없음"
-                }
-        else:
-            self.company_info = {
-                "company_name": "회사명 정보 없음",
-                "sector": "업종 정보 없음"
-            }
+        self.company_info = data_loader.get_all_data()
     
     def render(self):
         """슬라이드 렌더링"""
