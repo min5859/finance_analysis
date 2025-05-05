@@ -328,8 +328,8 @@ class IframeChartComponent:
                 "formatter": "function(value) { return value.toLocaleString(); }",
                 "anchor": "end",
                 "align": "top",
-                "offset": 6,
-                "backgroundColor": "rgba(255, 255, 255, 0.7)",
+                "offset": -3,
+                "backgroundColor": "rgba(255, 255, 255, 0.1)",
                 "borderRadius": 4,
                 "padding": 4
             }
@@ -395,8 +395,8 @@ class IframeChartComponent:
                 "formatter": "function(value) { return value.toLocaleString(); }",
                 "anchor": "end",
                 "align": "top",
-                "offset": 6,
-                "backgroundColor": "rgba(255, 255, 255, 0.7)",
+                "offset": -3,
+                "backgroundColor": "rgba(255, 255, 255, 0.1)",
                 "borderRadius": 4,
                 "padding": 4
             }
