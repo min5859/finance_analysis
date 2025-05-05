@@ -20,7 +20,7 @@ class IframeChartComponent:
                 "padding": {
                     "left": 10,
                     "right": 10,
-                    "top": 0,
+                    "top": -10,
                     "bottom": 30  # 하단에 더 많은 패딩 추가
                 }
             },
@@ -283,7 +283,7 @@ class IframeChartComponent:
         # iframe 생성을 위한 HTML
         iframe_html = f"""
         <div style="{card_style_str}">
-            <iframe src="data:text/html;base64,{encoded}" width="100%" height="{height + 40}px" frameborder="0" scrolling="no"></iframe>
+            <iframe src="data:text/html;base64,{encoded}" width="100%" height="{height + 30}px" frameborder="0" scrolling="no"></iframe>
         </div>
         """
         
