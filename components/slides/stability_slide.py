@@ -185,43 +185,6 @@ class StabilitySlide(BaseSlide):
         
         # Chart.js 옵션 설정
         options = {
-            "responsive": True,
-            "maintainAspectRatio": False,
-            "layout": {
-                "padding": {
-                    "left": 10,
-                    "right": 10,
-                    "top": 0,
-                    "bottom": 30  # 하단에 더 많은 패딩 추가
-                }
-            },
-            "plugins": {
-                "legend": {
-                    "position": "top"
-                },
-                "title": {
-                    "display": False,
-                    "text": "재무안정성 지표 추이"
-                },
-                "tooltip": {
-                    "mode": "index",
-                    "intersect": False
-                },
-                "datalabels": {
-                    "display": True,
-                    "color": "black",
-                    "font": {
-                        "weight": "bold",
-                        "size": 11
-                    },
-                    "formatter": "function(value) { return value.toLocaleString(); }",
-                    "align": "top",
-                    "offset": 10,
-                    "backgroundColor": "white",
-                    "borderRadius": 4,
-                    "padding": 4
-                }
-            },
             "scales": {
                 "y": {
                     "beginAtZero": True,

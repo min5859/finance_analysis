@@ -6,6 +6,107 @@ class IframeChartComponent:
     """iframe을 사용한 Chart.js 통합 컴포넌트"""
     
     @staticmethod
+    def get_common_chart_options():
+        """
+        모든 차트 타입에 공통으로 적용되는 기본 옵션을 반환합니다.
+        
+        Returns:
+            dict: 차트 공통 기본 옵션
+        """
+        return {
+            "responsive": True,
+            "maintainAspectRatio": False,
+            "layout": {
+                "padding": {
+                    "left": 10,
+                    "right": 10,
+                    "top": 0,
+                    "bottom": 30  # 하단에 더 많은 패딩 추가
+                }
+            },
+            "interaction": {
+                "mode": "index",
+                "intersect": False
+            },
+            "plugins": {
+                "legend": {
+                    "position": "top",
+                    "labels": {
+                        "usePointStyle": True,
+                        "font": {
+                            "family": "'Noto Sans KR', sans-serif",
+                            "size": 12
+                        },
+                        "padding": 20
+                    }
+                },
+                "title": {
+                    "display": False,
+                    "text": "차트 제목",
+                    "font": {
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 18,
+                        "weight": "600"
+                    },
+                    "padding": {
+                        "top": 10,
+                        "bottom": 20
+                    }
+                },
+                "tooltip": {
+                    "enabled": True,
+                    "backgroundColor": "rgba(20, 20, 30, 0.95)",
+                    "titleFont": {
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 14
+                    },
+                    "bodyFont": {
+                        "family": "'Noto Sans KR', sans-serif",
+                        "size": 13
+                    },
+                    "padding": 12,
+                    "cornerRadius": 8,
+                    "caretSize": 6,
+                    "boxPadding": 6
+                }
+            },
+            "scales": {
+                "y": {
+                    "beginAtZero": True,
+                    "grid": {
+                        "drawBorder": False,
+                        "color": "rgba(200, 200, 200, 0.15)"
+                    },
+                    "ticks": {
+                        "font": {
+                            "family": "'Noto Sans KR', sans-serif",
+                            "size": 12
+                        },
+                        "color": "#666",
+                        "padding": 10
+                    }
+                },
+                "x": {
+                    "grid": {
+                        "display": False
+                    },
+                    "ticks": {
+                        "font": {
+                            "family": "'Noto Sans KR', sans-serif",
+                            "size": 12
+                        },
+                        "color": "#666",
+                        "padding": 10
+                    }
+                }
+            },
+            "animation": {
+                "duration": 1000,
+                "easing": "easeOutQuart"
+            }
+        }
+    
+    @staticmethod
     def render_chart_in_card(chart_type, data, options=None, height=500, title=None, card_style=None, additional_scripts=None, use_datalabels=False):
         """
         Chart.js 차트를 카드 내부에 iframe으로 렌더링
@@ -209,90 +310,10 @@ class IframeChartComponent:
             "datasets": datasets
         }
         
-        default_options = {
-            "responsive": True,
-            "maintainAspectRatio": False,
-            "interaction": {
-                "mode": "index",
-                "intersect": False
-            },
-            "plugins": {
-                "legend": {
-                    "position": "top",
-                    "labels": {
-                        "usePointStyle": True,
-                        "font": {
-                            "family": "'Noto Sans KR', sans-serif",
-                            "size": 12
-                        },
-                        "padding": 20
-                    }
-                },
-                "title": {
-                    "display": True,
-                    "text": "차트 제목",
-                    "font": {
-                        "family": "'Noto Sans KR', sans-serif",
-                        "size": 18,
-                        "weight": "600"
-                    },
-                    "padding": {
-                        "top": 10,
-                        "bottom": 20
-                    }
-                },
-                "tooltip": {
-                    "enabled": True,
-                    "backgroundColor": "rgba(20, 20, 30, 0.95)",
-                    "titleFont": {
-                        "family": "'Noto Sans KR', sans-serif",
-                        "size": 14
-                    },
-                    "bodyFont": {
-                        "family": "'Noto Sans KR', sans-serif",
-                        "size": 13
-                    },
-                    "padding": 12,
-                    "cornerRadius": 8,
-                    "caretSize": 6,
-                    "boxPadding": 6
-                }
-            },
-            "scales": {
-                "y": {
-                    "beginAtZero": True,
-                    "grid": {
-                        "drawBorder": False,
-                        "color": "rgba(200, 200, 200, 0.15)"
-                    },
-                    "ticks": {
-                        "font": {
-                            "family": "'Noto Sans KR', sans-serif",
-                            "size": 12
-                        },
-                        "color": "#666",
-                        "padding": 10
-                    }
-                },
-                "x": {
-                    "grid": {
-                        "display": False
-                    },
-                    "ticks": {
-                        "font": {
-                            "family": "'Noto Sans KR', sans-serif",
-                            "size": 12
-                        },
-                        "color": "#666",
-                        "padding": 10
-                    }
-                }
-            },
-            "animation": {
-                "duration": 1000,
-                "easing": "easeOutQuart"
-            }
-        }
+        # 공통 옵션 가져오기
+        default_options = IframeChartComponent.get_common_chart_options()
+        
+        # bar 차트 특화 옵션 - 이미 공통 옵션에 포함되어 있으므로 추가 설정 불필요
         
         # datalabels 플러그인 사용 시 기본 옵션 추가
         if use_datalabels and "plugins" in default_options:
@@ -346,98 +367,18 @@ class IframeChartComponent:
             "datasets": datasets
         }
         
-        default_options = {
-            "responsive": True,
-            "maintainAspectRatio": False,
-            "interaction": {
-                "mode": "index",
-                "intersect": False
+        # 공통 옵션 가져오기
+        default_options = IframeChartComponent.get_common_chart_options()
+        
+        # line 차트 특화 옵션
+        default_options["elements"] = {
+            "line": {
+                "tension": 0.4
             },
-            "plugins": {
-                "legend": {
-                    "position": "top",
-                    "labels": {
-                        "usePointStyle": True,
-                        "font": {
-                            "family": "'Noto Sans KR', sans-serif",
-                            "size": 12
-                        },
-                        "padding": 20
-                    }
-                },
-                "title": {
-                    "display": True,
-                    "text": "차트 제목",
-                    "font": {
-                        "family": "'Noto Sans KR', sans-serif",
-                        "size": 18,
-                        "weight": "600"
-                    },
-                    "padding": {
-                        "top": 10,
-                        "bottom": 20
-                    }
-                },
-                "tooltip": {
-                    "enabled": True,
-                    "backgroundColor": "rgba(20, 20, 30, 0.95)",
-                    "titleFont": {
-                        "family": "'Noto Sans KR', sans-serif",
-                        "size": 14
-                    },
-                    "bodyFont": {
-                        "family": "'Noto Sans KR', sans-serif",
-                        "size": 13
-                    },
-                    "padding": 12,
-                    "cornerRadius": 8,
-                    "caretSize": 6,
-                    "boxPadding": 6
-                }
-            },
-            "scales": {
-                "y": {
-                    "beginAtZero": True,
-                    "grid": {
-                        "drawBorder": False,
-                        "color": "rgba(200, 200, 200, 0.15)"
-                    },
-                    "ticks": {
-                        "font": {
-                            "family": "'Noto Sans KR', sans-serif",
-                            "size": 12
-                        },
-                        "color": "#666",
-                        "padding": 10
-                    }
-                },
-                "x": {
-                    "grid": {
-                        "display": False
-                    },
-                    "ticks": {
-                        "font": {
-                            "family": "'Noto Sans KR', sans-serif",
-                            "size": 12
-                        },
-                        "color": "#666",
-                        "padding": 10
-                    }
-                }
-            },
-            "elements": {
-                "line": {
-                    "tension": 0.4
-                },
-                "point": {
-                    "radius": 4,
-                    "hoverRadius": 6,
-                    "borderWidth": 2
-                }
-            },
-            "animation": {
-                "duration": 1000,
-                "easing": "easeOutQuart"
+            "point": {
+                "radius": 4,
+                "hoverRadius": 6,
+                "borderWidth": 2
             }
         }
         
@@ -445,18 +386,19 @@ class IframeChartComponent:
         if use_datalabels and "plugins" in default_options:
             default_options["plugins"]["datalabels"] = {
                 "display": True,
-                "color": "white",
-                "backgroundColor": "function(context) { return context.dataset.borderColor; }",
-                "borderRadius": 4,
+                "color": "black",
                 "font": {
                     "family": "'Noto Sans KR', sans-serif",
                     "weight": "bold",
                     "size": 11
                 },
                 "formatter": "function(value) { return value.toLocaleString(); }",
-                "padding": 6,
-                "textShadowBlur": 3,
-                "textShadowColor": "rgba(0, 0, 0, 0.3)"
+                "anchor": "end",
+                "align": "top",
+                "offset": 6,
+                "backgroundColor": "rgba(255, 255, 255, 0.7)",
+                "borderRadius": 4,
+                "padding": 4
             }
         
         if options:
@@ -492,91 +434,47 @@ class IframeChartComponent:
             "datasets": datasets
         }
         
-        default_options = {
-            "responsive": True,
-            "maintainAspectRatio": False,
-            "plugins": {
-                "legend": {
-                    "position": "top",
-                    "labels": {
-                        "usePointStyle": True,
-                        "font": {
-                            "family": "'Noto Sans KR', sans-serif",
-                            "size": 12
-                        },
-                        "padding": 20
-                    }
-                },
-                "title": {
+        # 공통 옵션 가져오기
+        default_options = IframeChartComponent.get_common_chart_options()
+        
+        # radar 차트 특화 옵션
+        default_options["scales"] = {
+            "r": {
+                "beginAtZero": True,
+                "ticks": {
                     "display": True,
-                    "text": "차트 제목",
+                    "backdropColor": "rgba(255, 255, 255, 0.75)",
                     "font": {
                         "family": "'Noto Sans KR', sans-serif",
-                        "size": 18,
-                        "weight": "600"
+                        "size": 10
                     },
-                    "padding": {
-                        "top": 10,
-                        "bottom": 20
-                    }
+                    "color": "#666"
                 },
-                "tooltip": {
-                    "enabled": True,
-                    "backgroundColor": "rgba(20, 20, 30, 0.95)",
-                    "titleFont": {
+                "pointLabels": {
+                    "font": {
                         "family": "'Noto Sans KR', sans-serif",
-                        "size": 14
+                        "size": 12,
+                        "weight": "500"
                     },
-                    "bodyFont": {
-                        "family": "'Noto Sans KR', sans-serif",
-                        "size": 13
-                    },
-                    "padding": 12,
-                    "cornerRadius": 8,
-                    "caretSize": 6
-                }
-            },
-            "scales": {
-                "r": {
-                    "beginAtZero": True,
-                    "ticks": {
-                        "display": True,
-                        "backdropColor": "rgba(255, 255, 255, 0.75)",
-                        "font": {
-                            "family": "'Noto Sans KR', sans-serif",
-                            "size": 10
-                        },
-                        "color": "#666"
-                    },
-                    "pointLabels": {
-                        "font": {
-                            "family": "'Noto Sans KR', sans-serif",
-                            "size": 12,
-                            "weight": "500"
-                        },
-                        "color": "#333"
-                    },
-                    "grid": {
-                        "color": "rgba(200, 200, 200, 0.2)"
-                    },
-                    "angleLines": {
-                        "color": "rgba(200, 200, 200, 0.4)"
-                    }
-                }
-            },
-            "elements": {
-                "line": {
-                    "borderWidth": 2
+                    "color": "#333"
                 },
-                "point": {
-                    "radius": 4,
-                    "hoverRadius": 6,
-                    "borderWidth": 2
+                "grid": {
+                    "color": "rgba(200, 200, 200, 0.2)"
+                },
+                "angleLines": {
+                    "color": "rgba(200, 200, 200, 0.4)"
                 }
+            }
+        }
+        
+        default_options["elements"] = {
+            "line": {
+                "borderWidth": 2
             },
-            "animation": {
-                "duration": 1000,
-                "easing": "easeOutQuart"
+            "point": {
+                "radius": 4,
+                "hoverRadius": 6,
+                "borderWidth": 2
             }
         }
         

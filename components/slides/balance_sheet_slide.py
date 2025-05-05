@@ -187,46 +187,8 @@ class BalanceSheetSlide(BaseSlide):
         
         # Chart.js 옵션 설정
         options = {
-            "responsive": True,
-            "maintainAspectRatio": False,
-            "layout": {
-                "padding": {
-                    "left": 10,
-                    "right": 10,
-                    "top": 0,
-                    "bottom": 30  # 하단에 더 많은 패딩 추가
-                }
-            },
-            "plugins": {
-                "tooltip": {
-                    "mode": "index",
-                    "intersect": False,
-                },
-                "legend": {
-                    "position": "top"
-                },
-                "title": {
-                    "display": False,
-                    "text": "재무상태표 주요 항목 추이 (단위: 억원)"
-                },
-                "datalabels": {
-                    "display": True,
-                    "color": "black",
-                    "font": {
-                        "weight": "bold",
-                        "size": 11
-                    },
-                    "formatter": "function(value) { return value.toLocaleString(); }",
-                    "align": "top",
-                    "anchor": "end",
-                    "offset": 4,
-                    "borderRadius": 4,
-                    "padding": 4
-                }
-            },
             "scales": {
                 "y": {
-                    "beginAtZero": True,
                     "title": {
                         "display": True,
                         "text": "금액 (억원)"
