@@ -14,6 +14,7 @@ from components.slides.stability_slide import StabilitySlide
 from components.slides.working_capital_slide import WorkingCapitalSlide
 from components.slides.conclusion_slide import ConclusionSlide
 from components.slides.industry_comparison_slide import IndustryComparisonSlide
+from components.slides.valuation_slide import ValuationSlide
 from config.app_config import apply_custom_css
 import streamlit.components.v1 as components
 from data.financial_statement_processor import FinancialStatementProcessor
@@ -250,6 +251,7 @@ def main():
         "현금흐름표",
         "운전자본 분석",
         "업계비교 현황",
+        "가치 평가",
         "종합 결론"
     ]
     selected_slide = st.sidebar.radio("분석 슬라이드 선택", slide_names)
@@ -278,6 +280,8 @@ def main():
             WorkingCapitalSlide(data_loader).render()
         elif selected_slide == "업계비교 현황":
             IndustryComparisonSlide(data_loader).render()
+        elif selected_slide == "가치 평가":
+            ValuationSlide(data_loader).render()
         elif selected_slide == "종합 결론":
             ConclusionSlide(data_loader).render()
     else:

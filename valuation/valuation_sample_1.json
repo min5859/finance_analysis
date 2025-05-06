@@ -1,0 +1,40 @@
+{
+  "company": "삼성전자(주)",
+  "ebitda_valuation": {
+    "conservative": 450000000,
+    "base": 520000000,
+    "optimistic": 600000000
+  },
+  "dcf_valuation": {
+    "conservative": 480000000,
+    "base": 550000000,
+    "optimistic": 650000000
+  },
+  "assumptions": {
+    "ebitda_multipliers": {
+      "conservative": 8.5,
+      "base": 10.0,
+      "optimistic": 12.0
+    },
+    "discount_rates": {
+      "conservative": 12.0,
+      "base": 10.0,
+      "optimistic": 8.5
+    },
+    "growth_rates": {
+      "conservative": 3.0,
+      "base": 5.0,
+      "optimistic": 7.0
+    },
+    "terminal_growth_rates": {
+      "conservative": 1.0,
+      "base": 2.0,
+      "optimistic": 3.0
+    }
+  },
+  "calculations": {
+    "ebitda_description": "최근 3년간의 EBITDA 평균값을 산출하고, 산업 특성과 기업의 시장 지위를 고려하여 적정 승수를 적용. 감가상각비는 영업이익의 약 15%로 가정하여 계산",
+    "dcf_description": "향후 5년간의 현금흐름을 추정하고, 시나리오별 할인율과 성장률을 적용하여 현재가치로 환산. 터미널 가치는 영구성장률법 사용"
+  },
+  "summary": "삼성전자의 기업가치는 EBITDA 방식과 DCF 방식 모두에서 4.5조원에서 6.5조원 사이로 평가됩니다. 2023년 실적 하락에도 불구하고 2024년 실적 회복세가 뚜렷하며, 반도체 시장의 회복과 AI 관련 수요 증가로 향후 성장이 기대됩니다. 보수적 시나리오에서도 견고한 재무구조와 시장지배력을 반영하여 평가했으며, 낙관적 시나리오에서는 기술 혁신과 시장 선도 지위를 고려했습니다. 부채비율이 30% 미만으로 안정적이며, ROE와 영업이익률의 변동성을 고려하여 각 시나리오별 할인율과 성장률을 차등 적용했습니다."
+}

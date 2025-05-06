@@ -1,0 +1,40 @@
+{
+  "company": "풍전비철",
+  "ebitda_valuation": {
+    "conservative": 430.0,
+    "base": 537.5,
+    "optimistic": 645.0
+  },
+  "dcf_valuation": {
+    "conservative": 396.2,
+    "base": 512.8,
+    "optimistic": 678.5
+  },
+  "assumptions": {
+    "ebitda_multipliers": {
+      "conservative": 5.0,
+      "base": 6.25,
+      "optimistic": 7.5
+    },
+    "discount_rates": {
+      "conservative": 12.0,
+      "base": 10.0,
+      "optimistic": 8.0
+    },
+    "growth_rates": {
+      "conservative": 2.0,
+      "base": 3.5,
+      "optimistic": 5.0
+    },
+    "terminal_growth_rates": {
+      "conservative": 1.0,
+      "base": 2.0,
+      "optimistic": 3.0
+    }
+  },
+  "calculations": {
+    "ebitda_description": "EBITDA는 최근 3년(2022-2024)의 영업이익에 감가상각비를 더해 계산했습니다. 감가상각비는 재무정보에서 직접 제공되지 않아 자산의 약 5%로 추정했습니다. 계산된 EBITDA에 산업 특성과 기업 성과를 고려한 승수를 적용했습니다.",
+    "dcf_description": "DCF 평가는 향후 5년간의 FCF를 예측하고 할인하여 계산했습니다. 최근 3년간의 FCF 추세를 기반으로 성장률을 적용했으며, 영구성장률을 적용한 터미널 밸류를 계산하여 현재가치로 할인했습니다. 순부채를 고려하여 최종 기업가치를 산출했습니다."
+  },
+  "summary": "풍전비철의 기업가치는 EBITDA 방식으로 430억원(보수적)~645억원(낙관적), DCF 방식으로 396.2억원(보수적)~678.5억원(낙관적)으로 평가됩니다. 최근 3년간 매출은 감소 추세이나 영업이익률과 순이익률은 개선되고 있습니다. 부채비율이 30% 내외로 안정적이며, ROE와 ROA가 각각 14~17%, 9~11%로 양호한 수준입니다. 다만 2024년 FCF가 마이너스로 전환된 점은 주의가 필요합니다. 금속/비철금속 산업의 경기 변동성을 고려할 때, 기본 시나리오 기준 약 520억원 정도의 기업가치가 적정해 보입니다. 경쟁사 평균 PER 15.0, PBR 1.8을 고려하면 이는 합리적인 평가로 판단됩니다."
+}
