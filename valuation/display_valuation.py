@@ -48,14 +48,14 @@ class ValuationDisplay:
         
         # 데이터 준비
         ebitda_values = [
-            self.ebitda_valuation.get("conservative", 0) / 1000000,
-            self.ebitda_valuation.get("base", 0) / 1000000,
-            self.ebitda_valuation.get("optimistic", 0) / 1000000
+            self.ebitda_valuation.get("conservative", 0),
+            self.ebitda_valuation.get("base", 0),
+            self.ebitda_valuation.get("optimistic", 0)
         ]
         dcf_values = [
-            self.dcf_valuation.get("conservative", 0) / 1000000,
-            self.dcf_valuation.get("base", 0) / 1000000,
-            self.dcf_valuation.get("optimistic", 0) / 1000000
+            self.dcf_valuation.get("conservative", 0),
+            self.dcf_valuation.get("base", 0),
+            self.dcf_valuation.get("optimistic", 0)
         ]
         
         self._display_metric_cards(ebitda_values, dcf_values)
@@ -72,34 +72,62 @@ class ValuationDisplay:
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            delta_value = (self.ebitda_valuation.get('base', 0) - avg_base) / 1000000
+            delta_value = (self.ebitda_valuation.get('base', 0) - avg_base)
             delta_color = "positive" if delta_value >= 0 else "negative"
+            
+            avg_ebitda = sum(ebitda_values) / 3
+            if avg_ebitda >= 10000:
+                avg_ebitda_display = f"{avg_ebitda/10000:.2f} 조원"
+            else:
+                avg_ebitda_display = f"{avg_ebitda:.2f} 억원"
+                
+            if abs(delta_value) >= 10000:
+                delta_display = f"{delta_value/10000:+.2f} 조원"
+            else:
+                delta_display = f"{delta_value:+.2f} 억원"
             
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-title">EBITDA 평균 기업가치</div>
-                <div class="metric-value">{sum(ebitda_values) / 3:.2f} 조원</div>
-                <div class="metric-delta {delta_color}">{delta_value:+.2f} 조원</div>
+                <div class="metric-value">{avg_ebitda_display}</div>
+                <div class="metric-delta {delta_color}">{delta_display}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with col2:
-            delta_value = (self.dcf_valuation.get('base', 0) - avg_base) / 1000000
+            delta_value = (self.dcf_valuation.get('base', 0) - avg_base)
             delta_color = "positive" if delta_value >= 0 else "negative"
+            
+            avg_dcf = sum(dcf_values) / 3
+            if avg_dcf >= 10000:
+                avg_dcf_display = f"{avg_dcf/10000:.2f} 조원"
+            else:
+                avg_dcf_display = f"{avg_dcf:.2f} 억원"
+                
+            if abs(delta_value) >= 10000:
+                delta_display = f"{delta_value/10000:+.2f} 조원"
+            else:
+                delta_display = f"{delta_value:+.2f} 억원"
             
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-title">DCF 평균 기업가치</div>
-                <div class="metric-value">{sum(dcf_values) / 3:.2f} 조원</div>
-                <div class="metric-delta {delta_color}">{delta_value:+.2f} 조원</div>
+                <div class="metric-value">{avg_dcf_display}</div>
+                <div class="metric-delta {delta_color}">{delta_display}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with col3:
+            total_avg = (sum(ebitda_values) + sum(dcf_values)) / 6
+            if total_avg >= 10000:
+                total_avg_display = f"{total_avg/10000:.2f} 조원"
+            else:
+                total_avg_display = f"{total_avg:.2f} 억원"
+            
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-title">종합 평균 기업가치</div>
-                <div class="metric-value">{(sum(ebitda_values) + sum(dcf_values)) / 6:.2f} 조원</div>
+                <div class="metric-value">{total_avg_display}</div>
                 <div class="metric-subtitle">EBITDA 및 DCF 통합 평균</div>
             </div>
             """, unsafe_allow_html=True)
@@ -138,7 +166,10 @@ class ValuationDisplay:
             
             for i, scenario in enumerate(self.scenarios):
                 value = self.ebitda_valuation.get(['conservative', 'base', 'optimistic'][i], 0)
-                value_formatted = f"{value:,.0f}"
+                if value >= 10000:
+                    value_formatted = f"{value/10000:.2f} 조원"
+                else:
+                    value_formatted = f"{value:.2f} 억원"
                 
                 bg_color = "#dbeafe" if i == 1 else "white"
                 border_color = "#3b82f6" if i == 1 else "#e5e7eb"
@@ -158,7 +189,10 @@ class ValuationDisplay:
             
             for i, scenario in enumerate(self.scenarios):
                 value = self.dcf_valuation.get(['conservative', 'base', 'optimistic'][i], 0)
-                value_formatted = f"{value:,.0f}"
+                if value >= 10000:
+                    value_formatted = f"{value/10000:.2f} 조원"
+                else:
+                    value_formatted = f"{value:.2f} 억원"
                 
                 bg_color = "#f3e8ff" if i == 1 else "white"
                 border_color = "#8b5cf6" if i == 1 else "#e5e7eb"
