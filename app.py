@@ -51,7 +51,7 @@ def get_available_companies():
 
 def main():
     st.set_page_config(
-        page_title="기업 재무 분석 대시보드",
+        page_title="Financial Analysis System",
         page_icon="📊",
         layout="wide"
     )
