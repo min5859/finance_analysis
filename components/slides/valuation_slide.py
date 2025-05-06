@@ -4,7 +4,6 @@ from components.charts.iframe_chart_component import IframeChartComponent
 from config.app_config import COLOR_PALETTE
 import json
 from valuation.llm_valuation import ValuationAnalyzer
-from valuation.display_valuation import display_valuation_results
 
 class ValuationSlide(BaseSlide):
     """LLM 기반 기업 가치 평가 슬라이드"""
@@ -33,65 +32,179 @@ class ValuationSlide(BaseSlide):
         """커스텀 CSS 스타일 추가"""
         st.markdown("""
         <style>
-        .valuation-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-            margin-bottom: 20px;
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        /* 분석 요청 폼 스타일 */
+        .request-container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            margin: 30px 0;
+            border: 1px solid #e5e7eb;
         }
         
-        .valuation-info {
-            background-color: #f0f7ff;
-            border-left: 4px solid #3b82f6;
-            padding: 12px 15px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-        
-        .method-card {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-        }
-        
-        .method-header {
+        .request-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px auto;
+            background: #f0f9ff;
+            border-radius: 50%;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #3b82f6;
+        }
+        
+        .request-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+            font-family: 'Pretendard', sans-serif;
+        }
+        
+        .request-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #64748b;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: 'Pretendard', sans-serif;
+        }
+        
+        .request-features {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .feature-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            width: 200px;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .feature-icon.blue {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+        
+        .feature-icon.purple {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+        }
+        
+        .feature-icon.green {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+        
+        .feature-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            text-align: left;
+            font-family: 'Pretendard', sans-serif;
+        }
+        
+        /* 로딩 스피너 스타일 */
+        @keyframes spinner {
+            to {transform: rotate(360deg);}
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spinner 0.8s linear infinite;
+            margin: 20px auto;
+        }
+        
+        /* 결과 다운로드 버튼 스타일 */
+        .download-container {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid #f0f0f0;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+            border: 1px solid #e5e7eb;
         }
         
-        .method-name {
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .method-value {
-            font-weight: 600;
-            color: #4b6cb7;
-        }
-        
-        .method-details {
-            font-size: 0.9rem;
-            color: #666;
+        .download-text {
+            font-size: 14px;
+            color: #475569;
+            font-family: 'Pretendard', sans-serif;
         }
         </style>
         """, unsafe_allow_html=True)
     
     def _render_valuation_request_form(self):
-        """가치 평가 요청 폼 렌더링"""
-        st.info("AI를 활용한 기업 가치 평가를 시작하려면 아래 버튼을 클릭하세요.")
-        st.caption("이 분석은 재무 데이터를 기반으로 EBITDA 방식과 DCF 방식의 기업 가치를 계산합니다.")
+        """가치 평가 요청 폼 렌더링 - 고급 디자인"""
+        company_name = self.company_data.get('company_name', '기업')
+        
+        # 고급 컨테이너 시작
+        st.markdown(f"""
+        <div class="request-container">
+            <div class="request-icon">🔍</div>
+            <div class="request-title">{company_name}의 AI 기업 가치 평가</div>
+            <div class="request-description">
+                인공지능이 재무 데이터를 기반으로 기업의 가치를 다양한 방법론으로 평가합니다.
+                EBITDA 방식과 DCF 방식을 이용한 체계적인 가치 평가로 투자 의사결정을 지원합니다.
+            </div>
+            
+            <div class="request-features">
+                <div class="feature-item">
+                    <div class="feature-icon blue">💼</div>
+                    <div class="feature-text">시나리오별<br>가치 평가</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon purple">📊</div>
+                    <div class="feature-text">다양한<br>평가 방법론</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon green">📝</div>
+                    <div class="feature-text">상세한<br>분석 보고서</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
         # 가치 평가 시작 버튼
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            if st.button("AI 기업 가치 평가 시작", type="primary", use_container_width=True):
+            if st.button("AI 기업 가치 평가 시작", type="primary", use_container_width=True, key="start_valuation_btn"):
                 with st.spinner("AI가 기업 가치를 평가 중입니다. 잠시만 기다려주세요..."):
+                    st.markdown('<div class="spinner"></div>', unsafe_allow_html=True)
+                    st.markdown("""
+                    <div style="text-align: center; color: #475569; margin-bottom: 20px; font-family: 'Pretendard', sans-serif;">
+                        재무 데이터 분석 및 가치 평가 시나리오 생성 중입니다. 약 30초 정도 소요됩니다.
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
                     # 가치 평가 실행
                     valuation_results = self._run_valuation_analysis()
                     
@@ -112,6 +225,18 @@ class ValuationSlide(BaseSlide):
                 "status": "error",
                 "message": "API 키가 설정되지 않았습니다. 설정 메뉴에서 API 키를 입력해주세요."
             }
+        
+        # 임시 테스트용 코드 - JSON 파일 사용
+        # 실제 호출 시에는 이 부분을 주석 처리하고 아래 부분을 사용
+        try:
+            # 응답 파싱
+            json_data = json.load(open("valuation/sample_valuation.json"))
+            return {
+                "status": "success",
+                "valuation_data": json_data
+            }
+        except:
+            pass  # 파일이 없으면 계속 진행
         
         # 기업 정보 및 재무 데이터 준비
         company_info = {
@@ -157,6 +282,7 @@ class ValuationSlide(BaseSlide):
     
     def _render_valuation_results(self):
         """가치 평가 결과 렌더링"""
+        from valuation.display_valuation import display_valuation_results
         
         # 세션에서 가치 평가 결과 가져오기
         valuation_data = st.session_state.get("valuation_data", {})
@@ -165,23 +291,40 @@ class ValuationSlide(BaseSlide):
             # 가치 평가 결과 표시
             display_valuation_results(valuation_data)
             
-            # 결과 다운로드 버튼
+            # 결과 다운로드 버튼 - 고급 UI로 표시
             company_name = valuation_data.get("company", "company")
-            st.download_button(
-                label="가치 평가 결과 다운로드 (JSON)",
-                data=json.dumps(valuation_data, indent=2, ensure_ascii=False),
-                file_name=f"{company_name}_valuation.json",
-                mime="application/json"
-            )
+            
+            st.markdown("""
+            <div class="download-container">
+                <div class="download-text">
+                    <strong>가치 평가 데이터 다운로드</strong><br>
+                    JSON 형식으로 평가 결과를 저장하고 외부 도구에서 활용하세요.
+                </div>
+            """, unsafe_allow_html=True)
+            
+            col1, col2 = st.columns([3, 1])
+            with col2:
+                download_button = st.download_button(
+                    label="JSON 다운로드",
+                    data=json.dumps(valuation_data, indent=2, ensure_ascii=False),
+                    file_name=f"{company_name}_valuation.json",
+                    mime="application/json",
+                    key="download_valuation_btn",
+                    use_container_width=True
+                )
+            
+            st.markdown('</div>', unsafe_allow_html=True)
             
             # 다시 평가하기 버튼
-            if st.button("가치 평가 다시하기"):
-                if "valuation_data" in st.session_state:
-                    del st.session_state["valuation_data"]
-                st.rerun()
+            col1, col2, col3 = st.columns([3, 2, 3])
+            with col2:
+                if st.button("가치 평가 다시하기", key="restart_valuation_btn", use_container_width=True):
+                    if "valuation_data" in st.session_state:
+                        del st.session_state["valuation_data"]
+                    st.rerun()
         else:
             st.error("가치 평가 결과가 없습니다. 다시 시도해주세요.")
-            if st.button("가치 평가 다시하기"):
+            if st.button("가치 평가 다시하기", key="retry_valuation_btn"):
                 if "valuation_data" in st.session_state:
                     del st.session_state["valuation_data"]
                 st.rerun()
