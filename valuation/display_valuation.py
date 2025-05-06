@@ -159,53 +159,67 @@ class ValuationDisplay:
     def _display_result_cards(self, ebitda_values, dcf_values):
         """결과 카드 표시"""
         col1, col2 = st.columns(2)
-        
+
         with col1:
-            st.markdown('<div class="card-container">', unsafe_allow_html=True)
-            st.markdown('<div class="card-title">EBITDA 방식 평가결과</div>', unsafe_allow_html=True)
-            
+            # EBITDA 카드를 생성하여 HTML 컴포넌트로 렌더링
+            html_content = """
+            <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                <div style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 15px;">EBITDA 방식 평가결과</div>
+            """
+
             for i, scenario in enumerate(self.scenarios):
                 value = self.ebitda_valuation.get(['conservative', 'base', 'optimistic'][i], 0)
                 if value >= 10000:
                     value_formatted = f"{value/10000:.2f} 조원"
                 else:
                     value_formatted = f"{value:.2f} 억원"
-                
+
                 bg_color = "#dbeafe" if i == 1 else "white"
                 border_color = "#3b82f6" if i == 1 else "#e5e7eb"
-                
-                st.markdown(f"""
-                <div class="result-row" style="background-color: {bg_color}; border-color: {border_color};">
-                    <div class="scenario">{scenario}</div>
-                    <div class="value">{value_formatted}</div>
+
+                html_content += f"""
+                <div style="display: flex; justify-content: space-between; background-color: {bg_color}; border-left: 3px solid {border_color}; padding: 10px; border-radius: 4px; margin-bottom: 10px;">
+                    <div style="font-weight: 500; color: #333;">{scenario}</div>
+                    <div style="font-weight: 600; color: #111;">{value_formatted}</div>
                 </div>
-                """, unsafe_allow_html=True)
-            
-            st.markdown('</div>', unsafe_allow_html=True)
-        
+                """
+
+            html_content += "</div>"
+
+            # HTML 컴포넌트 사용 - 높이 자동 계산
+            height = 60 + len(self.scenarios) * 60  # 기본 높이 + 시나리오당 높이
+            st.components.v1.html(html_content, height=height)
+
         with col2:
-            st.markdown('<div class="card-container">', unsafe_allow_html=True)
-            st.markdown('<div class="card-title">DCF 방식 평가결과</div>', unsafe_allow_html=True)
-            
+            # DCF 카드를 생성하여 HTML 컴포넌트로 렌더링
+            html_content = """
+            <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                <div style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 15px;">DCF 방식 평가결과</div>
+            """
+
             for i, scenario in enumerate(self.scenarios):
                 value = self.dcf_valuation.get(['conservative', 'base', 'optimistic'][i], 0)
                 if value >= 10000:
                     value_formatted = f"{value/10000:.2f} 조원"
                 else:
                     value_formatted = f"{value:.2f} 억원"
-                
+
                 bg_color = "#f3e8ff" if i == 1 else "white"
                 border_color = "#8b5cf6" if i == 1 else "#e5e7eb"
-                
-                st.markdown(f"""
-                <div class="result-row" style="background-color: {bg_color}; border-color: {border_color};">
-                    <div class="scenario">{scenario}</div>
-                    <div class="value">{value_formatted}</div>
+
+                html_content += f"""
+                <div style="display: flex; justify-content: space-between; background-color: {bg_color}; border-left: 3px solid {border_color}; padding: 10px; border-radius: 4px; margin-bottom: 10px;">
+                    <div style="font-weight: 500; color: #333;">{scenario}</div>
+                    <div style="font-weight: 600; color: #111;">{value_formatted}</div>
                 </div>
-                """, unsafe_allow_html=True)
-            
-            st.markdown('</div>', unsafe_allow_html=True)
-            
+                """
+
+            html_content += "</div>"
+
+            # HTML 컴포넌트 사용 - 높이 자동 계산
+            height = 60 + len(self.scenarios) * 60  # 기본 높이 + 시나리오당 높이
+            st.components.v1.html(html_content, height=height)
+
     def _display_radar_chart(self, ebitda_values, dcf_values):
         """방사형 차트 표시"""
         st.markdown('<div class="subsection-title">시나리오별 평가 비교</div>', unsafe_allow_html=True)
@@ -266,19 +280,28 @@ class ValuationDisplay:
         ebitda_multipliers = self.assumptions.get("ebitda_multipliers", {})
         
         if ebitda_multipliers:
-            st.markdown('<div class="assumption-card blue">', unsafe_allow_html=True)
+            # HTML 문자열 생성
+            html_content = """
+            <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+                        margin-bottom: 15px; border-top: 4px solid #3b82f6;">
+            """
             
             for i, scenario in enumerate(self.scenarios):
                 value = ebitda_multipliers.get(['conservative', 'base', 'optimistic'][i], "-")
                 
-                st.markdown(f"""
-                <div class="assumption-row">
-                    <div class="assumption-label">{scenario}</div>
-                    <div class="assumption-value">{value}×</div>
+                html_content += f"""
+                <div style="display: flex; justify-content: space-between; padding: 10px; 
+                            border-bottom: 1px solid #f1f5f9;">
+                    <div style="font-weight: 500; color: #475569;">{scenario}</div>
+                    <div style="font-weight: 600; color: #1e293b;">{value}×</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """
             
-            st.markdown('</div>', unsafe_allow_html=True)
+            html_content += "</div>"
+            
+            # HTML 컴포넌트 사용
+            height = 30 + len(self.scenarios) * 50  # 기본 높이 + 시나리오당 높이
+            st.components.v1.html(html_content, height=height)
         else:
             st.info("EBITDA 승수 정보가 없습니다.")
             
@@ -288,19 +311,28 @@ class ValuationDisplay:
         discount_rates = self.assumptions.get("discount_rates", {})
         
         if discount_rates:
-            st.markdown('<div class="assumption-card purple">', unsafe_allow_html=True)
+            # HTML 문자열 생성
+            html_content = """
+            <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+                        margin-bottom: 15px; border-top: 4px solid #8b5cf6;">
+            """
             
             for i, scenario in enumerate(self.scenarios):
                 value = discount_rates.get(['conservative', 'base', 'optimistic'][i], 0)
                 
-                st.markdown(f"""
-                <div class="assumption-row">
-                    <div class="assumption-label">{scenario}</div>
-                    <div class="assumption-value">{value:.1f}%</div>
+                html_content += f"""
+                <div style="display: flex; justify-content: space-between; padding: 10px; 
+                            border-bottom: 1px solid #f1f5f9;">
+                    <div style="font-weight: 500; color: #475569;">{scenario}</div>
+                    <div style="font-weight: 600; color: #1e293b;">{value:.1f}%</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """
             
-            st.markdown('</div>', unsafe_allow_html=True)
+            html_content += "</div>"
+            
+            # HTML 컴포넌트 사용
+            height = 30 + len(self.scenarios) * 50  # 기본 높이 + 시나리오당 높이
+            st.components.v1.html(html_content, height=height)
         else:
             st.info("할인율 정보가 없습니다.")
             
@@ -310,19 +342,28 @@ class ValuationDisplay:
         growth_rates = self.assumptions.get("growth_rates", {})
         
         if growth_rates:
-            st.markdown('<div class="assumption-card green">', unsafe_allow_html=True)
+            # HTML 문자열 생성
+            html_content = """
+            <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+                        margin-bottom: 15px; border-top: 4px solid #10b981;">
+            """
             
             for i, scenario in enumerate(self.scenarios):
                 value = growth_rates.get(['conservative', 'base', 'optimistic'][i], 0)
                 
-                st.markdown(f"""
-                <div class="assumption-row">
-                    <div class="assumption-label">{scenario}</div>
-                    <div class="assumption-value">{value:.1f}%</div>
+                html_content += f"""
+                <div style="display: flex; justify-content: space-between; padding: 10px; 
+                            border-bottom: 1px solid #f1f5f9;">
+                    <div style="font-weight: 500; color: #475569;">{scenario}</div>
+                    <div style="font-weight: 600; color: #1e293b;">{value:.1f}%</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """
             
-            st.markdown('</div>', unsafe_allow_html=True)
+            html_content += "</div>"
+            
+            # HTML 컴포넌트 사용
+            height = 30 + len(self.scenarios) * 50  # 기본 높이 + 시나리오당 높이
+            st.components.v1.html(html_content, height=height)
         else:
             st.info("성장률 정보가 없습니다.")
             
@@ -332,19 +373,30 @@ class ValuationDisplay:
         terminal_growth_rates = self.assumptions.get("terminal_growth_rates", {})
         
         if terminal_growth_rates:
-            st.markdown('<div class="assumption-card amber">', unsafe_allow_html=True)
+            # HTML 문자열 생성
+            html_content = """
+            <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+                        margin-bottom: 15px; border-top: 4px solid #f59e0b;">
+            """
             
             for i, scenario in enumerate(self.scenarios):
                 value = terminal_growth_rates.get(['conservative', 'base', 'optimistic'][i], 0)
                 
-                st.markdown(f"""
-                <div class="assumption-row">
-                    <div class="assumption-label">{scenario}</div>
-                    <div class="assumption-value">{value:.1f}%</div>
+                html_content += f"""
+                <div style="display: flex; justify-content: space-between; padding: 10px; 
+                            border-bottom: 1px solid #f1f5f9;">
+                    <div style="font-weight: 500; color: #475569;">{scenario}</div>
+                    <div style="font-weight: 600; color: #1e293b;">{value:.1f}%</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """
             
-            st.markdown('</div>', unsafe_allow_html=True)
+            # 마지막 항목은 밑줄 제거
+            html_content = html_content.replace('border-bottom: 1px solid #f1f5f9;', '', 1)
+            html_content += "</div>"
+            
+            # HTML 컴포넌트 사용
+            height = 30 + len(self.scenarios) * 50  # 기본 높이 + 시나리오당 높이
+            st.components.v1.html(html_content, height=height)
         else:
             st.info("영구 성장률 정보가 없습니다.")
             
@@ -453,72 +505,102 @@ class ValuationDisplay:
     def _display_ebitda_calculation(self):
         """EBITDA 계산 설명 표시"""
         st.markdown('<div class="subsection-title">EBITDA 방식 설명</div>', unsafe_allow_html=True)
-        
+
         avg_ebitda = self.calculations.get("average_ebitda", 0)
         ebitda_description = self.calculations.get("ebitda_description", "")
-        
-        st.markdown('<div class="explanation-card blue">', unsafe_allow_html=True)
-        
+
+        # HTML 문자열 생성
+        html_content = """
+        <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+                    margin-bottom: 15px; border-left: 5px solid #3b82f6;">
+        """
+
         if avg_ebitda:
-            st.markdown(f"""
-            <div class="explanation-highlight">
-                <div class="highlight-label">평균 EBITDA</div>
-                <div class="highlight-value">{avg_ebitda:,.0f} 백만원</div>
+            html_content += f"""
+            <div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 12px; 
+                        display: flex; justify-content: space-between;">
+                <div style="font-weight: 600; color: #475569;">평균 EBITDA</div>
+                <div style="font-weight: 700; color: #1e293b;">{avg_ebitda:,.0f} 백만원</div>
             </div>
-            """, unsafe_allow_html=True)
-        
+            """
+
         if ebitda_description:
-            st.markdown(f"""
-            <div class="explanation-content">
+            html_content += f"""
+            <div style="font-size: 14px; line-height: 1.7; color: #334155;">
                 {ebitda_description}
             </div>
-            """, unsafe_allow_html=True)
+            """
         else:
-            st.markdown("""
-            <div class="explanation-empty">
+            html_content += """
+            <div style="font-size: 14px; color: #94a3b8; font-style: italic; text-align: center; padding: 20px 0;">
                 EBITDA 계산 방식에 대한 설명이 없습니다.
             </div>
-            """, unsafe_allow_html=True)
-            
-        st.markdown('</div>', unsafe_allow_html=True)
-        
+            """
+
+        html_content += "</div>"
+
+        # HTML 컴포넌트 사용
+        # 설명 텍스트의 길이에 따라 높이 조정 (문자 길이 기준으로 대략적인 높이 추정)
+        description_height = len(ebitda_description) // 3 if ebitda_description else 60
+        height = 100 + description_height  # 기본 높이 + 설명 텍스트 높이
+        st.components.v1.html(html_content, height=height)
+
     def _display_dcf_calculation(self):
         """DCF 계산 설명 표시"""
         st.markdown('<div class="subsection-title">DCF 방식 설명</div>', unsafe_allow_html=True)
-        
+
         dcf_description = self.calculations.get("dcf_description", "")
-        
-        st.markdown('<div class="explanation-card purple">', unsafe_allow_html=True)
-        
+
+        # HTML 문자열 생성
+        html_content = """
+        <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+                    margin-bottom: 15px; border-left: 5px solid #8b5cf6;">
+        """
+
         if dcf_description:
-            st.markdown(f"""
-            <div class="explanation-content">
+            html_content += f"""
+            <div style="font-size: 14px; line-height: 1.7; color: #334155;">
                 {dcf_description}
             </div>
-            """, unsafe_allow_html=True)
+            """
         else:
-            st.markdown("""
-            <div class="explanation-empty">
+            html_content += """
+            <div style="font-size: 14px; color: #94a3b8; font-style: italic; text-align: center; padding: 20px 0;">
                 DCF 계산 방식에 대한 설명이 없습니다.
             </div>
-            """, unsafe_allow_html=True)
-            
-        st.markdown('</div>', unsafe_allow_html=True)
-        
+            """
+
+        html_content += "</div>"
+
+        # HTML 컴포넌트 사용
+        # 설명 텍스트의 길이에 따라 높이 조정 (문자 길이 기준으로 대략적인 높이 추정)
+        description_height = len(dcf_description) // 3 if dcf_description else 60
+        height = 100 + description_height  # 기본 높이 + 설명 텍스트 높이
+        st.components.v1.html(html_content, height=height)
+
     def _display_additional_calculations(self):
         """추가 계산 설명 표시"""
         for key, value in self.calculations.items():
             if key not in ["average_ebitda", "ebitda_description", "dcf_description"] and isinstance(value, str):
+                # 섹션 제목 표시
                 st.markdown(f'<div class="subsection-title">{key}</div>', unsafe_allow_html=True)
                 
-                st.markdown('<div class="explanation-card green">', unsafe_allow_html=True)
-                st.markdown(f"""
-                <div class="explanation-content">
-                    {value}
+                # HTML 문자열 생성
+                html_content = f"""
+                <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+                            margin-bottom: 15px; border-left: 5px solid #10b981;">
+                    <div style="font-size: 14px; line-height: 1.7; color: #334155;">
+                        {value}
+                    </div>
                 </div>
-                """, unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
+                """
                 
+                # HTML 컴포넌트 사용
+                # 설명 텍스트의 길이에 따라 높이 조정 (문자 길이 기준으로 대략적인 높이 추정)
+                description_height = len(value) // 3 if value else 60
+                height = 80 + description_height  # 기본 높이 + 설명 텍스트 높이
+                st.components.v1.html(html_content, height=height)
+               
     def _update_chart_layout(self, fig):
         """차트 레이아웃 업데이트"""
         fig.update_layout(
