@@ -77,9 +77,9 @@ class ValuationDisplay:
             
             avg_ebitda = sum(ebitda_values) / 3
             if avg_ebitda >= 10000:
-                avg_ebitda_display = f"{avg_ebitda/10000:.2f} 조원"
+                self.avg_ebitda_display = f"{avg_ebitda/10000:.2f} 조원"
             else:
-                avg_ebitda_display = f"{avg_ebitda:.2f} 억원"
+                self.avg_ebitda_display = f"{avg_ebitda:.2f} 억원"
                 
             if abs(delta_value) >= 10000:
                 delta_display = f"{delta_value/10000:+.2f} 조원"
@@ -89,7 +89,7 @@ class ValuationDisplay:
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-title">EBITDA 평균 기업가치</div>
-                <div class="metric-value">{avg_ebitda_display}</div>
+                <div class="metric-value">{self.avg_ebitda_display}</div>
                 <div class="metric-delta {delta_color}">{delta_display}</div>
             </div>
             """, unsafe_allow_html=True)
@@ -100,9 +100,9 @@ class ValuationDisplay:
             
             avg_dcf = sum(dcf_values) / 3
             if avg_dcf >= 10000:
-                avg_dcf_display = f"{avg_dcf/10000:.2f} 조원"
+                self.avg_dcf_display = f"{avg_dcf/10000:.2f} 조원"
             else:
-                avg_dcf_display = f"{avg_dcf:.2f} 억원"
+                self.avg_dcf_display = f"{avg_dcf:.2f} 억원"
                 
             if abs(delta_value) >= 10000:
                 delta_display = f"{delta_value/10000:+.2f} 조원"
@@ -112,7 +112,7 @@ class ValuationDisplay:
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-title">DCF 평균 기업가치</div>
-                <div class="metric-value">{avg_dcf_display}</div>
+                <div class="metric-value">{self.avg_dcf_display}</div>
                 <div class="metric-delta {delta_color}">{delta_display}</div>
             </div>
             """, unsafe_allow_html=True)
@@ -120,14 +120,14 @@ class ValuationDisplay:
         with col3:
             total_avg = (sum(ebitda_values) + sum(dcf_values)) / 6
             if total_avg >= 10000:
-                total_avg_display = f"{total_avg/10000:.2f} 조원"
+                self.total_avg_display = f"{total_avg/10000:.2f} 조원"
             else:
-                total_avg_display = f"{total_avg:.2f} 억원"
+                self.total_avg_display = f"{total_avg:.2f} 억원"
             
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-title">종합 평균 기업가치</div>
-                <div class="metric-value">{total_avg_display}</div>
+                <div class="metric-value">{self.total_avg_display}</div>
                 <div class="metric-subtitle">EBITDA 및 DCF 통합 평균</div>
             </div>
             """, unsafe_allow_html=True)
@@ -506,7 +506,6 @@ class ValuationDisplay:
         """EBITDA 계산 설명 표시"""
         st.markdown('<div class="subsection-title">EBITDA 방식 설명</div>', unsafe_allow_html=True)
 
-        avg_ebitda = self.calculations.get("average_ebitda", 0)
         ebitda_description = self.calculations.get("ebitda_description", "")
 
         # HTML 문자열 생성
@@ -515,12 +514,12 @@ class ValuationDisplay:
                     margin-bottom: 15px; border-left: 5px solid #3b82f6;">
         """
 
-        if avg_ebitda:
+        if self.avg_ebitda_display:
             html_content += f"""
             <div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 12px; 
                         display: flex; justify-content: space-between;">
                 <div style="font-weight: 600; color: #475569;">평균 EBITDA</div>
-                <div style="font-weight: 700; color: #1e293b;">{avg_ebitda:,.0f} 백만원</div>
+                <div style="font-weight: 700; color: #1e293b;">{self.avg_ebitda_display} </div>
             </div>
             """
 
@@ -542,7 +541,7 @@ class ValuationDisplay:
         # HTML 컴포넌트 사용
         # 설명 텍스트의 길이에 따라 높이 조정 (문자 길이 기준으로 대략적인 높이 추정)
         description_height = len(ebitda_description) // 3 if ebitda_description else 60
-        height = 100 + description_height  # 기본 높이 + 설명 텍스트 높이
+        height = 150 + description_height  # 기본 높이 + 설명 텍스트 높이
         st.components.v1.html(html_content, height=height)
 
     def _display_dcf_calculation(self):
@@ -556,6 +555,15 @@ class ValuationDisplay:
         <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
                     margin-bottom: 15px; border-left: 5px solid #8b5cf6;">
         """
+
+        if self.avg_dcf_display:
+            html_content += f"""
+            <div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 12px; 
+                        display: flex; justify-content: space-between;">
+                <div style="font-weight: 600; color: #475569;">평균 DCF</div>
+                <div style="font-weight: 700; color: #1e293b;">{self.avg_dcf_display} </div>
+            </div>
+            """
 
         if dcf_description:
             html_content += f"""
@@ -575,7 +583,7 @@ class ValuationDisplay:
         # HTML 컴포넌트 사용
         # 설명 텍스트의 길이에 따라 높이 조정 (문자 길이 기준으로 대략적인 높이 추정)
         description_height = len(dcf_description) // 3 if dcf_description else 60
-        height = 100 + description_height  # 기본 높이 + 설명 텍스트 높이
+        height = 150 + description_height  # 기본 높이 + 설명 텍스트 높이
         st.components.v1.html(html_content, height=height)
 
     def _display_additional_calculations(self):
