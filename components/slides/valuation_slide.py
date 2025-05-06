@@ -4,6 +4,7 @@ from components.charts.iframe_chart_component import IframeChartComponent
 from config.app_config import COLOR_PALETTE
 import json
 from valuation.llm_valuation import ValuationAnalyzer
+import time
 
 class ValuationSlide(BaseSlide):
     """LLM 기반 기업 가치 평가 슬라이드"""
@@ -169,13 +170,6 @@ class ValuationSlide(BaseSlide):
         # 고급 컨테이너 시작
         st.markdown(f"""
         <div class="request-container">
-            <div class="request-icon">🔍</div>
-            <div class="request-title">{company_name}의 AI 기업 가치 평가</div>
-            <div class="request-description">
-                인공지능이 재무 데이터를 기반으로 기업의 가치를 다양한 방법론으로 평가합니다.
-                EBITDA 방식과 DCF 방식을 이용한 체계적인 가치 평가로 투자 의사결정을 지원합니다.
-            </div>
-            
             <div class="request-features">
                 <div class="feature-item">
                     <div class="feature-icon blue">💼</div>
@@ -198,12 +192,6 @@ class ValuationSlide(BaseSlide):
         with col2:
             if st.button("AI 기업 가치 평가 시작", type="primary", use_container_width=True, key="start_valuation_btn"):
                 with st.spinner("AI가 기업 가치를 평가 중입니다. 잠시만 기다려주세요..."):
-                    st.markdown('<div class="spinner"></div>', unsafe_allow_html=True)
-                    st.markdown("""
-                    <div style="text-align: center; color: #475569; margin-bottom: 20px; font-family: 'Pretendard', sans-serif;">
-                        재무 데이터 분석 및 가치 평가 시나리오 생성 중입니다. 약 30초 정도 소요됩니다.
-                    </div>
-                    """, unsafe_allow_html=True)
                     
                     # 가치 평가 실행
                     valuation_results = self._run_valuation_analysis()
@@ -212,6 +200,7 @@ class ValuationSlide(BaseSlide):
                     if valuation_results["status"] == "success":
                         st.session_state["valuation_data"] = valuation_results["valuation_data"]
                         st.success("기업 가치 평가가 완료되었습니다!")
+                        time.sleep(2)
                         st.rerun()  # 페이지 새로고침
                     else:
                         st.error(f"분석 오류: {valuation_results.get('message', '알 수 없는 오류')}")
