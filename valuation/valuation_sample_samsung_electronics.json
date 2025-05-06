@@ -1,0 +1,40 @@
+{
+  "company": "삼성전자",
+  "ebitda_valuation": {
+    "conservative": 5500000,
+    "base": 6500000,
+    "optimistic": 7500000
+  },
+  "dcf_valuation": {
+    "conservative": 5200000,
+    "base": 6300000,
+    "optimistic": 7800000
+  },
+  "assumptions": {
+    "ebitda_multipliers": {
+      "conservative": 8,
+      "base": 10,
+      "optimistic": 12
+    },
+    "discount_rates": {
+      "conservative": 12,
+      "base": 10,
+      "optimistic": 8
+    },
+    "growth_rates": {
+      "conservative": 3,
+      "base": 5,
+      "optimistic": 8
+    },
+    "terminal_growth_rates": {
+      "conservative": 1,
+      "base": 2,
+      "optimistic": 3
+    }
+  },
+  "calculations": {
+    "ebitda_description": "EBITDA 계산을 위해 2024년 영업이익(327,260백만원)에 감가상각비 및 무형자산상각비(약 350,000백만원으로 추정)를 더해 약 677,260백만원(67,726억원)의 EBITDA를 산출했습니다. 이 EBITDA에 시나리오별 승수(8x, 10x, 12x)를 적용하여 기업가치를 평가했습니다. 여기서 산업 평균 PER(15.0)과 반도체 업종의 특성을 고려하여 승수를 결정했습니다.",
+    "dcf_description": "DCF 평가는 향후 5년간의 FCF를 예측하고 시나리오별 할인율(12%, 10%, 8%)을 적용했습니다. 2024년 FCF가 음수(-123,991백만원)이지만, 이는 일시적인 현상으로 판단하고 2022-2023년 평균 FCF를 기준으로 향후 FCF를 추정했습니다. 영구성장률(1%, 2%, 3%)을 적용한 터미널 밸류를 계산하고, 현재 순부채를 고려하여 최종 기업가치를 산출했습니다."
+  },
+  "summary": "삼성전자의 기업가치는 EBITDA 방식으로 5.5조원~7.5조원, DCF 방식으로 5.2조원~7.8조원으로 평가됩니다. 2024년 실적은 2023년 대비 크게 개선되었으나, 2022년 수준에는 미치지 못합니다. 반도체 시장의 사이클을 고려할 때, 향후 AI 반도체 수요 증가와 메모리 가격 회복으로 실적 개선이 예상됩니다. 다만, 2024년 FCF가 음수인 점은 대규모 설비투자로 인한 일시적 현상으로 판단되며, 장기적으로는 안정적인 현금흐름 창출이 가능할 것으로 예상됩니다. 산업 평균 PER(15.0)과 PBR(1.8)을 고려할 때, 기본 시나리오의 기업가치 6.3조원~6.5조원이 합리적인 평가로 판단됩니다."
+}
