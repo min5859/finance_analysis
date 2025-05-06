@@ -210,12 +210,15 @@ def main():
         try:
             with open(json_file, 'r', encoding='utf-8') as f:
                 company_data = json.load(f)
-                company_name = f"{company_data.get('company_name', '기업')} 재무"
+                company_name = f"{company_data.get('company_name', '기업')}"
                 st.session_state['company_data'] = company_data
         except Exception:
             pass
 
     # Fancy Header 스타일의 타이틀
+    if st.session_state.get('company_data'):
+        company_name = f"{st.session_state['company_data'].get('company_name', '기업')}"
+
     components.html(f"""
     <div style="
         background: linear-gradient(90deg, #0a1172, #1a237e, #283593);
@@ -231,7 +234,7 @@ def main():
             margin: 0; 
             font-size: 2.2rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        ">{company_name} 분석</h1>
+        ">{company_name} 재무 분석</h1>
         <img src="data:image/png;base64,{img_base64}" style="max-width: 120px; margin-top: 1rem; display: block; margin-left: auto; margin-right: auto;">
     </div>
     """, height=150)
