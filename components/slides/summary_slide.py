@@ -84,7 +84,7 @@ class SummarySlide(BaseSlide):
         ]
 
         for metric in metrics:
-            delta_color = '#16a34a' if float(metric['delta'].replace('%p', '').replace('%', '')) > 0 else '#dc2626'
+            delta_color = '#16a34a' if float(metric['delta'].replace('%p', '').replace('%', '').replace(',', '')) > 0 else '#dc2626'
             html_content += f"""
                 <div style="
                     background: white;
@@ -124,7 +124,7 @@ class SummarySlide(BaseSlide):
         ]
 
         for metric in metrics:
-            delta_color = '#16a34a' if float(metric['delta'].replace('%p', '').replace('억원', '')) > 0 else '#dc2626'
+            delta_color = '#16a34a' if float(metric['delta'].replace('%p', '').replace('억원', '').replace(',', '')) > 0 else '#dc2626'
             html_content += f"""
                 <div style="
                     background: white;
