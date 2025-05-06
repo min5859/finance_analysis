@@ -60,8 +60,8 @@ class ValuationDisplay:
         
         self._display_metric_cards(ebitda_values, dcf_values)
         self._display_comparison_chart(ebitda_values, dcf_values)
-        self._display_result_cards(ebitda_values, dcf_values)
-        self._display_radar_chart(ebitda_values, dcf_values)
+        #self._display_result_cards(ebitda_values, dcf_values)
+        #self._display_radar_chart(ebitda_values, dcf_values)
         
     def _display_metric_cards(self, ebitda_values, dcf_values):
         """메트릭 카드 표시"""
@@ -260,7 +260,7 @@ class ValuationDisplay:
             return
             
         self._display_assumption_cards()
-        self._display_assumption_radar_chart()
+        #self._display_assumption_radar_chart()
         
     def _display_assumption_cards(self):
         """가정 카드 표시"""
