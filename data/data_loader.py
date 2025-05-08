@@ -43,9 +43,10 @@ class DataLoader:
                     if not value:  # 빈 배열인 경우
                         processed[key] = [0] * len(data_dict.get('year', []))
                     else:
-                        processed[key] = value
+                        # null 값을 0으로 변환
+                        processed[key] = [0 if item is None or item == "null" else item for item in value]
                 else:
-                    processed[key] = value
+                    processed[key] = value if value != "null" else 0
             return processed
         
         # 데이터 전처리
