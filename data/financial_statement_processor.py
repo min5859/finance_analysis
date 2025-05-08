@@ -149,7 +149,7 @@ class FinancialStatementProcessor:
         Claude API를 사용하여 파일 처리
         
         Args:
-            file_data (dict): 처리할 파일 데이터
+            file_data (dict): 처리할 파일 데이터 (PDF 텍스트, 이미지 또는 JSON 데이터)
             temperature (float, optional): 모델 온도
             custom_prompt (str, optional): 사용자 지정 프롬프트
             
@@ -161,8 +161,25 @@ class FinancialStatementProcessor:
         
         prompt = custom_prompt if custom_prompt else self.prompt
         
+        # JSON 데이터 처리
+        if isinstance(file_data, dict) and not any(key in file_data for key in ['text', 'image']):
+            system_message = f"{prompt}\n\nJSON 템플릿:\n{self.json_template}"
+            user_message = f"다음 재무제표 데이터를 분석하여 지정된 JSON 형식으로 변환해주세요. 데이터: {json.dumps(file_data, ensure_ascii=False)}"
+            
+            response = self.client.messages.create(
+                model="claude-3-7-sonnet-20250219",
+                system=system_message,
+                messages=[
+                    {"role": "user", "content": user_message}
+                ],
+                temperature=temperature,
+                max_tokens=4000
+            )
+            
+            return response.content[0].text
+        
         # PDF 텍스트 처리
-        if 'text' in file_data:
+        elif 'text' in file_data:
             system_message = f"{prompt}\n\nJSON 템플릿:\n{self.json_template}"
             user_message = f"다음 재무제표 또는 감사보고서 내용을 분석하여 지정된 JSON 형식으로 변환해주세요. 문서 내용: {file_data['text']}"
             
