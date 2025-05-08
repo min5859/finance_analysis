@@ -15,6 +15,7 @@ from components.slides.working_capital_slide import WorkingCapitalSlide
 from components.slides.conclusion_slide import ConclusionSlide
 from components.slides.industry_comparison_slide import IndustryComparisonSlide
 from components.slides.valuation_slide import ValuationSlide
+from components.slides.financial_analysis_start_slide import FinancialAnalysisStartSlide
 # 새로 추가한 DART 슬라이드 임포트
 from components.slides.financial_dart_slide import FinancialDartSlide
 from config.app_config import apply_custom_css
@@ -214,9 +215,10 @@ def main():
                 company_data = json.load(f)
                 company_name = f"{company_data.get('company_name', '기업')}"
                 st.session_state['company_data'] = company_data
-        except Exception:
-            pass
-
+                st.sidebar.success(f"{company_data.get('company_name', '기업')}의 데이터가 로드되었습니다.")
+        except Exception as e:
+            st.sidebar.error(f"파일 로드 오류: {str(e)}")
+    
     # Fancy Header 스타일의 타이틀
     if st.session_state.get('company_data'):
         company_name = f"{st.session_state['company_data'].get('company_name', '기업')}"
@@ -247,6 +249,8 @@ def main():
     # 슬라이드 메뉴
     st.sidebar.title("목차")
     slide_names = [
+        "재무제표 분석 시작",
+        "DART 재무제표 데이터",  # 새로 추가한 DART 슬라이드
         "요약",
         "손익계산서",
         "재무상태표",
@@ -258,12 +262,18 @@ def main():
         "업계비교 현황",
         "가치 평가",
         "종합 결론",
-        "DART 재무제표 데이터",  # 새로 추가한 DART 슬라이드
     ]
     selected_slide = st.sidebar.radio("분석 슬라이드 선택", slide_names)
     
-    # 기업이 선택되었을 때만 슬라이드 표시
-    if 'company_data' in st.session_state:
+    # 선택된 슬라이드 표시
+    if selected_slide == "재무제표 분석 시작":
+        FinancialAnalysisStartSlide(api_key).render()
+    elif selected_slide == "DART 재무제표 데이터":
+        # DART API를 사용한 새로운 슬라이드 표시
+        FinancialDartSlide().render()
+
+    # 기업이 선택되었을 때만 다른 슬라이드 표시
+    elif 'company_data' in st.session_state:
         # 데이터 로더 초기화
         data_loader = DataLoader(st.session_state['company_data'])
         
@@ -290,12 +300,9 @@ def main():
             ValuationSlide(data_loader).render()
         elif selected_slide == "종합 결론":
             ConclusionSlide(data_loader).render()
-        elif selected_slide == "DART 재무제표 데이터":
-            # DART API를 사용한 새로운 슬라이드 표시
-            FinancialDartSlide(data_loader).render()
     else:
         # 기업이 선택되지 않았을 때 안내 메시지 표시
-        st.info("왼쪽 사이드바에서 재무제표를 업로드하거나 기존 기업을 선택해주세요.")
+        st.info("왼쪽 사이드바에서 재무제표를 업로드하거나 DART API를 통해 기업 정보를 조회해주세요.")
         
 if __name__ == "__main__":
     main()

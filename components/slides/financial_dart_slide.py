@@ -6,13 +6,12 @@ from dart.dart_data_processor import DartDataProcessor
 class FinancialDartSlide:
     """DART에서 가져온 재무 데이터를 보여주는 슬라이드 클래스"""
     
-    def __init__(self, data_loader=None):
+    def __init__(self):
         """FinancialDartSlide 초기화
         
         Args:
             data_loader: 데이터 로더 객체 (기존 finance_analysis 프로젝트의 DataLoader)
         """
-        self.data_loader = data_loader
         self.title = "DART 재무제표 데이터"
         
         # 재무 데이터 프로세서 초기화
