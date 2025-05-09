@@ -261,19 +261,19 @@ class BalanceSheetSlide(BaseSlide):
             <div style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 20px;">Scale and Structure</div>
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
                 <div style="font-size: 1rem; color: #333; font-weight: 500;">총자산: {start_asset} → {end_asset}억</div>
-                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #10b981;">완만 +{asset_growth:.1f} %</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: {self._get_growth_color(asset_growth, 'asset')};">{self._get_growth_comment(asset_growth, 'asset')} {asset_growth:+.1f}%</div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
                 <div style="font-size: 1rem; color: #333; font-weight: 500;">자본총계: {start_equity} → {end_equity}억</div>
-                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #10b981;">가파른 +{equity_growth:.1f} %</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: {self._get_growth_color(equity_growth, 'equity')};">{self._get_growth_comment(equity_growth, 'equity')} {equity_growth:+.1f}%</div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
                 <div style="font-size: 1rem; color: #333; font-weight: 500;">총부채</div>
-                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #3b82f6;">점프 +{debt_growth:.1f} %</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: {self._get_growth_color(debt_growth, 'debt')};">{self._get_growth_comment(debt_growth, 'debt')} {debt_growth:+.1f}%</div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
-                <div style="font-size: 1rem; color: #333; font-weight: 500;">부채비율 {start_debt_ratio:.0f} % → {end_debt_ratio:.0f} %</div>
-                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: #10b981;">저레버리지</div>
+                <div style="font-size: 1rem; color: #333; font-weight: 500;">부채비율 {start_debt_ratio:.0f}% → {end_debt_ratio:.0f}%</div>
+                <div style="font-size: 1rem; text-align: right; font-weight: 600; color: {self._get_growth_color(end_debt_ratio - start_debt_ratio, 'debt_ratio')};">{self._get_growth_comment(end_debt_ratio - start_debt_ratio, 'debt_ratio')}</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -298,3 +298,59 @@ class BalanceSheetSlide(BaseSlide):
                 <div style="font-size: 0.95rem; color: #334155; line-height: 1.6;">재무상태표에 대한 인사이트 정보가 없습니다. JSON 파일에 insights.balance_sheet 항목을 추가해주세요.</div>
             </div>
             """, unsafe_allow_html=True)
+
+    def _get_growth_comment(self, growth_rate, metric_type):
+        """성장률에 따른 코멘트 생성"""
+        if metric_type == "asset":
+            if growth_rate < 5:
+                return "정체"
+            elif growth_rate < 15:
+                return "완만"
+            elif growth_rate < 30:
+                return "안정"
+            else:
+                return "급증"
+        elif metric_type == "equity":
+            if growth_rate < 5:
+                return "정체"
+            elif growth_rate < 15:
+                return "완만"
+            elif growth_rate < 30:
+                return "안정"
+            else:
+                return "급증"
+        elif metric_type == "debt":
+            if growth_rate < 0:
+                return "감소"
+            elif growth_rate < 10:
+                return "안정"
+            elif growth_rate < 30:
+                return "증가"
+            else:
+                return "급증"
+        elif metric_type == "debt_ratio":
+            if growth_rate < -10:
+                return "대폭개선"
+            elif growth_rate < 0:
+                return "개선"
+            elif growth_rate < 10:
+                return "안정"
+            else:
+                return "악화"
+
+    def _get_growth_color(self, growth_rate, metric_type):
+        """성장률에 따른 색상 반환"""
+        if metric_type == "debt_ratio":
+            if growth_rate < 0:
+                return "#10b981"  # 개선 시 초록색
+            elif growth_rate < 10:
+                return "#3b82f6"  # 안정 시 파란색
+            else:
+                return "#ef4444"  # 악화 시 빨간색
+        else:
+            if growth_rate < 0:
+                return "#ef4444"  # 감소 시 빨간색
+            elif growth_rate < 10:
+                return "#3b82f6"  # 낮은 성장 시 파란색
+            else:
+                return "#10b981"  # 높은 성장 시 초록색
