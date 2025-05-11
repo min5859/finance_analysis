@@ -113,16 +113,11 @@ class FinancialAnalysisStartSlide:
         st.session_state.company_name = selected_corp['corp_name']
         st.session_state.stock_code = selected_corp['stock_code']
         st.session_state.dart_financial_data = financial_data
-        st.session_state['company_data'] = {
-            'company_name': selected_corp['corp_name'],
-            'stock_code': selected_corp['stock_code']
-        }
         st.success("재무제표 데이터가 로드되었습니다.")
 
     def _render_analysis_button(self):
         if 'dart_financial_data' in st.session_state and st.session_state.dart_financial_data:
             corp_name = st.session_state.get('company_name')
-            stock_code = st.session_state.get('stock_code')
             selected_year = st.session_state.get('selected_year')
             dart_data = st.session_state.dart_financial_data
 
@@ -141,17 +136,12 @@ class FinancialAnalysisStartSlide:
                         parsed_json = processor.parse_json_response(json_result)
                         
                         if parsed_json:
-                            self._save_analysis_results(parsed_json, corp_name, stock_code, selected_year)
+                            self._save_analysis_results(parsed_json, corp_name, selected_year)
                     except Exception as e:
                         st.error(f"분석 중 오류가 발생했습니다: {str(e)}")
 
-    def _save_analysis_results(self, parsed_json, company_name, stock_code, year):
+    def _save_analysis_results(self, parsed_json, company_name, year):
         final_data = parsed_json.copy()
-        final_data.update({
-            'company_name': company_name,
-            'stock_code': stock_code,
-            'year': str(year)
-        })
 
         st.session_state['company_data'] = final_data
 
