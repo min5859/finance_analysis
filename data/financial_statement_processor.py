@@ -83,13 +83,12 @@ class FinancialStatementProcessor:
         
         return merged_bytes.getvalue()
     
-    def extract_text_from_pdf(self, pdf_bytes, max_pages=20):
+    def extract_text_from_pdf(self, pdf_bytes):
         """
         PDF 파일에서 텍스트 추출
         
         Args:
             pdf_bytes (bytes): PDF 파일 바이트
-            max_pages (int, optional): 처리할 최대 페이지 수
             
         Returns:
             dict: 추출된 텍스트와 페이지 수
@@ -101,7 +100,7 @@ class FinancialStatementProcessor:
         
         doc = fitz.open(temp_path)
         text = ""
-        page_count = min(len(doc), max_pages)
+        page_count = len(doc)
         
         # 텍스트 추출
         for i in range(page_count):
