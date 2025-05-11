@@ -129,6 +129,7 @@ class FinancialAnalysisStartSlide:
                 'company_name': corp_name,
                 'report_year': str(selected_year),
                 'sector': self._get_company_sector(),
+                'unit': '억원',
                 **optimized_data
             }
 
