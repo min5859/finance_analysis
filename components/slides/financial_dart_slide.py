@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from dart.dart_data_processor import DartDataProcessor
+from dart.dart_api_service import DartApiService
 
 class FinancialDartSlide:
     """DART에서 가져온 재무 데이터를 보여주는 슬라이드 클래스"""
@@ -16,6 +17,7 @@ class FinancialDartSlide:
         
         # 재무 데이터 프로세서 초기화
         self.data_processor = DartDataProcessor()
+        self.dart_api = DartApiService()
         
     def get_title(self):
         """슬라이드 제목 반환"""
@@ -45,22 +47,106 @@ class FinancialDartSlide:
             processed_data = self.data_processor.extract_financial_data(financial_data)
             
             # 탭으로 재무제표 구분
-            fin_tabs = st.tabs(["재무상태표", "손익계산서", "현금흐름표"])
+            fin_tabs = st.tabs(["기업정보", "재무상태표", "손익계산서", "현금흐름표"])
+            
+            # 기업정보 탭
+            with fin_tabs[0]:
+                self._display_company_info()
             
             # 재무상태표 탭
-            with fin_tabs[0]:
+            with fin_tabs[1]:
                 self._display_balance_sheet(processed_data['balance_sheet'])
             
             # 손익계산서 탭
-            with fin_tabs[1]:
+            with fin_tabs[2]:
                 self._display_income_statement(processed_data['income_statement'])
             
             # 현금흐름표 탭
-            with fin_tabs[2]:
+            with fin_tabs[3]:
                 self._display_cash_flow(processed_data['cash_flow'])
         else:
             selected_year = st.session_state.get('selected_year', '해당')
             st.warning(f"{selected_year}년 재무제표 데이터가 없습니다.")
+    
+    def _display_company_info(self):
+        """기업 정보 표시"""
+        st.subheader("기업 정보")
+        
+        # 세션에서 기업 정보 가져오기
+        company_name = st.session_state.get('company_name', '')
+        stock_code = st.session_state.get('stock_code', '')
+        corp_code = st.session_state.get('corp_code', '')
+        selected_year = st.session_state.get('selected_year', '')
+        
+        # DART API를 통해 기업 상세 정보 조회
+        company_info = self.dart_api.get_company_info(corp_code)
+        
+        if company_info and 'corp_name' in company_info:
+            # 기본 정보 표시
+            basic_info = {
+                '항목': [
+                    '기업명', '종목코드', '고유번호', '조회연도',
+                    '대표자명', '설립일', '주소', '홈페이지'
+                ],
+                '내용': [
+                    company_info.get('corp_name', ''),
+                    stock_code,
+                    corp_code,
+                    str(selected_year),
+                    company_info.get('ceo_nm', ''),
+                    company_info.get('est_dt', ''),
+                    company_info.get('adres', ''),
+                    company_info.get('hm_url', '')
+                ]
+            }
+            
+            basic_df = pd.DataFrame(basic_info)
+            st.dataframe(basic_df, hide_index=True, use_container_width=True)
+            
+            # 추가 정보 표시
+            additional_info = {
+                '항목': [
+                    '업종', '주요사업', '상장일', '결산월'
+                ],
+                '내용': [
+                    company_info.get('induty_code', ''),
+                    company_info.get('main_prod', ''),
+                    company_info.get('enp_ipo_dt', ''),
+                    company_info.get('acc_mt', '')
+                ]
+            }
+            
+            additional_df = pd.DataFrame(additional_info)
+            st.subheader("추가 정보")
+            st.dataframe(additional_df, hide_index=True, use_container_width=True)
+        else:
+            # API 호출 실패 시 기본 정보만 표시
+            basic_info = {
+                '항목': ['기업명', '종목코드', '고유번호', '조회연도'],
+                '내용': [company_name, stock_code, corp_code, str(selected_year)]
+            }
+            basic_df = pd.DataFrame(basic_info)
+            st.dataframe(basic_df, hide_index=True, use_container_width=True)
+            st.warning("기업 상세 정보를 가져오지 못했습니다.")
+        
+        # 보고서 정보 표시
+        if 'dart_financial_data' in st.session_state:
+            dart_data = st.session_state.dart_financial_data
+            if 'list' in dart_data and len(dart_data['list']) > 0:
+                report_info = dart_data['list'][0]
+                
+                report_data = {
+                    '항목': ['보고서 종류', '보고서 코드', '보고서 명칭'],
+                    '내용': [
+                        report_info.get('rcept_no', ''),
+                        report_info.get('reprt_code', ''),
+                        report_info.get('reprt_nm', '')
+                    ]
+                }
+                
+                report_df = pd.DataFrame(report_data)
+                st.subheader("보고서 정보")
+                st.dataframe(report_df, hide_index=True, use_container_width=True)
     
     def _display_balance_sheet(self, bs_items):
         """재무상태표 표시"""
