@@ -18,7 +18,13 @@ class FinancialAnalysisStartSlide:
         # 검색 섹션
         search_col1, search_col2 = st.columns([3, 1])
         with search_col1:
-            search_keyword = st.text_input("기업명 검색:")
+            # 세션 상태에서 검색어 가져오기
+            default_search = st.session_state.get('dart_search_keyword', '')
+            search_keyword = st.text_input("기업명 검색:", value=default_search)
+            # 검색어가 변경되면 세션 상태 업데이트
+            if search_keyword != default_search:
+                st.session_state.dart_search_keyword = search_keyword
+        
         with search_col2:
             search_button = st.button("검색", use_container_width=True)
         
@@ -57,15 +63,35 @@ class FinancialAnalysisStartSlide:
         
         # 기업 선택 및 연도 선택 UI
         corp_names = [f"{corp['corp_name']} ({corp['stock_code']})" for corp in filtered_corps]
-        selected_idx = st.selectbox("조회할 기업을 선택하세요:", range(len(corp_names)), format_func=lambda i: corp_names[i])
+        
+        # 세션 상태에서 이전 선택 인덱스 가져오기
+        default_idx = st.session_state.get('dart_selected_corp_idx', 0)
+        if default_idx >= len(corp_names):
+            default_idx = 0
+            
+        selected_idx = st.selectbox(
+            "조회할 기업을 선택하세요:", 
+            range(len(corp_names)), 
+            index=default_idx,
+            format_func=lambda i: corp_names[i]
+        )
+        # 선택된 인덱스 저장
+        st.session_state.dart_selected_corp_idx = selected_idx
+        
         selected_corp = filtered_corps[selected_idx]
         
         current_year = datetime.datetime.now().year
+        # 세션 상태에서 이전 선택 연도 가져오기
+        default_year_idx = st.session_state.get('dart_selected_year_idx', 
+            list(range(current_year-10, current_year)).index(current_year-1))
+        
         selected_year = st.selectbox(
             "조회 연도:",
             list(range(current_year-10, current_year)),
-            index=list(range(current_year-10, current_year)).index(current_year-1)
+            index=default_year_idx
         )
+        # 선택된 연도 인덱스 저장
+        st.session_state.dart_selected_year_idx = list(range(current_year-10, current_year)).index(selected_year)
         
         if st.button("재무제표 조회"):
             self._fetch_financial_data(selected_corp, selected_year)
