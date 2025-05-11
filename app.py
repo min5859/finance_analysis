@@ -140,6 +140,8 @@ def main():
                                 results.append(parsed_json)
                             except json.JSONDecodeError as e:
                                 st.error(f"JSON 파싱 오류: {str(e)}")
+                                st.error("디버깅을 위한 LLM 출력 결과:")
+                                st.code(json_result, language="json")
                                 return
                         
                         except Exception as e:
@@ -157,6 +159,8 @@ def main():
                                 results.append(parsed_json)
                             except json.JSONDecodeError as e:
                                 st.error(f"JSON 파싱 오류: {str(e)}")
+                                st.error("디버깅을 위한 LLM 출력 결과:")
+                                st.code(json_result, language="json")
                                 return
                         
                         except Exception as e:
