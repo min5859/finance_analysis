@@ -143,6 +143,34 @@ class FinancialStatementProcessor:
         """이미지를 Base64로 인코딩"""
         return base64.b64encode(image_bytes).decode('utf-8')
     
+    def _call_claude_api(self, system_message, user_message, temperature=0.1, max_tokens=8000):
+        """
+        Claude API 호출을 위한 공통 메서드
+        
+        Args:
+            system_message (str): 시스템 메시지
+            user_message (str or list): 사용자 메시지
+            temperature (float): 모델 온도
+            max_tokens (int): 최대 토큰 수
+            
+        Returns:
+            str: API 응답
+        """
+        if not self.client:
+            raise ValueError("API 키가 설정되지 않았습니다.")
+            
+        response = self.client.messages.create(
+            model="claude-3-7-sonnet-20250219",
+            system=system_message,
+            messages=[
+                {"role": "user", "content": user_message}
+            ],
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
+        
+        return response.content[0].text
+
     def process_with_claude(self, file_data, temperature=0.1, custom_prompt=None):
         """
         Claude API를 사용하여 파일 처리
@@ -155,78 +183,36 @@ class FinancialStatementProcessor:
         Returns:
             str: API 응답
         """
-        if not self.client:
-            raise ValueError("API 키가 설정되지 않았습니다.")
-        
         prompt = custom_prompt if custom_prompt else self.prompt
+        system_message = f"{prompt}\n\nJSON 템플릿:\n{self.json_template}"
         
         # JSON 데이터 처리
-        if isinstance(file_data, dict) and not any(key in file_data for key in ['text', 'image']):
-            system_message = f"{prompt}\n\nJSON 템플릿:\n{self.json_template}"
+        if isinstance(file_data, dict) and not any(key in file_data for key in ['text', 'image', 'sections']):
             user_message = f"다음 재무제표 데이터를 분석하여 지정된 JSON 형식으로 변환해주세요. 데이터: {json.dumps(file_data, ensure_ascii=False)}"
-            
-            response = self.client.messages.create(
-                model="claude-3-7-sonnet-20250219",
-                system=system_message,
-                messages=[
-                    {"role": "user", "content": user_message}
-                ],
-                temperature=temperature,
-                max_tokens=8000
-            )
-            
-            return response.content[0].text
+            return self._call_claude_api(system_message, user_message, temperature)
         
         # PDF 텍스트 처리
         elif 'text' in file_data:
-            system_message = f"{prompt}\n\nJSON 템플릿:\n{self.json_template}"
-            user_message = f"다음 재무제표 또는 감사보고서 내용을 분석하여 지정된 JSON 형식으로 변환해주세요. 문서 내용: {file_data['text']}"
-            
-            response = self.client.messages.create(
-                model="claude-3-7-sonnet-20250219",  # Claude 모델 사용
-                system=system_message,
-                messages=[
-                    {"role": "user", "content": user_message}
-                ],
-                temperature=temperature,
-                max_tokens=8000
-            )
-            
-            return response.content[0].text
-        
+            user_message = f"다음 재무제표 또는 감사보고서 내용을 분석하여 지정된 JSON 형식으로 변환해주세요. 문서 내용: {file_data['text'][:20000]}"
+            return self._call_claude_api(system_message, user_message, temperature)
         # 이미지 처리
         elif 'image' in file_data:
             base64_image = self.encode_image_to_base64(file_data['image'])
-            
-            system_message = f"{prompt}\n\nJSON 템플릿:\n{self.json_template}"
-            
-            response = self.client.messages.create(
-                model="claude-3-7-sonnet-20250219",  # Claude 모델 사용
-                system=system_message,
-                messages=[
-                    {
-                        "role": "user", 
-                        "content": [
-                            {
-                                "type": "text", 
-                                "text": "이 재무제표나 감사보고서 이미지를 분석하여 지정된 JSON 형식으로 정보를 추출해주세요."
-                            },
-                            {
-                                "type": "image", 
-                                "source": {
-                                    "type": "base64", 
-                                    "media_type": "image/png",
-                                    "data": base64_image
-                                }
-                            }
-                        ]
+            user_message = [
+                {
+                    "type": "text", 
+                    "text": "이 재무제표나 감사보고서 이미지를 분석하여 지정된 JSON 형식으로 정보를 추출해주세요."
+                },
+                {
+                    "type": "image", 
+                    "source": {
+                        "type": "base64", 
+                        "media_type": "image/png",
+                        "data": base64_image
                     }
-                ],
-                temperature=temperature,
-                max_tokens=8000
-            )
-            
-            return response.content[0].text
+                }
+            ]
+            return self._call_claude_api(system_message, user_message, temperature)
     
     def parse_json_response(self, json_result):
         """
