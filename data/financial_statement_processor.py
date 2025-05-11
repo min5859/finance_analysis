@@ -164,7 +164,7 @@ class FinancialStatementProcessor:
         # PDF 텍스트 처리
         if 'text' in file_data:
             system_message = f"{prompt}\n\nJSON 템플릿:\n{self.json_template}"
-            user_message = f"다음 재무제표 또는 감사보고서 내용을 분석하여 지정된 JSON 형식으로 변환해주세요. 문서 내용: {file_data['text'][:15000]}"
+            user_message = f"다음 재무제표 또는 감사보고서 내용을 분석하여 지정된 JSON 형식으로 변환해주세요. 문서 내용: {file_data['text']}"
             
             response = self.client.messages.create(
                 model="claude-3-7-sonnet-20250219",  # Claude 모델 사용
