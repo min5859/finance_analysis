@@ -173,7 +173,7 @@ class FinancialStatementProcessor:
                     {"role": "user", "content": user_message}
                 ],
                 temperature=temperature,
-                max_tokens=4000
+                max_tokens=8000
             )
             
             return response.content[0].text
@@ -190,7 +190,7 @@ class FinancialStatementProcessor:
                     {"role": "user", "content": user_message}
                 ],
                 temperature=temperature,
-                max_tokens=4000
+                max_tokens=8000
             )
             
             return response.content[0].text
@@ -224,7 +224,7 @@ class FinancialStatementProcessor:
                     }
                 ],
                 temperature=temperature,
-                max_tokens=4000
+                max_tokens=8000
             )
             
             return response.content[0].text
