@@ -47,7 +47,7 @@ class FinancialDartSlide:
             processed_data = self.data_processor.extract_financial_data(financial_data)
             
             # 탭으로 재무제표 구분
-            fin_tabs = st.tabs(["기업정보", "재무상태표", "손익계산서", "현금흐름표"])
+            fin_tabs = st.tabs(["기업정보", "재무상태표", "손익계산서", "현금흐름표", "감사보고서"])
             
             # 기업정보 탭
             with fin_tabs[0]:
@@ -64,9 +64,97 @@ class FinancialDartSlide:
             # 현금흐름표 탭
             with fin_tabs[3]:
                 self._display_cash_flow(processed_data['cash_flow'])
+            
+            # 감사보고서 탭
+            with fin_tabs[4]:
+                self._display_audit_report()
         else:
             selected_year = st.session_state.get('selected_year', '해당')
             st.warning(f"{selected_year}년 재무제표 데이터가 없습니다.")
+    
+    def _display_audit_report(self):
+        """감사 보고서 표시"""
+        st.subheader("감사 보고서")
+        
+        # 세션에서 필요한 정보 가져오기
+        corp_code = st.session_state.get('corp_code', '')
+        selected_year = st.session_state.get('selected_year', '')
+        
+        if not corp_code or not selected_year:
+            st.warning("기업 정보가 없습니다.")
+            return
+        
+        # 감사 보고서 정보 조회
+        audit_data = self.dart_api.get_audit_report(corp_code, str(selected_year))
+        
+        if audit_data and 'list' in audit_data and len(audit_data['list']) > 0:
+            # 외부감사 정보 표시
+            audit_info = audit_data['list'][0]
+            
+            # 감사인 정보
+            auditor_info = {
+                '항목': [
+                    '감사인', '감사인 주소', '감사인 전화번호',
+                    '감사인 이메일', '감사인 홈페이지'
+                ],
+                '내용': [
+                    audit_info.get('auditor_nm', ''),
+                    audit_info.get('auditor_adres', ''),
+                    audit_info.get('auditor_telno', ''),
+                    audit_info.get('auditor_email', ''),
+                    audit_info.get('auditor_hmpg', '')
+                ]
+            }
+            
+            auditor_df = pd.DataFrame(auditor_info)
+            st.subheader("감사인 정보")
+            st.dataframe(auditor_df, hide_index=True, use_container_width=True)
+            
+            # 감사의견 정보
+            opinion_info = {
+                '항목': [
+                    '감사의견', '감사보고서 일자', '감사보고서 번호',
+                    '감사보고서 제출일', '감사보고서 접수일'
+                ],
+                '내용': [
+                    audit_info.get('opnion_cd', ''),
+                    audit_info.get('audit_report_dt', ''),
+                    audit_info.get('audit_report_no', ''),
+                    audit_info.get('submission_dt', ''),
+                    audit_info.get('rcept_dt', '')
+                ]
+            }
+            
+            opinion_df = pd.DataFrame(opinion_info)
+            st.subheader("감사의견 정보")
+            st.dataframe(opinion_df, hide_index=True, use_container_width=True)
+            
+            # 감사보고서 원문 정보 표시
+            if 'audit_reports' in audit_data and audit_data['audit_reports']:
+                st.subheader("감사보고서 원문")
+                for report in audit_data['audit_reports']:
+                    disclosure_info = report['disclosure_info']
+                    document_info = report['document_info']
+                    
+                    # 공시 정보 표시
+                    disclosure_data = {
+                        '항목': ['보고서명', '접수번호', '접수일자', '공시일자'],
+                        '내용': [
+                            disclosure_info.get('report_nm', ''),
+                            disclosure_info.get('rcept_no', ''),
+                            disclosure_info.get('rcept_dt', ''),
+                            disclosure_info.get('flr_nm', '')
+                        ]
+                    }
+                    
+                    disclosure_df = pd.DataFrame(disclosure_data)
+                    st.dataframe(disclosure_df, hide_index=True, use_container_width=True)
+                    
+                    # 문서 정보 표시
+                    if 'document' in document_info:
+                        st.text_area("감사보고서 전문", document_info['document'], height=300)
+        else:
+            st.warning(f"{selected_year}년 감사 보고서 데이터가 없습니다.")
     
     def _display_company_info(self):
         """기업 정보 표시"""
