@@ -197,6 +197,8 @@ def main():
     
     # 회사 선택 드롭다운을 사이드바로 이동
     companies = get_available_companies()
+    # 회사 이름 기준으로 오름차순 정렬
+    companies.sort(key=lambda x: x['name'])
     company_names = ["기업을 선택하세요"] + [f"{c['name']} ({c['sector']})" for c in companies]
     company_files = [None] + [c['filename'] for c in companies]
     
