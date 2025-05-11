@@ -136,21 +136,32 @@ class ValuationDisplay:
         """비교 차트 표시"""
         st.markdown('<div class="subsection-title">기업가치 평가 비교</div>', unsafe_allow_html=True)
         
+        # 금액 단위 변환
+        converted_values = []
+        for value in ebitda_values + dcf_values:
+            if value >= 10000:
+                converted_values.append(value/10000)
+            else:
+                converted_values.append(value)
+        
         df = pd.DataFrame({
             "시나리오": self.scenarios * 2,
             "평가방식": ["EBITDA"] * 3 + ["DCF"] * 3,
-            "기업가치(조원)": ebitda_values + dcf_values
+            "기업가치": converted_values
         })
+        
+        # 단위 결정
+        unit = "조원" if max(converted_values) >= 10000 else "억원"
         
         fig = px.bar(
             df, 
             x="시나리오", 
-            y="기업가치(조원)", 
+            y="기업가치", 
             color="평가방식", 
             barmode="group",
             text_auto='.2f',
             color_discrete_map={"EBITDA": "#3b82f6", "DCF": "#8b5cf6"},
-            title=f"{self.company_name} 기업가치 평가 (단위: 조원)"
+            title=f"{self.company_name} 기업가치 평가 (단위: {unit})"
         )
         
         self._update_chart_layout(fig)

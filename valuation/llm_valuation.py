@@ -157,7 +157,7 @@ class ValuationAnalyzer:
         기업명: {company_name}
         업종: {company_sector}
         
-        # 재무 정보 (단위: 백만원)
+        # 재무 정보 (단위: 억원)
         {json.dumps(finances, ensure_ascii=False, indent=2)}
         
         # 재무 비율
