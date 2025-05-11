@@ -121,24 +121,40 @@ class FinancialAnalysisStartSlide:
             selected_year = st.session_state.get('selected_year')
             dart_data = st.session_state.dart_financial_data
 
-            processed_data = self.data_processor.extract_financial_data(dart_data)
-            processed_data = {
+            # 토큰 최적화를 위해 핵심 재무 데이터만 추출
+            optimized_data = self.data_processor.extract_optimized_financial_data(dart_data)
+            
+            # 기본 정보 추가
+            optimized_data = {
                 'company_name': corp_name,
                 'report_year': str(selected_year),
-                **processed_data
+                'sector': self._get_company_sector(),
+                **optimized_data
             }
 
             if st.button("재무 분석 시작 (DART 데이터)"):
                 with st.spinner("DART 데이터 기반 재무 분석 중..."):
                     processor = FinancialStatementProcessor(api_key=self.api_key)
                     try:
-                        json_result = processor.process_with_claude(processed_data)
+                        json_result = processor.process_with_claude(optimized_data)
                         parsed_json = processor.parse_json_response(json_result)
                         
                         if parsed_json:
                             self._save_analysis_results(parsed_json, corp_name, selected_year)
                     except Exception as e:
                         st.error(f"분석 중 오류가 발생했습니다: {str(e)}")
+
+    def _get_company_sector(self):
+        """회사의 업종 정보 가져오기"""
+        corp_code = st.session_state.get('corp_code', '')
+        if not corp_code:
+            return "기타"
+        
+        # 회사 정보 조회
+        company_info = self.dart_api.get_company_info(corp_code)
+        if company_info and 'induty_code' in company_info:
+            return company_info.get('induty_code', '기타')
+        return "기타"
 
     def _save_analysis_results(self, parsed_json, company_name, year):
         final_data = parsed_json.copy()

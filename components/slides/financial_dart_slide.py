@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import json
 from datetime import datetime
 from dart.dart_data_processor import DartDataProcessor
 from dart.dart_api_service import DartApiService
@@ -46,8 +47,23 @@ class FinancialDartSlide:
             # 데이터 처리
             processed_data = self.data_processor.extract_financial_data(financial_data)
             
+            # 최적화된 데이터 처리 (LLM용)
+            optimized_data = self.data_processor.extract_optimized_financial_data(financial_data)
+            
+            # 기업 정보 추가
+            corp_name = st.session_state.get('company_name', '')
+            selected_year = st.session_state.get('selected_year', '')
+            sector = self._get_company_sector()
+            
+            optimized_data = {
+                'company_name': corp_name,
+                'report_year': str(selected_year),
+                'sector': sector,
+                **optimized_data
+            }
+            
             # 탭으로 재무제표 구분
-            fin_tabs = st.tabs(["기업정보", "재무상태표", "손익계산서", "현금흐름표", "감사보고서"])
+            fin_tabs = st.tabs(["기업정보", "재무상태표", "손익계산서", "현금흐름표", "LLM 최적화 데이터", "감사보고서"])
             
             # 기업정보 탭
             with fin_tabs[0]:
@@ -64,13 +80,144 @@ class FinancialDartSlide:
             # 현금흐름표 탭
             with fin_tabs[3]:
                 self._display_cash_flow(processed_data['cash_flow'])
+                
+            # LLM 최적화 데이터 탭 (새로 추가)
+            with fin_tabs[4]:
+                self._display_optimized_data(optimized_data)
             
             # 감사보고서 탭
-            with fin_tabs[4]:
+            with fin_tabs[5]:
                 self._display_audit_report()
         else:
             selected_year = st.session_state.get('selected_year', '해당')
             st.warning(f"{selected_year}년 재무제표 데이터가 없습니다.")
+    
+    def _display_optimized_data(self, optimized_data):
+        """LLM 최적화 데이터 표시"""
+        st.subheader("LLM 분석용 최적화 데이터")
+        
+        # 최적화 데이터에 대한 설명
+        st.markdown("""
+        <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border-left: 0.25rem solid #4f46e5;">
+        이 데이터는 LLM(Claude)에 전송되는 최적화된 형태의 재무 데이터입니다. 모든 금액은 <b>억원 단위</b>로 변환되었으며, 
+        재무분석에 필요한 핵심 계정과목만 추출하여 토큰 수를 최적화하였습니다.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # 기본 정보 카드
+            st.markdown("""
+            <div style="background-color: white; padding: 1rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.12);">
+                <h4 style="color: #4338ca; margin-bottom: 0.75rem;">기업 기본 정보</h4>
+            """, unsafe_allow_html=True)
+            
+            info_df = pd.DataFrame({
+                '항목': ['기업명', '보고서 연도', '업종 코드'],
+                '값': [
+                    optimized_data.get('company_name', ''), 
+                    optimized_data.get('report_year', ''), 
+                    optimized_data.get('sector', '')
+                ]
+            })
+            st.dataframe(info_df, hide_index=True, use_container_width=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+            
+            # LLM 최적화 데이터 전체 (JSON)
+            st.markdown("<h4 style='margin-top: 1.5rem;'>전체 최적화 데이터 (JSON)</h4>", unsafe_allow_html=True)
+            # JSON 문자열로 변환하고 들여쓰기 적용
+            optimized_json = json.dumps(optimized_data, indent=2, ensure_ascii=False)
+            st.code(optimized_json, language="json")
+            
+            # 다운로드 버튼
+            st.download_button(
+                label="JSON 다운로드",
+                data=optimized_json,
+                file_name=f"{optimized_data.get('company_name', 'company')}_optimized.json",
+                mime="application/json"
+            )
+            
+        with col2:
+            # 재무비율 데이터 카드 (3년치)
+            st.markdown("""
+            <div style="background-color: white; padding: 1rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.12);">
+                <h4 style="color: #4338ca; margin-bottom: 0.75rem;">재무비율 (3년치)</h4>
+            """, unsafe_allow_html=True)
+            
+            # 재무비율 데이터가 있는지 확인
+            if 'financial_ratios' in optimized_data and optimized_data['financial_ratios']:
+                ratios = optimized_data['financial_ratios']
+                years = ratios.get('year', [])
+                
+                # 각 재무비율에 대한 테이블 작성
+                ratio_data = []
+                
+                for i, year in enumerate(years):
+                    row = {'연도': year}
+                    
+                    for key in ratios:
+                        if key != 'year' and isinstance(ratios[key], list) and len(ratios[key]) > i:
+                            row[key] = f"{ratios[key][i]}%"
+                    
+                    ratio_data.append(row)
+                
+                # 재무비율 데이터프레임 생성 및 표시
+                ratio_df = pd.DataFrame(ratio_data)
+                st.dataframe(ratio_df, hide_index=True, use_container_width=True)
+            else:
+                st.info("재무비율 데이터가 없습니다.")
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+            
+            # 핵심 재무제표 항목 수 표시
+            st.markdown("""
+            <div style="background-color: white; padding: 1rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.12); margin-top: 1rem;">
+                <h4 style="color: #4338ca; margin-bottom: 0.75rem;">데이터 최적화 요약</h4>
+            """, unsafe_allow_html=True)
+            
+            # 각 재무제표 항목 수 계산
+            bs_count = len(optimized_data.get('balance_sheet', []))
+            is_count = len(optimized_data.get('income_statement', []))
+            cf_count = len(optimized_data.get('cash_flow', []))
+            ratio_count = len([k for k in optimized_data.get('financial_ratios', {}).keys() if k != 'year'])
+            
+            # 요약 정보 데이터프레임
+            summary_df = pd.DataFrame({
+                '항목': ['재무상태표 계정 수', '손익계산서 계정 수', '현금흐름표 계정 수', '재무비율 지표 수', '총 데이터 항목 수'],
+                '개수': [
+                    bs_count,
+                    is_count, 
+                    cf_count,
+                    ratio_count,
+                    bs_count + is_count + cf_count + ratio_count
+                ]
+            })
+            st.dataframe(summary_df, hide_index=True, use_container_width=True)
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+            
+            # 토큰 분석
+            st.markdown("""
+            <div style="background-color: white; padding: 1rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.12); margin-top: 1rem;">
+                <h4 style="color: #4338ca; margin-bottom: 0.75rem;">대략적인 토큰 분석</h4>
+            """, unsafe_allow_html=True)
+            
+            # JSON 문자열 길이로 대략적인 토큰 수 추정
+            json_chars = len(optimized_json)
+            estimated_tokens = json_chars // 4  # 대략적인 추정 (4자당 1토큰)
+            
+            token_df = pd.DataFrame({
+                '항목': ['JSON 문자 수', '추정 토큰 수', '약 토큰 비용 (USD)'],
+                '값': [
+                    f"{json_chars:,}자",
+                    f"{estimated_tokens:,}토큰",
+                    f"${(estimated_tokens * 0.00025):.4f}"  # Claude 토큰 비용 추정 (입력 토큰)
+                ]
+            })
+            st.dataframe(token_df, hide_index=True, use_container_width=True)
+            
+            st.markdown("</div>", unsafe_allow_html=True)
     
     def _display_audit_report(self):
         """감사 보고서 표시"""
@@ -316,3 +463,15 @@ class FinancialDartSlide:
         # 전체 데이터 표시
         st.subheader("전체 항목")
         st.dataframe(cf_df, hide_index=True, use_container_width=True)
+    
+    def _get_company_sector(self):
+        """회사의 업종 정보 가져오기"""
+        corp_code = st.session_state.get('corp_code', '')
+        if not corp_code:
+            return "기타"
+        
+        # 회사 정보 조회
+        company_info = self.dart_api.get_company_info(corp_code)
+        if company_info and 'induty_code' in company_info:
+            return company_info.get('induty_code', '기타')
+        return "기타"
