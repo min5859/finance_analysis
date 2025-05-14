@@ -21,6 +21,7 @@ from components.slides.financial_dart_slide import FinancialDartSlide
 from config.app_config import apply_custom_css
 import streamlit.components.v1 as components
 from data.financial_statement_processor import FinancialStatementProcessor
+from components.slides.valuation_manual_slide import ValuationManualSlide
 
 def get_image_as_base64(file_path):
     with open(file_path, "rb") as img_file:
@@ -266,8 +267,9 @@ def main():
         "현금흐름표",
         "운전자본 분석",
         "업계비교 현황",
-        "가치 평가",
         "종합 결론",
+        "가치 평가",
+        "가치 평가(검증)",
     ]
     selected_slide = st.sidebar.radio("분석 슬라이드 선택", slide_names)
     
@@ -302,10 +304,12 @@ def main():
             WorkingCapitalSlide(data_loader).render()
         elif selected_slide == "업계비교 현황":
             IndustryComparisonSlide(data_loader).render()
-        elif selected_slide == "가치 평가":
-            ValuationSlide(data_loader).render()
         elif selected_slide == "종합 결론":
             ConclusionSlide(data_loader).render()
+        elif selected_slide == "가치 평가":
+            ValuationSlide(data_loader).render()
+        elif selected_slide == "가치 평가(검증)":
+            ValuationManualSlide(data_loader).render()
     else:
         # 기업이 선택되지 않았을 때 안내 메시지 표시
         st.info("왼쪽 사이드바에서 재무제표를 업로드하거나 DART API를 통해 기업 정보를 조회해주세요.")
