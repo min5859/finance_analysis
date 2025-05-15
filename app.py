@@ -3,6 +3,7 @@ import os
 import json
 import base64
 import datetime
+import tempfile
 from data.data_loader import DataLoader
 from components.slides.summary_slide import SummarySlide
 from components.slides.income_statement_slide import IncomeStatementSlide
@@ -16,12 +17,16 @@ from components.slides.conclusion_slide import ConclusionSlide
 from components.slides.industry_comparison_slide import IndustryComparisonSlide
 from components.slides.valuation_slide import ValuationSlide
 from components.slides.financial_analysis_start_slide import FinancialAnalysisStartSlide
+from components.slides.valuation_manual_slide import ValuationManualSlide
 # 새로 추가한 DART 슬라이드 임포트
 from components.slides.financial_dart_slide import FinancialDartSlide
 from config.app_config import apply_custom_css
 import streamlit.components.v1 as components
 from data.financial_statement_processor import FinancialStatementProcessor
-from components.slides.valuation_manual_slide import ValuationManualSlide
+
+# PDF 재무제표 추출기 임포트
+from pdf_extractor_app import FinancialStatementDetector, PDFViewer
+import pdfplumber
 
 def get_image_as_base64(file_path):
     with open(file_path, "rb") as img_file:
@@ -52,6 +57,40 @@ def get_available_companies():
                     pass
     
     return companies
+
+def extract_text_from_pdf_pages(pdf_path, pages):
+    """선택된 페이지들에서만 텍스트 추출"""
+    text = ""
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            total_pages = len(pdf.pages)
+            for page_num in pages:
+                # 0-인덱스로 변환 및 범위 확인
+                idx = page_num - 1
+                if 0 <= idx < total_pages:
+                    page = pdf.pages[idx]
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += f"\n--- 페이지 {page_num} ---\n"
+                        text += page_text
+    except Exception as e:
+        st.error(f"PDF 텍스트 추출 오류: {str(e)}")
+    
+    return {
+        "text": text,
+        "pages": len(pages)
+    }
+
+def extract_financial_statement_pages(pdf_path):
+    """PDF에서 재무제표 페이지만 추출"""
+    detector = FinancialStatementDetector()
+    try:
+        # 재무제표 페이지 탐지
+        financial_pages, statement_types = detector.detect_financial_statements(pdf_path)
+        return financial_pages, statement_types
+    except Exception as e:
+        st.error(f"재무제표 페이지 탐지 오류: {str(e)}")
+        return [], {}
 
 def main():
     st.set_page_config(
@@ -119,6 +158,21 @@ def main():
             pdf_files = [f for f in other_files if f.type == "application/pdf"]
             image_files = [f for f in other_files if f.type != "application/pdf"]
             
+            # 재무제표 분석 설정
+            st.sidebar.markdown("### PDF 분석 설정")
+            auto_detect = st.sidebar.checkbox("재무제표 페이지 자동 탐지", value=True)
+            
+            # 민감도 설정 (자동 탐지 활성화된 경우만)
+            detection_sensitivity = 5
+            #if auto_detect:
+            #    detection_sensitivity = st.sidebar.slider(
+            #        "탐지 민감도", 
+            #        min_value=1, 
+            #        max_value=10, 
+            #        value=5,
+            #        help="낮을수록 더 많은 페이지가 검출됩니다. 높을수록 확실한 재무제표만 검출됩니다."
+            #    )
+            
             if st.sidebar.button("재무제표 분석 시작"):
                 with st.spinner("재무제표 분석 중..."):
                     results = []
@@ -126,24 +180,104 @@ def main():
                     # PDF 파일 처리
                     if pdf_files:
                         try:
+                            # 진행 상태 표시
+                            progress_bar = st.progress(0)
+                            status_text = st.empty()
+                            
                             # PDF 파일 병합
+                            status_text.text("PDF 파일 병합 중...")
+                            progress_bar.progress(25)
+                            
                             merged_pdf = processor.merge_pdfs(pdf_files)
                             
-                            # 병합된 PDF에서 텍스트 추출
-                            file_data = processor.extract_text_from_pdf(merged_pdf)
+                            # 임시 파일로 저장
+                            with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+                                tmp_file.write(merged_pdf)
+                                pdf_path = tmp_file.name
+                            
+                            # 자동 탐지 활성화된 경우에만 재무제표 페이지 탐지
+                            detected_pages = []
+                            statement_types = {}
+                            
+                            if auto_detect:
+                                status_text.text("재무제표 페이지 탐지 중...")
+                                progress_bar.progress(40)
+                                
+                                # 탐지기 인스턴스 생성 및 민감도 설정
+                                detector = FinancialStatementDetector()
+                                if detection_sensitivity != 5:  # 기본값과 다른 경우만 조정
+                                    detector.min_score_threshold = 5 + (detection_sensitivity - 5) * 1  # 5~15 범위
+                                    detector.min_accounts_required = max(2, int(3 + (detection_sensitivity - 5) * 0.5))  # 2~5 범위
+                                    detector.numeric_content_ratio = 0.15 + (detection_sensitivity - 5) * 0.03  # 0.15~0.3 범위
+                                
+                                detected_pages, statement_types = detector.detect_financial_statements(pdf_path)
+                                
+                                # 탐지 결과 표시
+                                if detected_pages:
+                                    # 재무제표 유형별 페이지 정보 표시
+                                    st.subheader("📋 탐지된 재무제표 페이지")
+                                    
+                                    # 페이지 번호 표시
+                                    page_numbers = [str(page) for page in detected_pages]
+                                    st.write(f"**재무제표 페이지**: {', '.join(page_numbers)}")
+                                    
+                                    # 유형별 페이지 수 표시
+                                    type_counts = {}
+                                    for page, page_type in statement_types.items():
+                                        if page_type not in type_counts:
+                                            type_counts[page_type] = 0
+                                        type_counts[page_type] += 1
+                                    
+                                    type_summary = ", ".join([f"{type}: {count}페이지" for type, count in type_counts.items()])
+                                    st.write(f"**유형별 페이지 수**: {type_summary}")
+                                    
+                                    # 재무제표 유형별 페이지 표시
+                                    for page_type in set(statement_types.values()):
+                                        pages_of_type = [page for page, t in statement_types.items() if t == page_type]
+                                        if pages_of_type:
+                                            pages_str = ", ".join([str(p) for p in sorted(pages_of_type)])
+                                            st.write(f"**{page_type}**: {pages_str}페이지")
+                                else:
+                                    st.warning("재무제표 페이지를 찾을 수 없습니다. 전체 PDF 내용을 분석합니다.")
+                            
+                            # 데이터 추출 부분
+                            progress_bar.progress(60)
+                            status_text.text("텍스트 추출 중...")
+                            
+                            # 탐지된 페이지만 처리하거나 전체 PDF 처리
+                            if auto_detect and detected_pages:
+                                # 탐지된 페이지에서만 텍스트 추출
+                                file_data = extract_text_from_pdf_pages(pdf_path, detected_pages)
+                                status_text.text(f"탐지된 {len(detected_pages)}개 재무제표 페이지 분석 중...")
+                            else:
+                                # 전체 PDF에서 텍스트 추출
+                                file_data = processor.extract_text_from_pdf(merged_pdf)
+                                status_text.text("전체 PDF 내용 분석 중...")
+                            
+                            progress_bar.progress(75)
                             
                             # Claude API 호출
                             json_result = processor.process_with_claude(file_data)
+                            
+                            progress_bar.progress(90)
                             
                             # JSON 결과 정리
                             try:
                                 parsed_json = processor.parse_json_response(json_result)
                                 results.append(parsed_json)
+                                progress_bar.progress(100)
+                                status_text.text("분석 완료!")
                             except json.JSONDecodeError as e:
                                 st.error(f"JSON 파싱 오류: {str(e)}")
                                 st.error("디버깅을 위한 LLM 출력 결과:")
                                 st.code(json_result, language="json")
                                 return
+                            
+                            # 임시 파일 삭제
+                            try:
+                                os.unlink(pdf_path)
+                            except:
+                                pass
                         
                         except Exception as e:
                             st.error(f"PDF 처리 오류: {str(e)}")
