@@ -7,3 +7,10 @@ pillow
 pymupdf
 requests
 anthropic
+tornado<=6.4.2
+tabula-py
+pdfplumber
+pdf2image
+pytesseract
+tabulate
+
