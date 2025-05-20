@@ -7,3 +7,4 @@ pillow
 pymupdf
 requests
 anthropic
+tornado<=6.4.2
