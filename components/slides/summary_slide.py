@@ -12,9 +12,8 @@ class SummarySlide(BaseSlide):
         super().__init__(data_loader, "Overview of Key Financial Metrics")
         self.company_info = data_loader.get_all_data()
     
-    def render(self):
-        """슬라이드 렌더링"""
-        self.render_header()
+    def render_content(self):
+        """슬라이드 콘텐츠 렌더링"""
         self._render_key_metrics()
         self._render_highlights()
     

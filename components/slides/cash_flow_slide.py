@@ -10,10 +10,8 @@ class CashFlowSlide(BaseSlide):
     def __init__(self, data_loader):
         super().__init__(data_loader, "Operating, Investing, and Free Cash Flow Trends")
     
-    def render(self):
-        """슬라이드 렌더링"""
-        self.render_header()
-        
+    def render_content(self):
+        """슬라이드 콘텐츠 렌더링"""
         # CSS 스타일 추가
         self._add_custom_styles()
         

@@ -1,9 +1,10 @@
 import streamlit as st
+from components.utils import get_pdf_print_script
 
 class BaseSlide:
     """모든 슬라이드의 기본 클래스"""
     
-    def __init__(self, data_loader, title="슬라이드"):
+    def __init__(self, data_loader=None, title="슬라이드"):
         self.data_loader = data_loader
         self.title = title
     
@@ -15,6 +16,22 @@ class BaseSlide:
         """슬라이드 헤더 렌더링"""
         st.markdown(f'<h2 class="slide-header">{self.title}</h2>', unsafe_allow_html=True)
     
+    def render_pdf_button(self):
+        """PDF 인쇄 버튼 렌더링"""
+        # 각 버튼에 고유한 키를 부여하여 상태 충돌 방지
+        button_key = f"pdf_button_{self.title.replace(' ', '_')}"
+
+        if st.button("PDF로 인쇄", key=button_key, type="primary"):
+            # JavaScript를 직접 호출하는 대신 세션 상태를 사용하여 트리거
+            st.session_state['run_pdf_print'] = True
+            st.session_state['pdf_print_title'] = self.title
+
+        if st.session_state.get('run_pdf_print', False) and st.session_state.get('pdf_print_title') == self.title:
+            st.markdown(get_pdf_print_script(self.title), unsafe_allow_html=True)
+            st.markdown('<script>printAsPDF();</script>', unsafe_allow_html=True)
+            st.session_state['run_pdf_print'] = False
+            st.session_state['pdf_print_title'] = None
+
     def render_insight_card(self, title, content):
         """인사이트 카드 렌더링"""
         st.markdown('<div class="insight-card">', unsafe_allow_html=True)
@@ -47,7 +64,18 @@ class BaseSlide:
         
         st.markdown('</div>', unsafe_allow_html=True)
     
-    def render(self):
-        """슬라이드 렌더링 - 자식 클래스에서 구현해야 함"""
-        self.render_header()
+    def render_content(self):
+        """슬라이드 콘텐츠 렌더링 - 자식 클래스에서 구현해야 함"""
         st.warning("이 슬라이드는 아직 구현되지 않았습니다.")
+
+    def render(self):
+        """전체 슬라이드 렌더링 파이프라인"""
+        self.render_header()
+
+        st.markdown('<div id="pdf-content">', unsafe_allow_html=True)
+        self.render_content()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # "재무제표 분석 시작" 슬라이드에서는 PDF 버튼을 렌더링하지 않음
+        if self.title != "재무제표 분석 시작":
+            self.render_pdf_button()

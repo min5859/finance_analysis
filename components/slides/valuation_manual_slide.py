@@ -23,10 +23,8 @@ class ValuationManualSlide(BaseSlide):
         self.profitability_data = data_loader.get_profitability_data() if hasattr(data_loader, 'get_profitability_data') else None
         self.stability_data = data_loader.get_stability_data() if hasattr(data_loader, 'get_stability_data') else None
     
-    def render(self):
-        """슬라이드 렌더링"""
-        self.render_header()
-        
+    def render_content(self):
+        """슬라이드 콘텐츠 렌더링"""
         # CSS 스타일 추가
         self._add_custom_styles()
         

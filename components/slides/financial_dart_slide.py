@@ -4,34 +4,21 @@ import json
 from datetime import datetime
 from dart.dart_data_processor import DartDataProcessor
 from dart.dart_api_service import DartApiService
+from components.slides.base_slide import BaseSlide
 
-class FinancialDartSlide:
+class FinancialDartSlide(BaseSlide):
     """DART에서 가져온 재무 데이터를 보여주는 슬라이드 클래스"""
     
     def __init__(self):
-        """FinancialDartSlide 초기화
-        
-        Args:
-            data_loader: 데이터 로더 객체 (기존 finance_analysis 프로젝트의 DataLoader)
-        """
-        self.title = "DART 재무제표 데이터"
+        """FinancialDartSlide 초기화"""
+        super().__init__(title="DART 재무제표 데이터")
         
         # 재무 데이터 프로세서 초기화
         self.data_processor = DartDataProcessor()
         self.dart_api = DartApiService()
         
-    def get_title(self):
-        """슬라이드 제목 반환"""
-        return self.title
-    
-    def render_header(self):
-        """슬라이드 헤더 렌더링"""
-        st.markdown(f'<h2 class="slide-header">{self.title}</h2>', unsafe_allow_html=True)
-    
-    def render(self):
+    def render_content(self):
         """슬라이드 내용 렌더링"""
-        self.render_header()
-        
         # dart_financial_data가 있는지 확인
         if 'dart_financial_data' in st.session_state:
             # financial_analysis_start_slide에서 조회한 연도를 가져옴

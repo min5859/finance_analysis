@@ -9,10 +9,8 @@ class IncomeStatementSlide(BaseSlide):
     def __init__(self, data_loader):
         super().__init__(data_loader, "Income Statement Analysis")
     
-    def render(self):
-        """슬라이드 렌더링"""
-        self.render_header()
-        
+    def render_content(self):
+        """슬라이드 콘텐츠 렌더링"""
         # 차트와 인사이트를 나란히 배치하기 위해 columns 사용
         col1, col2 = st.columns([7, 5])  # 7:5 비율로 열 분할
         with col1:
