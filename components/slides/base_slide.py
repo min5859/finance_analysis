@@ -1,6 +1,5 @@
 import streamlit as st
 import streamlit.components.v1 as components
-from components.utils import get_print_button_html
 
 class BaseSlide:
     """모든 슬라이드의 기본 클래스"""
@@ -17,10 +16,6 @@ class BaseSlide:
         """슬라이드 헤더 렌더링"""
         st.markdown(f'<h2 class="slide-header">{self.title}</h2>', unsafe_allow_html=True)
     
-    def render_pdf_button(self):
-        """PDF 인쇄 버튼 렌더링"""
-        components.html(get_print_button_html(), height=50)
-
     def render_insight_card(self, title, content):
         """인사이트 카드 렌더링"""
         st.markdown('<div class="insight-card">', unsafe_allow_html=True)
