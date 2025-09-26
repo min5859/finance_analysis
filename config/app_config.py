@@ -19,7 +19,7 @@ def load_custom_css():
 
         @media print {
             /* 인쇄 시 사이드바와 헤더의 배포 버튼 숨기기 */
-            [data-testid="stSidebar"], [data-testid="stHeader"] .stDeployButton {
+            [data-testid="stSidebar"], [data-testid="stHeader"] .stDeployButton, #print-button {
                 display: none !important;
             }
             /* 메인 콘텐츠가 전체 너비를 사용하도록 설정 */
