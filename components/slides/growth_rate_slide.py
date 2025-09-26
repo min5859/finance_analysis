@@ -7,7 +7,7 @@ class GrowthRateSlide(BaseSlide):
     """성장률 분석 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "Growth Rates of Key Items")
+        super().__init__(title="Growth Rates of Key Items", data_loader=data_loader)
     
     def render_content(self):
         """슬라이드 콘텐츠 렌더링"""

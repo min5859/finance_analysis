@@ -10,7 +10,7 @@ class IndustryComparisonSlide(BaseSlide):
     """업계비교 현황 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "Comparative Financial Profile")
+        super().__init__(title="Comparative Financial Profile", data_loader=data_loader)
         self.company_info = data_loader.get_all_data()
     
     def render_content(self):

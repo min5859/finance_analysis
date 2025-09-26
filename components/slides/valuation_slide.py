@@ -10,7 +10,7 @@ class ValuationSlide(BaseSlide):
     """LLM 기반 기업 가치 평가 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "AI-Powered Company Valuation")
+        super().__init__(title="AI-Powered Company Valuation", data_loader=data_loader)
         self.company_data = data_loader.get_all_data()
         self.valuation_analyzer = ValuationAnalyzer()
     

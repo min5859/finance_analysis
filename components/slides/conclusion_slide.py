@@ -8,7 +8,7 @@ class ConclusionSlide(BaseSlide):
     """종합 결론 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "Comprehensive Assessment & Strategic Recommendations")
+        super().__init__(title="Comprehensive Assessment & Strategic Recommendations", data_loader=data_loader)
         self.company_info = data_loader.get_all_data()
     
     def render_content(self):

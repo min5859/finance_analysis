@@ -9,7 +9,7 @@ class SummarySlide(BaseSlide):
     """요약 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "Overview of Key Financial Metrics")
+        super().__init__(title="Overview of Key Financial Metrics", data_loader=data_loader)
         self.company_info = data_loader.get_all_data()
     
     def render_content(self):

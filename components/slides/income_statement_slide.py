@@ -7,7 +7,7 @@ class IncomeStatementSlide(BaseSlide):
     """손익계산서 추이 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "Income Statement Analysis")
+        super().__init__(title="Income Statement Analysis", data_loader=data_loader)
     
     def render_content(self):
         """슬라이드 콘텐츠 렌더링"""

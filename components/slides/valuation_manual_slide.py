@@ -14,7 +14,7 @@ class ValuationManualSlide(BaseSlide):
     """LLM 기반 기업 가치 평가 슬라이드 - 향상된 버전"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "Advanced Company Valuation")
+        super().__init__(title="Advanced Company Valuation", data_loader=data_loader)
         self.company_data = data_loader.get_all_data()
         self.performance_data = data_loader.get_performance_data() if hasattr(data_loader, 'get_performance_data') else None
         self.balance_sheet_data = data_loader.get_balance_sheet_data() if hasattr(data_loader, 'get_balance_sheet_data') else None

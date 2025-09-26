@@ -12,6 +12,23 @@ def load_custom_css():
     """커스텀 CSS 로드"""
     st.markdown("""
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+        body, .stApp, .stButton>button, .stTextInput>div>div>input {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        @media print {
+            /* 인쇄 시 사이드바와 헤더의 배포 버튼 숨기기 */
+            [data-testid="stSidebar"], [data-testid="stHeader"] .stDeployButton {
+                display: none !important;
+            }
+            /* 메인 콘텐츠가 전체 너비를 사용하도록 설정 */
+            [data-testid="stAppViewContainer"] > .main {
+                width: 100% !important;
+                padding: 0 !important;
+            }
+        }
+
         .main-header {
             font-size: 3rem !important;
             font-weight: 700 !important;

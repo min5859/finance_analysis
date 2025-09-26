@@ -105,12 +105,18 @@ def main():
     st.sidebar.image("static/images/01.M&AIKorea_CI_transparent-(gradient).png", use_container_width=True)
     
     # API 키 설정
-    api_key = st.secrets.get("anthropic_api_key", None) if hasattr(st, "secrets") else None
+    api_key = None
+    try:
+        if hasattr(st, "secrets"):
+            api_key = st.secrets.get("anthropic_api_key")
+    except Exception:
+        pass
+
     if not api_key:
         api_key = st.sidebar.text_input("Anthropic API 키를 입력하세요", type="password")
         if not api_key:
             st.warning("API 키를 입력해주세요.")
-            return
+            st.stop()
     
     # 파일 업로드 섹션
     st.sidebar.markdown("---")
@@ -164,14 +170,6 @@ def main():
             
             # 민감도 설정 (자동 탐지 활성화된 경우만)
             detection_sensitivity = 5
-            #if auto_detect:
-            #    detection_sensitivity = st.sidebar.slider(
-            #        "탐지 민감도", 
-            #        min_value=1, 
-            #        max_value=10, 
-            #        value=5,
-            #        help="낮을수록 더 많은 페이지가 검출됩니다. 높을수록 확실한 재무제표만 검출됩니다."
-            #    )
             
             if st.sidebar.button("재무제표 분석 시작"):
                 with st.spinner("재무제표 분석 중..."):
@@ -195,7 +193,6 @@ def main():
                                 tmp_file.write(merged_pdf)
                                 pdf_path = tmp_file.name
                             
-                            # 자동 탐지 활성화된 경우에만 재무제표 페이지 탐지
                             detected_pages = []
                             statement_types = {}
                             
@@ -203,25 +200,19 @@ def main():
                                 status_text.text("재무제표 페이지 탐지 중...")
                                 progress_bar.progress(40)
                                 
-                                # 탐지기 인스턴스 생성 및 민감도 설정
                                 detector = FinancialStatementDetector()
-                                if detection_sensitivity != 5:  # 기본값과 다른 경우만 조정
-                                    detector.min_score_threshold = 5 + (detection_sensitivity - 5) * 1  # 5~15 범위
-                                    detector.min_accounts_required = max(2, int(3 + (detection_sensitivity - 5) * 0.5))  # 2~5 범위
-                                    detector.numeric_content_ratio = 0.15 + (detection_sensitivity - 5) * 0.03  # 0.15~0.3 범위
+                                if detection_sensitivity != 5:
+                                    detector.min_score_threshold = 5 + (detection_sensitivity - 5) * 1
+                                    detector.min_accounts_required = max(2, int(3 + (detection_sensitivity - 5) * 0.5))
+                                    detector.numeric_content_ratio = 0.15 + (detection_sensitivity - 5) * 0.03
                                 
                                 detected_pages, statement_types = detector.detect_financial_statements(pdf_path)
                                 
-                                # 탐지 결과 표시
                                 if detected_pages:
-                                    # 재무제표 유형별 페이지 정보 표시
                                     st.subheader("📋 탐지된 재무제표 페이지")
-                                    
-                                    # 페이지 번호 표시
                                     page_numbers = [str(page) for page in detected_pages]
                                     st.write(f"**재무제표 페이지**: {', '.join(page_numbers)}")
                                     
-                                    # 유형별 페이지 수 표시
                                     type_counts = {}
                                     for page, page_type in statement_types.items():
                                         if page_type not in type_counts:
@@ -231,7 +222,6 @@ def main():
                                     type_summary = ", ".join([f"{type}: {count}페이지" for type, count in type_counts.items()])
                                     st.write(f"**유형별 페이지 수**: {type_summary}")
                                     
-                                    # 재무제표 유형별 페이지 표시
                                     for page_type in set(statement_types.values()):
                                         pages_of_type = [page for page, t in statement_types.items() if t == page_type]
                                         if pages_of_type:
@@ -240,28 +230,20 @@ def main():
                                 else:
                                     st.warning("재무제표 페이지를 찾을 수 없습니다. 전체 PDF 내용을 분석합니다.")
                             
-                            # 데이터 추출 부분
                             progress_bar.progress(60)
                             status_text.text("텍스트 추출 중...")
                             
-                            # 탐지된 페이지만 처리하거나 전체 PDF 처리
                             if auto_detect and detected_pages:
-                                # 탐지된 페이지에서만 텍스트 추출
                                 file_data = extract_text_from_pdf_pages(pdf_path, detected_pages)
                                 status_text.text(f"탐지된 {len(detected_pages)}개 재무제표 페이지 분석 중...")
                             else:
-                                # 전체 PDF에서 텍스트 추출
                                 file_data = processor.extract_text_from_pdf(merged_pdf)
                                 status_text.text("전체 PDF 내용 분석 중...")
                             
                             progress_bar.progress(75)
-                            
-                            # Claude API 호출
                             json_result = processor.process_with_claude(file_data)
-                            
                             progress_bar.progress(90)
                             
-                            # JSON 결과 정리
                             try:
                                 parsed_json = processor.parse_json_response(json_result)
                                 results.append(parsed_json)
@@ -273,7 +255,6 @@ def main():
                                 st.code(json_result, language="json")
                                 return
                             
-                            # 임시 파일 삭제
                             try:
                                 os.unlink(pdf_path)
                             except:
@@ -283,7 +264,6 @@ def main():
                             st.error(f"PDF 처리 오류: {str(e)}")
                             return
                     
-                    # 이미지 파일 처리
                     for image_file in image_files:
                         try:
                             file_data = processor.process_image(image_file)
@@ -303,16 +283,10 @@ def main():
                             return
                     
                     if results:
-                        # 결과를 session_state에 저장
                         st.session_state['company_data'] = results[0]
-                        
-                        # 타임스탬프 생성
                         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                        
-                        # JSON 파일로 저장
                         data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/companies")
                         os.makedirs(data_dir, exist_ok=True)
-                        
                         company_name = results[0].get('company_name', 'unknown_company')
                         json_file = os.path.join(data_dir, f"{company_name}_{timestamp}.json")
                         
@@ -321,7 +295,6 @@ def main():
                         
                         st.sidebar.success(f"재무제표 분석이 완료되었습니다. {company_name}의 데이터가 저장되었습니다.")
                         
-                        # JSON 파일 다운로드 버튼 추가 (사이드바)
                         json_str = json.dumps(results[0], ensure_ascii=False, indent=2)
                         st.sidebar.download_button(
                             label="JSON 파일 다운로드",
@@ -330,9 +303,7 @@ def main():
                             mime="application/json"
                         )
     
-    # 회사 선택 드롭다운을 사이드바로 이동
     companies = get_available_companies()
-    # 회사 이름 기준으로 오름차순 정렬
     companies.sort(key=lambda x: x['name'])
     company_names = ["기업을 선택하세요"] + [f"{c['name']} ({c['sector']})" for c in companies]
     company_files = [None] + [c['filename'] for c in companies]
@@ -345,8 +316,6 @@ def main():
     
     selected_file = company_files[selected_index]
 
-    # 선택된 기업 정보 가져오기
-    company_name = "기업 재무"
     if selected_file is not None:
         data_dir = os.path.dirname(os.path.abspath(__file__))
         company_dir = os.path.join(data_dir, "data/companies")
@@ -360,7 +329,7 @@ def main():
         except Exception as e:
             st.sidebar.error(f"파일 로드 오류: {str(e)}")
     
-    # Fancy Header 스타일의 타이틀
+    company_name = "기업 재무"
     if st.session_state.get('company_data'):
         company_name = f"{st.session_state['company_data'].get('company_name', '기업')}"
 
@@ -384,14 +353,12 @@ def main():
     </div>
     """, height=150)
 
-    # 구분선 추가
     st.sidebar.markdown("---")
     
-    # 슬라이드 메뉴
     st.sidebar.title("목차")
     slide_names = [
         "재무제표 분석 시작",
-        "DART 재무제표 데이터",  # 새로 추가한 DART 슬라이드
+        "DART 재무제표 데이터",
         "요약",
         "손익계산서",
         "재무상태표",
@@ -407,45 +374,38 @@ def main():
     ]
     selected_slide = st.sidebar.radio("분석 슬라이드 선택", slide_names)
     
-    # 선택된 슬라이드 표시
+    slide_mapping = {
+        "DART 재무제표 데이터": FinancialDartSlide,
+        "요약": SummarySlide,
+        "손익계산서": IncomeStatementSlide,
+        "재무상태표": BalanceSheetSlide,
+        "성장성 분석": GrowthRateSlide,
+        "수익성 분석": ProfitabilitySlide,
+        "안정성 분석": StabilitySlide,
+        "현금흐름표": CashFlowSlide,
+        "운전자본 분석": WorkingCapitalSlide,
+        "업계비교 현황": IndustryComparisonSlide,
+        "종합 결론": ConclusionSlide,
+        "가치 평가": ValuationSlide,
+        "가치 평가(검증)": ValuationManualSlide,
+    }
+
     if selected_slide == "재무제표 분석 시작":
         FinancialAnalysisStartSlide(api_key).render()
-    elif selected_slide == "DART 재무제표 데이터":
-        # DART API를 사용한 새로운 슬라이드 표시
-        FinancialDartSlide().render()
-
-    # 기업이 선택되었을 때만 다른 슬라이드 표시
-    elif 'company_data' in st.session_state:
-        # 데이터 로더 초기화
-        data_loader = DataLoader(st.session_state['company_data'])
+    elif 'company_data' in st.session_state or selected_slide == "DART 재무제표 데이터":
+        data_loader = DataLoader(st.session_state.get('company_data')) if 'company_data' in st.session_state else None
         
-        # 선택된 슬라이드 표시
-        if selected_slide == "요약":
-            SummarySlide(data_loader).render()
-        elif selected_slide == "손익계산서":
-            IncomeStatementSlide(data_loader).render()
-        elif selected_slide == "재무상태표":
-            BalanceSheetSlide(data_loader).render()
-        elif selected_slide == "성장성 분석":
-            GrowthRateSlide(data_loader).render()
-        elif selected_slide == "수익성 분석":
-            ProfitabilitySlide(data_loader).render()
-        elif selected_slide == "안정성 분석":
-            StabilitySlide(data_loader).render()
-        elif selected_slide == "현금흐름표":
-            CashFlowSlide(data_loader).render()
-        elif selected_slide == "운전자본 분석":
-            WorkingCapitalSlide(data_loader).render()
-        elif selected_slide == "업계비교 현황":
-            IndustryComparisonSlide(data_loader).render()
-        elif selected_slide == "종합 결론":
-            ConclusionSlide(data_loader).render()
-        elif selected_slide == "가치 평가":
-            ValuationSlide(data_loader).render()
-        elif selected_slide == "가치 평가(검증)":
-            ValuationManualSlide(data_loader).render()
+        slide_class = slide_mapping.get(selected_slide)
+        if slide_class:
+            try:
+                slide_instance = slide_class(data_loader=data_loader)
+            except TypeError:
+                slide_instance = slide_class()
+
+            slide_instance.render()
+        else:
+            st.warning("선택한 슬라이드를 찾을 수 없습니다.")
     else:
-        # 기업이 선택되지 않았을 때 안내 메시지 표시
         st.info("왼쪽 사이드바에서 재무제표를 업로드하거나 DART API를 통해 기업 정보를 조회해주세요.")
         
 if __name__ == "__main__":

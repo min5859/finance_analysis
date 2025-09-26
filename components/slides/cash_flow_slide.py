@@ -8,7 +8,7 @@ class CashFlowSlide(BaseSlide):
     """현금흐름 분석 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "Operating, Investing, and Free Cash Flow Trends")
+        super().__init__(title="Operating, Investing, and Free Cash Flow Trends", data_loader=data_loader)
     
     def render_content(self):
         """슬라이드 콘텐츠 렌더링"""

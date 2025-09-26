@@ -7,7 +7,7 @@ class WorkingCapitalSlide(BaseSlide):
     """운전자본 효율성 분석 슬라이드"""
     
     def __init__(self, data_loader):
-        super().__init__(data_loader, "Working Capital Efficiency Analysis (CCC)")
+        super().__init__(title="Working Capital Efficiency Analysis (CCC)", data_loader=data_loader)
     
     def render_content(self):
         """슬라이드 콘텐츠 렌더링"""
