@@ -25,8 +25,9 @@ class ValuationManualSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
-        
+
         # CSS 스타일 추가
         self._add_custom_styles()
         
@@ -43,9 +44,15 @@ class ValuationManualSlide(BaseSlide):
         if "valuation_results" not in st.session_state:
             # 가치 평가 시작 폼
             self._render_valuation_form()
+            self.add_pdf_section(
+                "가치평가 안내",
+                "가치평가 파라미터를 입력하고 평가를 실행하면 결과를 확인하고 PDF로 저장할 수 있습니다."
+            )
         else:
             # 가치 평가 결과 표시
             self._render_valuation_results()
+
+        self.render_pdf_export_button()
     
     def _add_custom_styles(self):
         """커스텀 CSS 스타일 추가"""
@@ -1400,12 +1407,24 @@ class ValuationManualSlide(BaseSlide):
         """가치평가 결과 표시"""
         company_name = self.company_data.get('company_name', '기업')
         valuation_results = st.session_state.valuation_results
-        
+
         method = valuation_results.get("method", "알 수 없음")
-        
+
         # 결과 헤더 표시
         st.markdown(f"## {company_name} 가치평가 결과 - {method}")
-        
+
+        summary_lines = []
+        for key, value in valuation_results.items():
+            if isinstance(value, dict):
+                summary_lines.append(f"{key}:")
+                for sub_key, sub_value in value.items():
+                    summary_lines.append(f"  - {sub_key}: {sub_value}")
+            else:
+                summary_lines.append(f"{key}: {value}")
+
+        if summary_lines:
+            self.add_pdf_section("수동 가치평가 요약", "\n".join(summary_lines))
+
         # 결과 요약 표시
         self._render_valuation_summary(valuation_results)
         

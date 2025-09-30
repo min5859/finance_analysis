@@ -11,11 +11,12 @@ class GrowthRateSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
 
         # CSS 스타일 추가
         self._add_custom_styles()
-        
+
         # 인사이트 데이터 가져오기
         insights = self.data_loader.get_insights()
         growth_insight = insights.get('growth_rates', {})
@@ -89,6 +90,25 @@ class GrowthRateSlide(BaseSlide):
         
         with col2:
             self._render_key_metrics(insight_message)
+
+        growth_rates_df = self.data_loader.get_growth_rates()
+        if not growth_rates_df.empty:
+            self.add_table_section(
+                "성장률 추이",
+                growth_rates_df[["year", "총자산성장률", "매출액성장률", "순이익성장률"]]
+            )
+            latest_year = growth_rates_df['year'].iloc[-1]
+            summary_text = (
+                f"- {latest_year}년 총자산성장률: {growth_rates_df['총자산성장률'].iloc[-1]}%\n"
+                f"- {latest_year}년 매출액성장률: {growth_rates_df['매출액성장률'].iloc[-1]}%\n"
+                f"- {latest_year}년 순이익성장률: {growth_rates_df['순이익성장률'].iloc[-1]}%"
+            )
+            self.add_pdf_section("성장률 핵심 요약", summary_text)
+
+        insight_summary = growth_insight.get('content2', insight_message)
+        self.add_pdf_section("성장성 인사이트", insight_summary)
+
+        self.render_pdf_export_button()
     
     def _add_custom_styles(self):
         """커스텀 CSS 스타일 추가"""

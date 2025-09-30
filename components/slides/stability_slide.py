@@ -11,8 +11,9 @@ class StabilitySlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
-        
+
         # CSS 스타일 추가
         self._add_custom_styles()
         
@@ -27,6 +28,26 @@ class StabilitySlide(BaseSlide):
         
         with col2:
             self._render_stability_structure()
+
+        stability_data = self.data_loader.get_stability_data()
+        if not stability_data.empty:
+            self.add_table_section(
+                "안정성 지표 추이",
+                stability_data[["year", "부채비율", "유동비율", "이자보상배율"]]
+            )
+            latest_year = stability_data['year'].iloc[-1]
+            summary_text = (
+                f"- {latest_year}년 부채비율: {stability_data['부채비율'].iloc[-1]}%\n"
+                f"- {latest_year}년 유동비율: {stability_data['유동비율'].iloc[-1]}%\n"
+                f"- {latest_year}년 이자보상배율: {stability_data['이자보상배율'].iloc[-1]}배"
+            )
+            self.add_pdf_section("안정성 핵심 요약", summary_text)
+
+        insights = self.data_loader.get_insights().get("stability", {})
+        insight_text = insights.get("summary", insights.get("content", "안정성 관련 인사이트가 제공되지 않았습니다."))
+        self.add_pdf_section("안정성 인사이트", insight_text)
+
+        self.render_pdf_export_button()
     
     def _add_custom_styles(self):
         """커스텀 CSS 스타일 추가"""

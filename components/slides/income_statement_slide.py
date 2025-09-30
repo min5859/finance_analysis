@@ -11,48 +11,73 @@ class IncomeStatementSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
-        
+
         # 차트와 인사이트를 나란히 배치하기 위해 columns 사용
         col1, col2 = st.columns([7, 5])  # 7:5 비율로 열 분할
         with col1:
             self._render_key_metrics()
             self._render_income_statement_chart()
-        
+
         with col2:
             self._render_insight()
+
+        self.render_pdf_export_button()
     
     def _render_key_metrics(self):
         """핵심 지표 렌더링"""
         performance_data = self.data_loader.get_performance_data()
         
         col1, col2, col3 = st.columns(3)
+        metrics_rows = []
         
         # 매출액 지표
         with col1:
             st.metric(
-                label="매출액 (2022→2024)", 
+                label="매출액 (2022→2024)",
                 value=f"{performance_data['매출액'].iloc[-1]}억원",
                 delta=f"{((performance_data['매출액'].iloc[-1] / performance_data['매출액'].iloc[0]) - 1) * 100:.1f}%",
                 delta_color="inverse"
             )
+            metrics_rows.append([
+                "매출액",
+                f"{performance_data['매출액'].iloc[0]} → {performance_data['매출액'].iloc[-1]}억원",
+                f"{((performance_data['매출액'].iloc[-1] / performance_data['매출액'].iloc[0]) - 1) * 100:.1f}%"
+            ])
         
         # 영업이익 지표
         with col2:
             st.metric(
-                label="영업이익 (2022→2024)", 
+                label="영업이익 (2022→2024)",
                 value=f"{performance_data['영업이익'].iloc[-1]}억원",
                 delta=f"{((performance_data['영업이익'].iloc[-1] / performance_data['영업이익'].iloc[0]) - 1) * 100:.1f}%",
                 delta_color="inverse"
             )
+            metrics_rows.append([
+                "영업이익",
+                f"{performance_data['영업이익'].iloc[0]} → {performance_data['영업이익'].iloc[-1]}억원",
+                f"{((performance_data['영업이익'].iloc[-1] / performance_data['영업이익'].iloc[0]) - 1) * 100:.1f}%"
+            ])
         
         # 순이익 지표
         with col3:
             st.metric(
-                label="순이익 (2022→2024)", 
+                label="순이익 (2022→2024)",
                 value=f"{performance_data['순이익'].iloc[-1]}억원",
                 delta=f"{((performance_data['순이익'].iloc[-1] / performance_data['순이익'].iloc[0]) - 1) * 100:.1f}%"
             )
+            metrics_rows.append([
+                "순이익",
+                f"{performance_data['순이익'].iloc[0]} → {performance_data['순이익'].iloc[-1]}억원",
+                f"{((performance_data['순이익'].iloc[-1] / performance_data['순이익'].iloc[0]) - 1) * 100:.1f}%"
+            ])
+
+        self.add_table_section(
+            "핵심 손익 지표 변화",
+            metrics_rows,
+            headers=["항목", "금액 추이", "증감률"]
+        )
     
     def _render_income_statement_chart(self):
         """손익계산서 차트 렌더링"""
@@ -140,6 +165,10 @@ class IncomeStatementSlide(BaseSlide):
             },
             use_datalabels=True  # datalabels 플러그인 사용 설정
         )
+        self.add_table_section(
+            "손익계산서 추이",
+            performance_data[["year", "매출액", "영업이익", "순이익", "순이익률"]]
+        )
     
     def _render_insight(self):
         """인사이트 렌더링"""
@@ -191,3 +220,11 @@ class IncomeStatementSlide(BaseSlide):
             </div>
         </div>
         """, unsafe_allow_html=True)
+        insight_summary = (
+            f"- 매출액 변화: {start_revenue} → {end_revenue}억원 ({revenue_change:.1f}%)\n"
+            f"- 영업이익 변화: {start_op_profit} → {end_op_profit}억원 ({op_profit_change:.1f}%)\n"
+            f"- 순이익 변화: {start_net_profit} → {end_net_profit}억원 ({net_profit_change:.1f}%)\n"
+            f"- 순이익률 변화: {start_net_margin}% → {end_net_margin}%\n"
+            f"- 주요 인사이트: {insight_msg}"
+        )
+        self.add_pdf_section("손익계산서 인사이트", insight_summary)

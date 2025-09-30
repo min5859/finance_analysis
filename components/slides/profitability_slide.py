@@ -11,8 +11,9 @@ class ProfitabilitySlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
-        
+
         # CSS 스타일 추가
         self._add_custom_styles()
         
@@ -27,6 +28,27 @@ class ProfitabilitySlide(BaseSlide):
         
         with col2:
             self._render_profitability_structure()
+
+        dupont_data = self.data_loader.get_dupont_data()
+        if not dupont_data.empty:
+            self.add_table_section(
+                "듀폰 분석 지표",
+                dupont_data[["year", "순이익률", "자산회전율", "재무레버리지", "ROE"]]
+            )
+            latest_year = dupont_data['year'].iloc[-1]
+            summary_text = (
+                f"- {latest_year}년 순이익률: {dupont_data['순이익률'].iloc[-1]}%\n"
+                f"- {latest_year}년 자산회전율: {dupont_data['자산회전율'].iloc[-1]}회\n"
+                f"- {latest_year}년 재무레버리지: {dupont_data['재무레버리지'].iloc[-1]}배\n"
+                f"- {latest_year}년 ROE: {dupont_data['ROE'].iloc[-1]}%"
+            )
+            self.add_pdf_section("수익성 핵심 요약", summary_text)
+
+        insights = self.data_loader.get_insights().get("profitability", {})
+        insight_body = insights.get("content", insights.get("summary", "수익성 관련 인사이트가 제공되지 않았습니다."))
+        self.add_pdf_section("수익성 인사이트", insight_body)
+
+        self.render_pdf_export_button()
         
     def _add_custom_styles(self):
         """커스텀 CSS 스타일 추가"""

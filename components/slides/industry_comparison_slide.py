@@ -15,8 +15,10 @@ class IndustryComparisonSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
         self._render_radar_chart()
+        self.render_pdf_export_button()
     
     def _render_radar_chart(self):
         """레이더 차트 렌더링"""
@@ -206,3 +208,16 @@ class IndustryComparisonSlide(BaseSlide):
             </p>
         </div>
         """, unsafe_allow_html=True)
+
+        if not radar_data.empty:
+            self.add_table_section("업계 비교 지표", radar_data)
+            comparison_highlight = radar_data.sort_values(by=company_column, ascending=False).iloc[0]
+            highlight_text = (
+                f"- 우수 지표: {comparison_highlight['metric']}\n"
+                f"- {company_name}: {comparison_highlight[company_column]} vs 업계 평균 {comparison_highlight['업계평균']}"
+            )
+            self.add_pdf_section("업계 비교 요약", highlight_text)
+
+        insights = self.data_loader.get_insights().get("industry_comparison", {})
+        insight_text = insights.get("summary", insights.get("content", "업계 비교 인사이트가 제공되지 않았습니다."))
+        self.add_pdf_section("업계 비교 인사이트", insight_text)
