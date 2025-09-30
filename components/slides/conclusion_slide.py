@@ -13,9 +13,34 @@ class ConclusionSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
         self._render_strengths_weaknesses()
         self._render_strategic_recommendations()
+
+        conclusion_data = self.company_info.get('conclusion', {})
+        strengths = conclusion_data.get('strengths', [])
+        if strengths:
+            strengths_text = "\n".join(
+                [f"- {item.get('title', '')}: {item.get('description', '')}" for item in strengths]
+            )
+            self.add_pdf_section("강점", strengths_text)
+
+        weaknesses = conclusion_data.get('weaknesses', [])
+        if weaknesses:
+            weaknesses_text = "\n".join(
+                [f"- {item.get('title', '')}: {item.get('description', '')}" for item in weaknesses]
+            )
+            self.add_pdf_section("개선 필요사항", weaknesses_text)
+
+        recommendations = conclusion_data.get('strategic_recommendations', [])
+        if recommendations:
+            recommendation_text = "\n".join(
+                [f"- {rec.get('title', '')}: {rec.get('description', '')}" for rec in recommendations]
+            )
+            self.add_pdf_section("전략적 제안", recommendation_text)
+
+        self.render_pdf_export_button()
    
     def _render_strengths_weaknesses(self):
         """강점과 개선 필요사항 렌더링"""

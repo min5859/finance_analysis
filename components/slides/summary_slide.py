@@ -14,9 +14,11 @@ class SummarySlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
         self._render_key_metrics()
         self._render_highlights()
+        self.render_pdf_export_button()
     
     def _render_key_metrics(self):
         """핵심 지표 렌더링"""
@@ -61,6 +63,8 @@ class SummarySlide(BaseSlide):
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;">
         """
 
+        table_rows = []
+
         # 수익성 지표
         metrics = [
             {
@@ -100,6 +104,11 @@ class SummarySlide(BaseSlide):
                     </div>
                 </div>
             """
+            table_rows.append([
+                metric['label'],
+                metric['value'],
+                metric['delta'] + " (전년비)"
+            ])
 
         # 안정성 지표
         metrics = [
@@ -140,6 +149,11 @@ class SummarySlide(BaseSlide):
                     </div>
                 </div>
             """
+            table_rows.append([
+                metric['label'],
+                metric['value'],
+                metric['delta'] + " (전년비)"
+            ])
 
         html_content += """
             </div>
@@ -147,6 +161,11 @@ class SummarySlide(BaseSlide):
         """
         
         components.html(html_content, height=400, scrolling=False)
+        self.add_table_section(
+            "핵심 재무 지표 (2024년)",
+            table_rows,
+            headers=["지표", "값", "전년 대비"]
+        )
 
     def _render_highlights(self):
         """주요 하이라이트 렌더링"""
@@ -154,6 +173,7 @@ class SummarySlide(BaseSlide):
         profitability_data = self.data_loader.get_profitability_data()
         stability_data = self.data_loader.get_stability_data()
         growth_rates = self.data_loader.get_growth_rates()
+        insights = self.data_loader.get_insights()
         
         # 주요 특징 계산
         revenue_growth = growth_rates['매출액성장률'].iloc[-1]
@@ -301,3 +321,13 @@ class SummarySlide(BaseSlide):
         """
         
         components.html(html_content, height=500, scrolling=False)
+        summary_message = insights.get('summary', {}).get('key_highlight', '요약 메시지가 제공되지 않았습니다.')
+        highlights_text = (
+            f"- 매출 성장률: {revenue_growth:.1f}%\n"
+            f"- 순이익 성장률: {profit_growth:.1f}%\n"
+            f"- 순이익률: {profit_margin:.1f}%\n"
+            f"- ROE: {roe:.1f}%\n"
+            f"- 부채비율: {debt_ratio:.1f}%\n"
+            f"- 주요 메시지: {summary_message}"
+        )
+        self.add_pdf_section("재무 하이라이트", highlights_text)

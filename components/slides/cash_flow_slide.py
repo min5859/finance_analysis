@@ -12,8 +12,9 @@ class CashFlowSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
-        
+
         # CSS 스타일 추가
         self._add_custom_styles()
         
@@ -28,6 +29,27 @@ class CashFlowSlide(BaseSlide):
         
         with col2:
             self._render_cash_flow_analysis()
+
+        cash_flow_data = self.data_loader.get_cash_flow_data()
+        if not cash_flow_data.empty:
+            self.add_table_section(
+                "현금흐름 추이",
+                cash_flow_data[["year", "영업활동", "투자활동", "재무활동", "FCF"]]
+            )
+            latest_year = cash_flow_data['year'].iloc[-1]
+            summary_text = (
+                f"- {latest_year}년 영업활동현금흐름: {cash_flow_data['영업활동'].iloc[-1]}억원\n"
+                f"- {latest_year}년 투자활동현금흐름: {cash_flow_data['투자활동'].iloc[-1]}억원\n"
+                f"- {latest_year}년 재무활동현금흐름: {cash_flow_data['재무활동'].iloc[-1]}억원\n"
+                f"- {latest_year}년 잉여현금흐름(FCF): {cash_flow_data['FCF'].iloc[-1]}억원"
+            )
+            self.add_pdf_section("현금흐름 핵심 요약", summary_text)
+
+        insights = self.data_loader.get_insights().get("cash_flow", {})
+        insight_text = insights.get("summary", "현금흐름 관련 인사이트가 제공되지 않았습니다.")
+        self.add_pdf_section("현금흐름 인사이트", insight_text)
+
+        self.render_pdf_export_button()
     
     def _add_custom_styles(self):
         """커스텀 CSS 스타일 추가"""

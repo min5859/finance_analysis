@@ -16,18 +16,25 @@ class ValuationSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
-        
+
         # CSS 스타일 추가
         self._add_custom_styles()
-        
+
         # 세션 상태에 가치 평가 결과가 있는지 확인
         if "valuation_data" not in st.session_state:
             # 가치 평가 시작 버튼
             self._render_valuation_request_form()
+            self.add_pdf_section(
+                "가치 평가 안내",
+                "AI 기반 가치 평가를 실행하려면 'AI 기업 가치 평가 시작' 버튼을 클릭하세요."
+            )
         else:
             # 가치 평가 결과 표시
             self._render_valuation_results()
+
+        self.render_pdf_export_button()
     
     def _add_custom_styles(self):
         """커스텀 CSS 스타일 추가"""
@@ -279,7 +286,19 @@ class ValuationSlide(BaseSlide):
         if valuation_data:
             # 가치 평가 결과 표시
             display_valuation_results(valuation_data)
-            
+
+            summary_lines = []
+            for key, value in valuation_data.items():
+                if isinstance(value, dict):
+                    summary_lines.append(f"{key}:")
+                    for sub_key, sub_value in value.items():
+                        summary_lines.append(f"  - {sub_key}: {sub_value}")
+                else:
+                    summary_lines.append(f"{key}: {value}")
+
+            if summary_lines:
+                self.add_pdf_section("가치 평가 결과 요약", "\n".join(summary_lines))
+
             # 결과 다운로드 버튼 - 고급 UI로 표시
             company_name = valuation_data.get("company", "company")
             

@@ -11,8 +11,9 @@ class WorkingCapitalSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
-        
+
         # CSS 스타일 추가
         self._add_custom_styles()
         
@@ -27,6 +28,27 @@ class WorkingCapitalSlide(BaseSlide):
         
         with col2:
             self._render_working_capital_analysis()
+
+        working_capital_data = self.data_loader.get_working_capital_data()
+        if not working_capital_data.empty:
+            self.add_table_section(
+                "운전자본 지표 추이",
+                working_capital_data[["year", "CCC", "DSO", "DIO", "DPO"]]
+            )
+            latest_year = working_capital_data['year'].iloc[-1]
+            summary_text = (
+                f"- {latest_year}년 현금전환주기: {working_capital_data['CCC'].iloc[-1]}일\n"
+                f"- {latest_year}년 매출채권회수기간: {working_capital_data['DSO'].iloc[-1]}일\n"
+                f"- {latest_year}년 재고자산보유기간: {working_capital_data['DIO'].iloc[-1]}일\n"
+                f"- {latest_year}년 매입채무결제기간: {working_capital_data['DPO'].iloc[-1]}일"
+            )
+            self.add_pdf_section("운전자본 핵심 요약", summary_text)
+
+        insights = self.data_loader.get_insights().get("working_capital", {})
+        insight_text = insights.get("summary", insights.get("content", "운전자본 관련 인사이트가 제공되지 않았습니다."))
+        self.add_pdf_section("운전자본 인사이트", insight_text)
+
+        self.render_pdf_export_button()
     
     def _add_custom_styles(self):
         """커스텀 CSS 스타일 추가"""

@@ -11,8 +11,9 @@ class BalanceSheetSlide(BaseSlide):
     
     def render(self):
         """슬라이드 렌더링"""
+        self.reset_pdf_sections()
         self.render_header()
-        
+
         # CSS 스타일 추가
         self._add_custom_styles()
         
@@ -27,6 +28,8 @@ class BalanceSheetSlide(BaseSlide):
         
         with col2:
             self._render_scale_and_structure()
+
+        self.render_pdf_export_button()
         
     def _add_custom_styles(self):
         """커스텀 CSS 스타일 추가"""
@@ -120,30 +123,52 @@ class BalanceSheetSlide(BaseSlide):
         balance_sheet_data = self.data_loader.get_balance_sheet_data()
         
         col1, col2, col3 = st.columns(3)
+        metrics_rows = []
         
         # 총자산 지표
         with col1:
             st.metric(
-                label="총자산 (2022→2024)", 
+                label="총자산 (2022→2024)",
                 value=f"{balance_sheet_data['총자산'].iloc[-1]}억원",
                 delta=f"{((balance_sheet_data['총자산'].iloc[-1] / balance_sheet_data['총자산'].iloc[0]) - 1) * 100:.1f}%"
             )
+            metrics_rows.append([
+                "총자산",
+                f"{balance_sheet_data['총자산'].iloc[0]} → {balance_sheet_data['총자산'].iloc[-1]}억원",
+                f"{((balance_sheet_data['총자산'].iloc[-1] / balance_sheet_data['총자산'].iloc[0]) - 1) * 100:.1f}%"
+            ])
         
         # 총부채 지표
         with col2:
             st.metric(
-                label="총부채 (2022→2024)", 
+                label="총부채 (2022→2024)",
                 value=f"{balance_sheet_data['총부채'].iloc[-1]}억원",
                 delta=f"{((balance_sheet_data['총부채'].iloc[-1] / balance_sheet_data['총부채'].iloc[0]) - 1) * 100:.1f}%"
             )
+            metrics_rows.append([
+                "총부채",
+                f"{balance_sheet_data['총부채'].iloc[0]} → {balance_sheet_data['총부채'].iloc[-1]}억원",
+                f"{((balance_sheet_data['총부채'].iloc[-1] / balance_sheet_data['총부채'].iloc[0]) - 1) * 100:.1f}%"
+            ])
         
         # 자본총계 지표
         with col3:
             st.metric(
-                label="자본총계 (2022→2024)", 
+                label="자본총계 (2022→2024)",
                 value=f"{balance_sheet_data['자본총계'].iloc[-1]}억원",
                 delta=f"{((balance_sheet_data['자본총계'].iloc[-1] / balance_sheet_data['자본총계'].iloc[0]) - 1) * 100:.1f}%"
             )
+            metrics_rows.append([
+                "자본총계",
+                f"{balance_sheet_data['자본총계'].iloc[0]} → {balance_sheet_data['자본총계'].iloc[-1]}억원",
+                f"{((balance_sheet_data['자본총계'].iloc[-1] / balance_sheet_data['자본총계'].iloc[0]) - 1) * 100:.1f}%"
+            ])
+
+        self.add_table_section(
+            "재무상태표 핵심 지표",
+            metrics_rows,
+            headers=["항목", "금액 추이", "증감률"]
+        )
     
     def _render_balance_sheet_chart(self):
         """재무상태표 차트 렌더링"""
@@ -219,6 +244,10 @@ class BalanceSheetSlide(BaseSlide):
             },
             use_datalabels=True
         )
+        self.add_table_section(
+            "재무상태표 추이",
+            balance_sheet_data[["year", "총자산", "총부채", "자본총계"]]
+        )
     
     def _render_scale_and_structure(self):
         """규모 및 구조 렌더링 - 펜시한 카드 형태로, 직접 컨테이너 사용"""
@@ -235,6 +264,7 @@ class BalanceSheetSlide(BaseSlide):
                 </div>
             </div>
             """, unsafe_allow_html=True)
+            self.add_pdf_section("성장투자·배당 확대 여건", insight_msg.get("content2", ""))
         else:
             st.markdown("""
             <div style="background-color: #fef9c3; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid #f59e0b;">
@@ -277,6 +307,13 @@ class BalanceSheetSlide(BaseSlide):
             </div>
         </div>
         """, unsafe_allow_html=True)
+        scale_summary = (
+            f"- 총자산: {start_asset} → {end_asset}억 ({asset_growth:+.1f}%)\n"
+            f"- 자본총계: {start_equity} → {end_equity}억 ({equity_growth:+.1f}%)\n"
+            f"- 총부채 증감률: {debt_growth:+.1f}%\n"
+            f"- 부채비율: {start_debt_ratio:.0f}% → {end_debt_ratio:.0f}%"
+        )
+        self.add_pdf_section("Scale and Structure 요약", scale_summary)
     
     def _render_insight(self):
         """인사이트 렌더링 - 펜시한 카드 형태로"""
@@ -291,6 +328,8 @@ class BalanceSheetSlide(BaseSlide):
                 <div style="font-size: 0.95rem; color: #334155; line-height: 1.6;">{insight_data["content1"]}</div>
             </div>
             """, unsafe_allow_html=True)
+            insight_text = f"{insight_data.get('title', '')}\n{insight_data.get('content1', '')}"
+            self.add_pdf_section("재무상태표 인사이트", insight_text)
         else:
             st.markdown("""
             <div style="background: #f0f9ff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 20px; border-left: 5px solid #f59e0b;">
